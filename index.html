@@ -18,20 +18,21 @@
 .reader{position:relative;font-family:Georgia,"Times New Roman",serif;font-size:19px;line-height:1.85;overflow-wrap:anywhere;max-height:62vh;overflow:auto;padding:18px 5px 30px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}.reader .empty{color:var(--muted);text-align:center;padding:65px 10px;font-family:system-ui,sans-serif;font-size:14px}.reader p{margin:0 0 1.05em}
 .seg{border-radius:4px;cursor:pointer;transition:background .15s;-webkit-box-decoration-break:clone;box-decoration-break:clone}.seg:hover{background:#ffffff0d}.seg.active{background:#6c552d99}
 .controls{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:13px 0}.controls button{padding:10px 6px;font-size:13px}.playbar{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:7px}.playbar button{padding:11px 7px}.range{display:grid;grid-template-columns:1fr 43px;gap:8px;align-items:center}.range input{padding:0;accent-color:var(--gold)}output{font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}.library{display:flex;flex-direction:column;gap:7px;max-height:210px;overflow:auto}.book{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px;background:#12151b;border:1px solid var(--line);border-radius:10px}.bookname{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}.book button{font-size:11px;padding:5px 8px}.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:3px 8px;color:var(--muted);font-size:10px}.voice-note{font-size:11px;color:var(--muted);margin-top:6px}.progress{height:4px;background:#303541;border-radius:10px;overflow:hidden;margin-top:8px}.progress>div{height:100%;width:0;background:var(--gold);transition:width .2s}.footer{text-align:center;margin-top:17px}.hidden{display:none!important}
-.head-actions{display:flex;gap:8px;flex:none}.head-actions button{padding:9px 11px;font-size:13px}
-.fsbar{display:none}.fsstat{display:none;font-size:11px;color:var(--muted);text-align:center;margin-top:6px;min-height:16px}
+.reader-head>div:first-child{flex:1 1 0;min-width:0}.head-actions{display:flex;gap:8px;flex:none}.head-actions button{padding:9px 11px;font-size:13px}
+.fsbar,.fsbar2{display:none}.fsstat{display:none;font-size:11px;color:var(--muted);text-align:center;margin-top:6px;min-height:16px}
 .panel.fs{display:flex;flex-direction:column;border-radius:0;border:0;background:var(--bg);padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
 .panel.pfs{position:fixed;inset:0;z-index:100;overflow:hidden}body.noscroll{overflow:hidden}
 .fs .reader{flex:1 1 auto;min-height:0;max-height:none;padding-top:10px}.fs .controls,.fs .fs-hide,.fs .source{display:none}
-.fs .chapter-title{font-size:16px;margin:0}.fs .reader-head{align-items:center}
+.fs .chapter-title{font-size:16px;margin:0}.fs .reader-head{flex-direction:row;align-items:center}.fs .head-actions{display:flex}.fs #saveBtn{display:none}
 .fs .fsbar{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:10px}.fs .fsstat{display:block}
+.fs .fsbar2{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:7px;margin-top:7px}.fsbar2 button{padding:11px 4px;font-size:13px}.fsbar2 button.on{border-color:var(--gold);color:var(--gold2)}
 .fsbar button{padding:13px 4px;font-size:16px}.fsbar #fsPlay{background:var(--gold);border-color:var(--gold);color:#171717;font-weight:750}
 .novel{background:#12151b;border:1px solid var(--line);border-radius:10px;padding:9px;display:flex;flex-direction:column;gap:6px}
 .novel .nt{font-size:13px;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.novel .ns{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .novel .na{display:flex;gap:6px;flex-wrap:wrap}.novel .na button,.novel .na a{font-size:11px;padding:6px 9px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text);text-decoration:none;cursor:pointer}
 .novel .na button:first-child{background:var(--gold);border-color:var(--gold);color:#171717;font-weight:700}
 .diag{margin-top:12px;font-size:12px;color:var(--muted)}.diag summary{cursor:pointer;padding:4px 0}.diag pre{max-height:170px;overflow:auto;white-space:pre-wrap;background:#12151b;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:11px;margin:8px 0}
-@media(max-width:780px){.layout{grid-template-columns:1fr}.reader{max-height:52vh;font-size:18px}.panel{padding:13px}.chapter-title{font-size:20px}.pill{display:none}}
+@media(max-width:780px){.reader-head{flex-direction:column;align-items:stretch}.head-actions{display:grid;grid-template-columns:1fr 1fr}.head-actions button{padding:11px}.layout{grid-template-columns:1fr}.reader{max-height:52vh;font-size:18px}.panel{padding:13px}.chapter-title{font-size:20px}.pill{display:none}}
 @media(prefers-reduced-motion:reduce){.reader{scroll-behavior:auto}.seg,.progress>div{transition:none}}
 </style>
 </head>
@@ -94,6 +95,7 @@
 <div class="controls"><button id="fontDown">A− Smaller</button><button id="fontUp">A+ Larger</button><button id="prevBtn" disabled>← Previous</button><button id="nextBtn" disabled>Next →</button></div>
 <div id="reader" class="reader"><div class="empty">Paste a chapter, import a text file, or paste a chapter URL to begin.</div></div>
 <div class="fsbar"><button id="fsPrev" aria-label="Previous section">⏮</button><button id="fsPlay" aria-label="Play or pause">▶</button><button id="fsNext" aria-label="Next section">⏭</button><button id="fsDown" aria-label="Smaller text">A−</button><button id="fsUp" aria-label="Larger text">A+</button><button id="fsExit" aria-label="Exit fullscreen">✕</button></div>
+<div class="fsbar2"><button id="fsPrevCh">← Chapter</button><button id="fsAuto" aria-pressed="false">Auto-next: Off</button><button id="fsNextCh">Chapter →</button></div>
 <div class="fsstat" id="fsStat"></div>
 <div class="fs-hide">
 <div class="divider"></div>
@@ -132,7 +134,7 @@ function dbg(msg){
   if(dbgLines.length>150)dbgLines.shift();
   const el=document.getElementById("dbg");if(el){el.textContent=dbgLines.join("\n");el.scrollTop=el.scrollHeight;}
 }
-const fetchStatus = (msg,kind="") => {$("fetchStatus").textContent=msg;$("fetchStatus").className="status "+kind;};
+const fetchStatus = (msg,kind="") => {$("fetchStatus").textContent=msg;$("fetchStatus").className="status "+kind;$("fsStat").textContent=msg;};
 const errMsg = e => e?.name==="AbortError" ? "timed out" : (e?.message||String(e));
 const store = {
   get(k,d=null){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch{return d;}},
@@ -225,6 +227,12 @@ function findNextInMarkdown(md){
   while((m=re.exec(md))){if(/\bnext\b|^[\s→›»>]+$/i.test(m[1]))return m[2];}
   return "";
 }
+function cleanTitle(t){
+  const parts=(t||"").replace(/\s+/g," ").trim().split(/\s+[-–—|]\s+/);
+  const siteish=s=>s.length<=35&&!/\bchapter\b|\bch\.?\s*\d/i.test(s)&&(/^free\b/i.test(s)||/\b(web\s?novels?|light novels?|novels?)$/i.test(s)||/\.(com|net|org|io|co)\b/i.test(s)||/\bread\b.*\bonline\b/i.test(s));
+  while(parts.length>1&&siteish(parts[parts.length-1]))parts.pop();
+  return parts.join(" - ");
+}
 function parseReader(md,url){
   const h1=(md.match(/^#\s+(.+)$/m)||[])[1];
   const t=(md.match(/^Title:\s*(.+)$/m)||[])[1];
@@ -235,7 +243,7 @@ function parseReader(md,url){
     .replace(/(\*\*|__|~~)(.+?)\1/g,"$2").replace(/(^|[\s(])[*_]([^*_\n]+)[*_](?=[\s).,!?:;]|$)/g,"$1$2").replace(/`/g,"");
   b=b.split("\n").filter(l=>!NAV.test(l.trim())).join("\n");
   let host="";try{host=new URL(url).hostname;}catch{}
-  return {title:(h1||t||host).trim(),body:clean(b),next};
+  return {title:cleanTitle(h1||t||host),body:clean(b),next};
 }
 function findNextInDoc(doc,url){
   const abs=h=>{try{const u=new URL(h,url).href;return /^https?:/.test(u)?u:"";}catch{return "";}};
@@ -249,7 +257,7 @@ function findNextInDoc(doc,url){
 }
 function extractFromHTML(html,url){
   const doc=new DOMParser().parseFromString(html,"text/html");
-  const title=(doc.querySelector("h1")?.textContent||doc.title||"").replace(/\s+/g," ").trim();
+  const title=cleanTitle(doc.querySelector("h1")?.textContent||doc.title||"");
   const next=findNextInDoc(doc,url);
   doc.querySelectorAll("script,style,noscript,nav,header,footer,aside,form,button,svg,iframe,.ads,.ad,.sidebar,.comments,#comments,[class*='advert']").forEach(x=>x.remove());
   const len=el=>(el.textContent||"").trim().length;
@@ -581,7 +589,7 @@ function applySettings(){
     el.value=s[k];
   }
   if(s.font>=14&&s.font<=30)state.font=s.font;
-  $("autoNext").checked=!!s.auto;
+  $("autoNext").checked=!!s.auto;syncAuto();
   $("keepAwake").checked=!!s.awake;
   $("reader").style.fontSize=state.font+"px";
   $("rateOut").textContent=Number($("rate").value).toFixed(2)+"×";
@@ -726,6 +734,15 @@ $("fsPrev").onclick=()=>skip(-1);
 $("fsNext").onclick=()=>skip(1);
 $("fsDown").onclick=()=>changeFont(-1);
 $("fsUp").onclick=()=>changeFont(1);
+function syncAuto(){
+  const on=$("autoNext").checked;
+  $("fsAuto").textContent="Auto-next: "+(on?"On":"Off");$("fsAuto").classList.toggle("on",on);$("fsAuto").setAttribute("aria-pressed",String(on));
+}
+$("fsAuto").onclick=()=>{$("autoNext").checked=!$("autoNext").checked;syncAuto();saveSettings();};
+$("autoNext").addEventListener("change",syncAuto);
+// Chapter buttons keep playing if audio was already running.
+$("fsNextCh").onclick=()=>goNext(state.playing);
+$("fsPrevCh").onclick=()=>{if(state.pos>0)openHistory(state.pos-1,state.playing);else fetchStatus("This is the first chapter in your history.","error");};
 
 /* ---------- Novel library (links to novels on any site) ---------- */
 const NV_KEY="pw-novels";
