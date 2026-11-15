@@ -36,6 +36,7 @@
 <div class="divider"></div>
 <div class="tabs"><button id="tabPaste" class="active">Paste text</button><button id="tabFile">Import .txt</button></div>
 <div id="pastePane">
+<button id="pasteClip" class="primary" style="width:100%;margin-bottom:12px">Paste from clipboard &amp; load</button>
 <div class="field"><label for="manualTitle">CHAPTER TITLE</label><input id="manualTitle" placeholder="Novel — Chapter 1"></div>
 <div class="field"><label for="manualText">CHAPTER TEXT</label><textarea id="manualText" rows="6" placeholder="Paste chapter text here…"></textarea></div>
 <button id="loadText" class="primary" style="width:100%">Load chapter</button>
@@ -268,7 +269,7 @@ async function fetchChapter(url,{autoplay=false}={}){
       }catch(e){errors.push("proxy: "+errMsg(e));}
     }
     if(!result){
-      fetchStatus("Could not fetch this chapter. The site may block extraction, require login, or use anti-bot protection. Paste the chapter text instead. Details: "+errors.join(" · "),"error");
+      fetchStatus("This site blocks automatic fetching (bot protection or login). Open the chapter in your browser, select and copy the text, then tap Paste from clipboard below. You can also select the text and use Share → PageWhisper. Details: "+errors.join(" · "),"error");
       return;
     }
     const guessed=!result.next;
@@ -478,9 +479,24 @@ $("fetchNext").onclick=()=>fetchChapter($("nextUrl").value.trim());
 $("nextUrl").addEventListener("keydown",e=>{if(e.key==="Enter")$("fetchNext").click();});
 $("nextBtn").onclick=()=>goNext(false);
 $("prevBtn").onclick=()=>{if(state.pos>0)openHistory(state.pos-1);};
-$("loadText").onclick=()=>{
-  const t=$("manualText").value,first=clean(t).split("\n")[0]||"";
-  setLoaded($("manualTitle").value.trim()||(first&&first.length<=80?first:"Pasted chapter"),t);
+function loadPasted(t,note){
+  const clip=clean(t||"");
+  if(clip.length<50){fetchStatus("The text is empty or too short. Copy the chapter text first.","error");return;}
+  const u=$("url").value.trim();let url="";
+  try{if(/^https?:$/.test(new URL(u).protocol))url=u;}catch{}
+  const first=clip.split("\n")[0]||"";
+  setLoaded($("manualTitle").value.trim()||(first.length<=80?first:"Pasted chapter"),clip,url,url?{next:guessNext(url)}:{});
+  if(note)fetchStatus(note,"good");
+}
+$("loadText").onclick=()=>loadPasted($("manualText").value);
+$("pasteClip").onclick=async()=>{
+  try{
+    const t=await navigator.clipboard.readText();
+    $("manualText").value=t;
+    loadPasted(t,"Loaded from clipboard. Tap any sentence to start reading from there.");
+  }catch{
+    fetchStatus("Clipboard access was blocked. Long-press the text box, paste, then tap Load chapter.","error");
+  }
 };
 $("fileInput").onchange=async e=>{const f=e.target.files?.[0];if(f)setLoaded(f.name.replace(/\.txt$/i,""),await f.text());};
 $("tabPaste").onclick=()=>{$("pastePane").classList.remove("hidden");$("filePane").classList.add("hidden");$("tabPaste").classList.add("active");$("tabFile").classList.remove("active");};
@@ -538,14 +554,18 @@ ui("idle");
 /* ---------- PWA: service worker + "Share to PageWhisper" ---------- */
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(e=>console.warn("Service worker not registered",e)));}
 {
-  // Android share sheet: share a chapter link from Chrome to the installed app and it is fetched right away.
+  // Android share sheet: share a chapter link OR selected chapter text from Chrome to the installed app.
   const q=new URLSearchParams(location.search);
-  const shared=[q.get("url"),q.get("text"),q.get("title")].filter(Boolean).join(" ");
-  const link=(shared.match(/https?:\/\/[^\s]+/)||[])[0];
-  if(link){
+  const sTitle=(q.get("title")||"").trim(),sText=q.get("text")||"",sUrl=q.get("url")||"";
+  const link=((sUrl+" "+sText).match(/https?:\/\/[^\s]+/)||[])[0];
+  const body=sText.replace(/https?:\/\/[^\s]+/g,"").trim();
+  if(link||body){
     history.replaceState(null,"",location.pathname);
-    $("url").value=link;
-    fetchChapter(link);
+    if(body.length>=300){
+      const first=body.split("\n")[0].trim();
+      setLoaded(sTitle||(first.length<=80?first:"Shared chapter"),body,link||"",{next:link?guessNext(link):""});
+      fetchStatus("Loaded shared text.","good");
+    }else if(link){$("url").value=link;fetchChapter(link);}
   }
 }
 </script>
