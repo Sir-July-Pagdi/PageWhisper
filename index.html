@@ -11,8 +11,13 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>PageWhisper — Kokoro Novel Reader</title>
+<script>try{var r=JSON.parse(localStorage.getItem("pw-reading")||"{}");if(r.theme)document.documentElement.dataset.theme=r.theme;if(r.hlStyle)document.documentElement.dataset.hlstyle=r.hlStyle;}catch(e){}</script>
 <style>
-:root{color-scheme:dark;--bg:#0e0e16;--panel:#171722;--panel2:#212131;--line:#2e2e45;--text:#ecebf5;--muted:#a1a0b8;--accent:#8b5cf6;--accent2:#c4b5fd;--red:#ff9a9a;--green:#9ed6b0}
+:root{color-scheme:dark;--bg:#0e0e16;--panel:#171722;--panel2:#212131;--line:#2e2e45;--text:#ecebf5;--muted:#a1a0b8;--accent:#8b5cf6;--accent-rgb:139,92,246;--accent2:#c4b5fd;--red:#ff9a9a;--green:#9ed6b0;--input:#0f0f19;--bar:#2a2a3d;--toast:#2a2a40;--hover:rgba(255,255,255,.05);
+--r-font:Georgia,"Noto Serif","Times New Roman",serif;--r-size:19px;--r-line:1.8;--r-para:1.05em;--r-pad:4px;--r-align:left;--r-weight:400;--r-hyph:manual;--r-ls:0em;--hl-rgb:139,92,246}
+:root[data-theme=amoled]{--bg:#000;--panel:#0b0b10;--panel2:#16161f;--line:#25253a;--text:#e8e8f0;--muted:#9a99b0;--input:#000;--bar:#222233;--toast:#16161f}
+:root[data-theme=sepia]{color-scheme:light;--bg:#f4ecd8;--panel:#ebe0c6;--panel2:#e2d5b5;--line:#cdbd96;--text:#4a3b27;--muted:#7a6a4f;--accent:#9a5b2e;--accent-rgb:154,91,46;--accent2:#7a4a1b;--red:#a14a3a;--green:#4f7a4a;--input:#f8f1df;--bar:#d9ccaa;--toast:#e2d5b5;--hover:rgba(0,0,0,.05)}
+:root[data-theme=light]{color-scheme:light;--bg:#fafafa;--panel:#ffffff;--panel2:#eef0f4;--line:#d8dbe3;--text:#1d1d27;--muted:#626578;--accent:#6d3fe0;--accent-rgb:109,63,224;--accent2:#5a2fc4;--red:#b3392f;--green:#2f7d4f;--input:#f5f6f9;--bar:#d9dce5;--toast:#ffffff;--hover:rgba(0,0,0,.05)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0;overflow:hidden}
 body{background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overscroll-behavior:none}
@@ -21,7 +26,7 @@ button{border:1px solid var(--line);background:var(--panel2);border-radius:12px;
 button:active{filter:brightness(1.25)}button:disabled{opacity:.4;cursor:not-allowed}
 button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
 button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
-input,textarea,select{width:100%;background:#0f0f19;border:1px solid var(--line);border-radius:12px;padding:11px 12px;min-height:46px;outline:none}
+input,textarea,select{width:100%;background:var(--input);border:1px solid var(--line);border-radius:12px;padding:11px 12px;min-height:46px;outline:none}
 input:focus,textarea:focus,select:focus{border-color:var(--accent)}
 input[type=range]{padding:0;min-height:36px;accent-color:var(--accent);background:none;border:0}
 label{display:block;color:var(--muted);font-size:11px;letter-spacing:.07em;margin:0 0 6px;font-weight:700}
@@ -45,16 +50,18 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 .chapter-title{font-size:18px;line-height:1.25;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .source{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .icon{width:46px;padding:0;font-size:20px;flex:none}
-.toolbar{flex:none;display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:8px}
+.toolbar{flex:none;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px}
 .toolbar button{padding:0 2px;font-size:13px;min-height:40px}
-.toolbar button.on{background:rgba(139,92,246,.22);border-color:var(--accent);color:var(--accent2)}
-.reader{flex:1 1 auto;min-height:0;overflow:auto;position:relative;font-family:Georgia,"Times New Roman",serif;font-size:19px;line-height:1.8;padding:8px 4px 28px;scroll-behavior:smooth;overflow-wrap:anywhere;-webkit-overflow-scrolling:touch}
-.reader p{margin:0 0 1.05em}
-.reader .empty{font-family:system-ui,sans-serif;font-size:14px;line-height:1.5;color:var(--muted);text-align:center;padding:48px 14px}.reader .empty button{margin-top:16px}
-.seg{border-radius:4px;cursor:pointer;transition:background .15s;-webkit-box-decoration-break:clone;box-decoration-break:clone}.seg:hover{background:#ffffff0d}.seg.active{background:rgba(139,92,246,.32)}
+.toolbar button.on{background:rgba(var(--accent-rgb),.22);border-color:var(--accent);color:var(--accent2)}
+.reader{flex:1 1 auto;min-height:0;overflow:auto;position:relative;font-family:var(--r-font);font-size:var(--r-size);line-height:var(--r-line);text-align:var(--r-align);font-weight:var(--r-weight);hyphens:var(--r-hyph);-webkit-hyphens:var(--r-hyph);letter-spacing:var(--r-ls);padding:8px var(--r-pad) 28px;scroll-behavior:smooth;overflow-wrap:break-word;-webkit-overflow-scrolling:touch}
+.reader p{margin:0 0 var(--r-para)}
+.reader .empty{font-family:system-ui,sans-serif;font-size:14px;line-height:1.5;font-weight:400;letter-spacing:0;text-align:center;color:var(--muted);text-align:center;padding:48px 14px}.reader .empty button{margin-top:16px}
+.seg{border-radius:4px;cursor:pointer;transition:background .15s;-webkit-box-decoration-break:clone;box-decoration-break:clone}.seg:hover{background:var(--hover)}.seg.active{background:rgba(var(--hl-rgb),.34)}
+:root[data-hlstyle=underline] .seg.active{background:none;text-decoration:underline;text-decoration-color:rgb(var(--hl-rgb));text-decoration-thickness:3px;text-underline-offset:6px}
+:root[data-hlstyle=outline] .seg.active{background:rgba(var(--hl-rgb),.1);box-shadow:0 0 0 2px rgb(var(--hl-rgb));border-radius:5px}
 
 .player{flex:none;background:var(--panel);border-top:1px solid var(--line);padding:0 12px 8px}
-.progress{height:3px;background:#2a2a3d;margin:0 -12px}.progress>div{height:100%;width:0;background:var(--accent);transition:width .2s}
+.progress{height:3px;background:var(--bar);margin:0 -12px}.progress>div{height:100%;width:0;background:var(--accent);transition:width .2s}
 .mpstatus{font-size:12px;color:var(--muted);text-align:center;padding:6px 4px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:28px}.mpstatus.error{color:var(--red)}.mpstatus.good{color:var(--green)}
 .mpbtns{display:grid;grid-template-columns:1fr 1.7fr 1fr 1fr;gap:8px}.mpbtns button{min-height:50px;font-size:19px}
 .tabbar{flex:none;display:grid;grid-template-columns:repeat(4,1fr);background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
@@ -68,17 +75,27 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 .smallgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .chip{min-height:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;padding:6px 4px;line-height:1.2;text-align:center}.chip .e{font-size:23px;line-height:1}
-.chip.on{background:rgba(139,92,246,.22);border-color:var(--accent);color:var(--accent2)}
+.chip.on{background:rgba(var(--accent-rgb),.22);border-color:var(--accent);color:var(--accent2)}
 .library{display:flex;flex-direction:column;gap:8px}
-.book{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px;background:#0f0f19;border:1px solid var(--line);border-radius:12px}
+.book{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px;background:var(--input);border:1px solid var(--line);border-radius:12px}
 .bookname{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}.book button{font-size:12px;padding:6px 10px;min-height:38px}
-.novel{background:#0f0f19;border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.novel{background:var(--input);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
 .novel .nt{font-size:14px;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.novel .ns{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .novel .na{display:flex;gap:6px;flex-wrap:wrap}.novel .na button,.novel .na a{font-size:12px;padding:0 11px;min-height:38px;display:inline-flex;align-items:center;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text);text-decoration:none;cursor:pointer}
 .novel .na button:first-child{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
-.diag summary{cursor:pointer;padding:6px 0;font-size:13px;color:var(--muted)}.diag pre{max-height:200px;overflow:auto;white-space:pre-wrap;background:#0f0f19;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:11px;margin:8px 0}
-.toast{position:fixed;left:50%;bottom:calc(168px + env(safe-area-inset-bottom));transform:translate(-50%,16px);max-width:min(92vw,560px);background:#2a2a40;border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50}
-.toast.show{opacity:1;transform:translate(-50%,0)}.toast.error{border-color:#7a3a3a;color:var(--red)}
+.diag summary{cursor:pointer;padding:6px 0;font-size:13px;color:var(--muted)}.diag pre{max-height:200px;overflow:auto;white-space:pre-wrap;background:var(--input);border:1px solid var(--line);border-radius:10px;padding:8px;font-size:11px;margin:8px 0}
+.toast{position:fixed;left:50%;bottom:calc(168px + env(safe-area-inset-bottom));transform:translate(-50%,16px);max-width:min(92vw,560px);background:var(--toast);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50}
+.toast.show{opacity:1;transform:translate(-50%,0)}.toast.error{border-color:var(--red);color:var(--red)}
+.app{position:relative}
+.sheetwrap{position:absolute;inset:0;z-index:60;display:none}.sheetwrap.open{display:block}.sheetback{position:absolute;inset:0}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:64%;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:18px 18px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.35);padding-bottom:env(safe-area-inset-bottom)}
+.sheethead{flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px 6px}.sheethead h2{margin:0;font-size:15px}.sheethead button{min-height:38px;padding:0 14px;font-size:13px}
+.sheetbody{overflow-y:auto;overscroll-behavior:contain;padding:6px 14px 18px}.rs-row{margin-bottom:16px}
+.segbtns{display:flex;gap:6px}.segbtns button{flex:1;min-height:42px;font-size:13px;padding:0 4px}
+.segbtns button.on,.fontgrid button.on{background:rgba(var(--accent-rgb),.22);border-color:var(--accent);color:var(--accent2)}
+.fontgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fontgrid button{min-height:54px;text-align:left;padding:6px 10px;line-height:1.25}.fontgrid small{display:block;color:var(--muted);font-size:10px;font-family:system-ui,sans-serif;margin-top:1px}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}.swatch{width:62px;height:54px;border-radius:14px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;padding:0;min-height:0}.swatch.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.dots{display:flex;gap:12px;flex-wrap:wrap}.dot{width:40px;height:40px;border-radius:50%;padding:0;min-height:0;border:2px solid var(--line)}.dot.on{box-shadow:0 0 0 3px var(--accent)}
 @media(min-width:761px){.app{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
 @media(prefers-reduced-motion:reduce){.reader{scroll-behavior:auto}.seg,.progress>div,.toast{transition:none}}
 </style>
@@ -91,8 +108,7 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <section id="view-read" class="view active">
 <div class="reader-head"><div class="titlebox"><h1 class="chapter-title" id="chapterTitle">Your reading space</h1><div class="source" id="chapterSource">Load a chapter to begin</div></div><button id="saveBtn" class="icon" aria-label="Save chapter" disabled>☆</button></div>
 <div class="toolbar">
-<button id="fontDown" aria-label="Smaller text">A−</button>
-<button id="fontUp" aria-label="Larger text">A+</button>
+<button id="aaBtn" aria-label="Reading style" aria-haspopup="dialog">Aa</button>
 <button id="prevBtn" aria-label="Previous chapter" disabled>‹ Ch</button>
 <button id="nextBtn" aria-label="Next chapter" disabled>Ch ›</button>
 <button id="autoBtn" aria-label="Auto-play next chapter" aria-pressed="false">Auto</button>
@@ -208,6 +224,26 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <button data-view="library"><svg viewBox="0 0 24 24"><path d="M5 4v16M10 4v16M15 5.5l4 14.5"/></svg>Library</button>
 <button data-view="voice"><svg viewBox="0 0 24 24"><path d="M4 6h8M17 6h3M4 12h3M12 12h8M4 18h10M19 18h1"/><circle cx="14.5" cy="6" r="2"/><circle cx="9.5" cy="12" r="2"/><circle cx="16.5" cy="18" r="2"/></svg>Voice</button>
 </nav>
+
+<div id="sheetWrap" class="sheetwrap" aria-hidden="true">
+<div id="sheetBack" class="sheetback"></div>
+<div class="sheet" role="dialog" aria-label="Reading style">
+<div class="sheethead"><h2>Reading style</h2><div style="display:flex;gap:8px"><button id="rsReset">Reset</button><button id="rsDone" class="primary">Done</button></div></div>
+<div class="sheetbody">
+<div class="rs-row"><label>FONT</label><div class="fontgrid" id="rsFonts"></div><div class="hint" id="rsFontStatus"></div></div>
+<div class="rs-row"><label for="rsSize">TEXT SIZE</label><div class="range"><input id="rsSize" type="range" min="14" max="34" step="1"><output id="rsSizeOut"></output></div></div>
+<div class="rs-row"><label for="rsLine">LINE SPACING</label><div class="range"><input id="rsLine" type="range" min="1.3" max="2.4" step=".05"><output id="rsLineOut"></output></div></div>
+<div class="rs-row"><label for="rsPara">PARAGRAPH SPACING</label><div class="range"><input id="rsPara" type="range" min=".2" max="2" step=".1"><output id="rsParaOut"></output></div></div>
+<div class="rs-row"><label for="rsPad">SIDE MARGINS</label><div class="range"><input id="rsPad" type="range" min="0" max="40" step="2"><output id="rsPadOut"></output></div></div>
+<div class="rs-row"><label for="rsLs">LETTER SPACING</label><div class="range"><input id="rsLs" type="range" min="0" max=".12" step=".01"><output id="rsLsOut"></output></div></div>
+<div class="rs-row"><label>ALIGNMENT</label><div class="segbtns"><button data-align="left">Left</button><button data-align="justify">Justify</button><button data-align="center">Center</button></div></div>
+<div class="rs-row"><label>TEXT WEIGHT</label><div class="segbtns"><button data-weight="400">Regular</button><button data-weight="700">Bold</button></div><label class="check"><input type="checkbox" id="rsHyph"> Hyphenate long words</label></div>
+<div class="rs-row"><label>THEME</label><div class="swatches" id="rsThemes"></div></div>
+<div class="rs-row"><label>HIGHLIGHT COLOR</label><div class="dots" id="rsDots"></div></div>
+<div class="rs-row"><label>HIGHLIGHT STYLE</label><div class="segbtns"><button data-hlstyle="fill">Fill</button><button data-hlstyle="underline">Underline</button><button data-hlstyle="outline">Outline</button></div></div>
+</div>
+</div>
+</div>
 </div>
 <audio id="audio" class="hidden" playsinline preload="auto"></audio>
 <audio id="ambient" class="hidden" loop playsinline preload="auto"></audio>
@@ -225,7 +261,7 @@ const KOKORO_SOURCES = [
 const state = {
   tts:null, loadingP:null, device:"", forceWasm:false, noWorker:false, reload:false, view:"read", advancing:false,
   playing:false, paused:false, inClip:false, runId:0, endCur:null, wake:null, unlockP:null, chain:Promise.resolve(),
-  title:"", text:"", url:"", chunks:[], index:0, activeEl:null, font:19,
+  title:"", text:"", url:"", chunks:[], index:0, activeEl:null,
   history:[], pos:-1
 };
 const audio = $("audio");
@@ -694,16 +730,14 @@ function applySettings(){
     if(el.tagName==="SELECT"&&![...el.options].some(o=>o.value===String(s[k])))continue;
     el.value=s[k];
   }
-  if(s.font>=14&&s.font<=30)state.font=s.font;
   $("autoNext").checked=!!s.auto;syncAuto();
   $("keepAwake").checked=!!s.awake;
   $("ambOnly").checked=s.ambOnly!==false;amb.key=AMB_KEYS.includes(s.amb)?s.amb:"off";
-  $("reader").style.fontSize=state.font+"px";
   $("rateOut").textContent=Number($("rate").value).toFixed(2)+"×";
   $("ambOut").textContent=Math.round($("ambVol").value*100)+"%";
 }
 function saveSettings(){
-  const s={font:state.font,auto:$("autoNext").checked,awake:$("keepAwake").checked,ambOnly:$("ambOnly").checked,amb:amb.key};
+  const s={auto:$("autoNext").checked,awake:$("keepAwake").checked,ambOnly:$("ambOnly").checked,amb:amb.key};
   for(const k of SETTINGS)s[k]=$(k).value;
   store.set("pw-settings",s);
 }
@@ -757,9 +791,6 @@ $("chunk").onchange=()=>{if(state.text){stopPlayback();buildChunks();state.index
 $("engine").addEventListener("change",()=>{state.tts=null;state.forceWasm=false;state.reload=true;});
 for(const k of SETTINGS)$(k).addEventListener("change",saveSettings);
 $("autoNext").addEventListener("change",saveSettings);
-const changeFont=d=>{state.font=Math.min(30,Math.max(14,state.font+d));$("reader").style.fontSize=state.font+"px";saveSettings();};
-$("fontDown").onclick=()=>changeFont(-1);
-$("fontUp").onclick=()=>changeFont(1);
 $("saveBtn").onclick=()=>{
   if(!state.text)return;
   const a=getLibrary();const item={title:state.title,text:state.text,url:state.url,next:$("nextUrl").value};
@@ -809,6 +840,7 @@ window.addEventListener("beforeunload",()=>audio.pause());
 /* ---------- Views, fullscreen and transport controls ---------- */
 const appEl=$("app");
 function showView(v){
+  closeSheet();
   if(state.view==="read")state.readScroll=$("reader").scrollTop;
   state.view=v;
   document.querySelectorAll(".view").forEach(el=>el.classList.toggle("active",el.id==="view-"+v));
@@ -1085,6 +1117,130 @@ $("ambVol").addEventListener("input",()=>{$("ambOut").textContent=Math.round($("
 $("ambOnly").addEventListener("change",()=>{saveSettings();syncAmbient();});
 // A saved sound that should play without narration needs one tap anywhere first (browser autoplay rules).
 document.addEventListener("pointerdown",()=>syncAmbient(),{once:true});
+
+/* ---------- Reading style (fonts, spacing, alignment, themes) ---------- */
+const FONTS=[
+  {id:"serif",name:"Serif",note:"System",stack:'Georgia,"Noto Serif","Times New Roman",serif'},
+  {id:"sans",name:"Sans",note:"System",stack:'system-ui,Roboto,"Helvetica Neue",Arial,sans-serif'},
+  {id:"mono",name:"Mono",note:"System",stack:'ui-monospace,"Cascadia Mono",Menlo,Consolas,monospace'},
+  {id:"literata",name:"Literata",note:"Book serif",family:"Literata",fs:"literata",stack:'"Literata",Georgia,serif'},
+  {id:"merriweather",name:"Merriweather",note:"Sturdy serif",family:"Merriweather",fs:"merriweather",stack:'"Merriweather",Georgia,serif'},
+  {id:"lora",name:"Lora",note:"Calligraphic serif",family:"Lora",fs:"lora",stack:'"Lora",Georgia,serif'},
+  {id:"atkinson",name:"Atkinson Hyperlegible",note:"High legibility",family:"Atkinson Hyperlegible",fs:"atkinson-hyperlegible",stack:'"Atkinson Hyperlegible",system-ui,sans-serif'},
+  {id:"lexend",name:"Lexend",note:"Easy reading",family:"Lexend",fs:"lexend",stack:'"Lexend",system-ui,sans-serif'},
+  {id:"dyslexic",name:"OpenDyslexic",note:"Dyslexia-friendly",family:"OpenDyslexic",fs:"opendyslexic",stack:'"OpenDyslexic","Comic Sans MS",system-ui,sans-serif'}
+];
+const THEMES=[{id:"dark",name:"Dark",bg:"#0e0e16",fg:"#ecebf5"},{id:"amoled",name:"AMOLED",bg:"#000000",fg:"#e8e8f0"},{id:"sepia",name:"Sepia",bg:"#f4ecd8",fg:"#4a3b27"},{id:"light",name:"Light",bg:"#fafafa",fg:"#1d1d27"}];
+const HLS=[{id:"violet",rgb:"139,92,246"},{id:"gold",rgb:"234,179,8"},{id:"green",rgb:"34,197,94"},{id:"blue",rgb:"59,130,246"},{id:"pink",rgb:"236,72,153"},{id:"orange",rgb:"249,115,22"}];
+const READING_DEFAULTS={font:"serif",size:19,line:1.8,para:1.05,pad:4,ls:0,align:"left",weight:400,hyph:false,theme:"dark",hl:"violet",hlStyle:"fill"};
+const clamp=(v,a,b,d)=>Number.isFinite(Number(v))?Math.min(b,Math.max(a,Number(v))):d;
+function sanitizeReading(r){
+  const d=READING_DEFAULTS;
+  return {
+    font:FONTS.some(f=>f.id===r.font)?r.font:d.font,
+    size:clamp(r.size,14,34,d.size),line:clamp(r.line,1.3,2.4,d.line),para:clamp(r.para,.2,2,d.para),
+    pad:clamp(r.pad,0,40,d.pad),ls:clamp(r.ls,0,.12,d.ls),
+    align:["left","justify","center"].includes(r.align)?r.align:d.align,
+    weight:Number(r.weight)===700?700:400,hyph:!!r.hyph,
+    theme:THEMES.some(t=>t.id===r.theme)?r.theme:d.theme,
+    hl:HLS.some(x=>x.id===r.hl)?r.hl:d.hl,
+    hlStyle:["fill","underline","outline"].includes(r.hlStyle)?r.hlStyle:d.hlStyle
+  };
+}
+let reading=(()=>{
+  const saved=store.get("pw-reading",null),r={...READING_DEFAULTS,...(saved||{})};
+  const old=(store.get("pw-settings",{})||{}).font; // size from the older version of the app
+  if(!saved&&old>=14&&old<=34)r.size=old;
+  return sanitizeReading(r);
+})();
+const saveReading=()=>store.set("pw-reading",reading);
+function applyReading(){
+  const r=reading,root=document.documentElement,f=FONTS.find(x=>x.id===r.font)||FONTS[0];
+  const set=(k,v)=>root.style.setProperty(k,v);
+  set("--r-font",f.stack);set("--r-size",r.size+"px");set("--r-line",r.line);set("--r-para",r.para+"em");
+  set("--r-pad",r.pad+"px");set("--r-align",r.align);set("--r-weight",r.weight);
+  set("--r-hyph",r.hyph?"auto":"manual");set("--r-ls",r.ls+"em");
+  set("--hl-rgb",(HLS.find(x=>x.id===r.hl)||HLS[0]).rgb);
+  root.dataset.theme=r.theme;root.dataset.hlstyle=r.hlStyle;
+  document.querySelector('meta[name=theme-color]')?.setAttribute("content",(THEMES.find(t=>t.id===r.theme)||THEMES[0]).bg);
+}
+// Web fonts load on demand from the Fontsource CDN; the service worker then keeps them for offline use.
+const LATIN="U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD";
+const LATIN_EXT="U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF";
+const fontJobs={};
+function loadFont(f){
+  if(!f.fs)return Promise.resolve(true);
+  if(fontJobs[f.id])return fontJobs[f.id];
+  const face=async(subset,range,weight)=>{
+    for(const ver of ["5.3.0","latest"]){
+      try{
+        const ff=new FontFace(f.family,`url(https://cdn.jsdelivr.net/fontsource/fonts/${f.fs}@${ver}/${subset}-${weight}-normal.woff2) format("woff2")`,{weight:String(weight),style:"normal",unicodeRange:range,display:"swap"});
+        await ff.load();document.fonts.add(ff);return true;
+      }catch{}
+    }
+    return false;
+  };
+  // latin covers English text; latin-ext covers accented letters such as pinyin tone marks
+  const job=Promise.all([face("latin",LATIN,400),face("latin",LATIN,700),face("latin-ext",LATIN_EXT,400),face("latin-ext",LATIN_EXT,700)])
+    .then(r=>{const ok=r[0];if(!ok)delete fontJobs[f.id];dbg(`font ${f.name}: ${ok?"loaded":"failed"}`);return ok;});
+  return fontJobs[f.id]=job;
+}
+const fontSay=(m,k="")=>{const e=$("rsFontStatus");e.textContent=m;e.style.color=k==="error"?"var(--red)":"";};
+async function selectFont(id){
+  reading.font=id;applyReading();saveReading();syncReadingUI();
+  const f=FONTS.find(x=>x.id===id);
+  if(!f||!f.fs){fontSay("");return;}
+  fontSay(`Loading ${f.name}…`);
+  const ok=await loadFont(f);
+  if(reading.font!==id)return;
+  fontSay(ok?`${f.name} is ready and saved for offline use.`:`Could not load ${f.name} (are you offline?). A similar system font is used for now.`,ok?"":"error");
+}
+function buildReadingUI(){
+  const fg=$("rsFonts");fg.replaceChildren();
+  for(const f of FONTS){
+    const b=document.createElement("button");b.dataset.font=f.id;
+    const n=document.createElement("span");n.textContent=f.name;n.style.fontFamily=f.stack;n.style.fontSize="16px";
+    const s=document.createElement("small");s.textContent=f.note;
+    b.append(n,s);b.onclick=()=>selectFont(f.id);fg.append(b);
+  }
+  const tg=$("rsThemes");tg.replaceChildren();
+  for(const t of THEMES){
+    const b=document.createElement("button");b.className="swatch";b.dataset.theme=t.id;b.textContent="Aa";b.title=t.name;b.setAttribute("aria-label",t.name+" theme");
+    b.style.background=t.bg;b.style.color=t.fg;
+    b.onclick=()=>{reading.theme=t.id;applyReading();saveReading();syncReadingUI();};tg.append(b);
+  }
+  const dg=$("rsDots");dg.replaceChildren();
+  for(const x of HLS){
+    const b=document.createElement("button");b.className="dot";b.dataset.hl=x.id;b.setAttribute("aria-label",x.id+" highlight");b.style.background=`rgb(${x.rgb})`;
+    b.onclick=()=>{reading.hl=x.id;applyReading();saveReading();syncReadingUI();};dg.append(b);
+  }
+}
+const RANGES=[["rsSize","size",v=>v+" px"],["rsLine","line",v=>Number(v).toFixed(2)],["rsPara","para",v=>Number(v).toFixed(1)+" em"],["rsPad","pad",v=>v+" px"],["rsLs","ls",v=>Number(v).toFixed(2)+" em"]];
+function syncReadingUI(){
+  for(const [id,key,fmt] of RANGES){$(id).value=reading[key];$(id+"Out").textContent=fmt(reading[key]);}
+  $("rsHyph").checked=reading.hyph;
+  document.querySelectorAll("#rsFonts button").forEach(b=>b.classList.toggle("on",b.dataset.font===reading.font));
+  document.querySelectorAll("#rsThemes button").forEach(b=>b.classList.toggle("on",b.dataset.theme===reading.theme));
+  document.querySelectorAll("#rsDots button").forEach(b=>b.classList.toggle("on",b.dataset.hl===reading.hl));
+  document.querySelectorAll("[data-align]").forEach(b=>b.classList.toggle("on",b.dataset.align===reading.align));
+  document.querySelectorAll("[data-weight]").forEach(b=>b.classList.toggle("on",Number(b.dataset.weight)===reading.weight));
+  document.querySelectorAll("[data-hlstyle]").forEach(b=>b.classList.toggle("on",b.dataset.hlstyle===reading.hlStyle));
+}
+for(const [id,key,fmt] of RANGES)$(id).addEventListener("input",()=>{
+  reading[key]=Number($(id).value);$(id+"Out").textContent=fmt(reading[key]);applyReading();saveReading();
+});
+$("rsHyph").addEventListener("change",()=>{reading.hyph=$("rsHyph").checked;applyReading();saveReading();});
+document.querySelectorAll("[data-align]").forEach(b=>{b.onclick=()=>{reading.align=b.dataset.align;applyReading();saveReading();syncReadingUI();};});
+document.querySelectorAll("[data-weight]").forEach(b=>{b.onclick=()=>{reading.weight=Number(b.dataset.weight);applyReading();saveReading();syncReadingUI();};});
+document.querySelectorAll("[data-hlstyle]").forEach(b=>{b.onclick=()=>{reading.hlStyle=b.dataset.hlstyle;applyReading();saveReading();syncReadingUI();};});
+function openSheet(){syncReadingUI();$("sheetWrap").classList.add("open");$("sheetWrap").setAttribute("aria-hidden","false");}
+function closeSheet(){$("sheetWrap").classList.remove("open");$("sheetWrap").setAttribute("aria-hidden","true");}
+$("aaBtn").onclick=()=>$("sheetWrap").classList.contains("open")?closeSheet():openSheet();
+$("rsDone").onclick=closeSheet;$("sheetBack").onclick=closeSheet;
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet();});
+$("rsReset").onclick=()=>{reading={...READING_DEFAULTS};applyReading();saveReading();syncReadingUI();fontSay("");};
+buildReadingUI();applyReading();syncReadingUI();
+{const f=FONTS.find(x=>x.id===reading.font);if(f&&f.fs)loadFont(f);} // fetch (or read from cache) the chosen web font in the background
 
 /* ---------- Init ---------- */
 applySettings();
