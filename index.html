@@ -18,6 +18,19 @@
 .reader{position:relative;font-family:Georgia,"Times New Roman",serif;font-size:19px;line-height:1.85;overflow-wrap:anywhere;max-height:62vh;overflow:auto;padding:18px 5px 30px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}.reader .empty{color:var(--muted);text-align:center;padding:65px 10px;font-family:system-ui,sans-serif;font-size:14px}.reader p{margin:0 0 1.05em}
 .seg{border-radius:4px;cursor:pointer;transition:background .15s;-webkit-box-decoration-break:clone;box-decoration-break:clone}.seg:hover{background:#ffffff0d}.seg.active{background:#6c552d99}
 .controls{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:13px 0}.controls button{padding:10px 6px;font-size:13px}.playbar{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:7px}.playbar button{padding:11px 7px}.range{display:grid;grid-template-columns:1fr 43px;gap:8px;align-items:center}.range input{padding:0;accent-color:var(--gold)}output{font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}.library{display:flex;flex-direction:column;gap:7px;max-height:210px;overflow:auto}.book{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px;background:#12151b;border:1px solid var(--line);border-radius:10px}.bookname{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}.book button{font-size:11px;padding:5px 8px}.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:3px 8px;color:var(--muted);font-size:10px}.voice-note{font-size:11px;color:var(--muted);margin-top:6px}.progress{height:4px;background:#303541;border-radius:10px;overflow:hidden;margin-top:8px}.progress>div{height:100%;width:0;background:var(--gold);transition:width .2s}.footer{text-align:center;margin-top:17px}.hidden{display:none!important}
+.head-actions{display:flex;gap:8px;flex:none}.head-actions button{padding:9px 11px;font-size:13px}
+.fsbar{display:none}.fsstat{display:none;font-size:11px;color:var(--muted);text-align:center;margin-top:6px;min-height:16px}
+.panel.fs{display:flex;flex-direction:column;border-radius:0;border:0;background:var(--bg);padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+.panel.pfs{position:fixed;inset:0;z-index:100;overflow:hidden}body.noscroll{overflow:hidden}
+.fs .reader{flex:1 1 auto;min-height:0;max-height:none;padding-top:10px}.fs .controls,.fs .fs-hide,.fs .source{display:none}
+.fs .chapter-title{font-size:16px;margin:0}.fs .reader-head{align-items:center}
+.fs .fsbar{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:10px}.fs .fsstat{display:block}
+.fsbar button{padding:13px 4px;font-size:16px}.fsbar #fsPlay{background:var(--gold);border-color:var(--gold);color:#171717;font-weight:750}
+.novel{background:#12151b;border:1px solid var(--line);border-radius:10px;padding:9px;display:flex;flex-direction:column;gap:6px}
+.novel .nt{font-size:13px;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.novel .ns{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.novel .na{display:flex;gap:6px;flex-wrap:wrap}.novel .na button,.novel .na a{font-size:11px;padding:6px 9px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text);text-decoration:none;cursor:pointer}
+.novel .na button:first-child{background:var(--gold);border-color:var(--gold);color:#171717;font-weight:700}
+.diag{margin-top:12px;font-size:12px;color:var(--muted)}.diag summary{cursor:pointer;padding:4px 0}.diag pre{max-height:170px;overflow:auto;white-space:pre-wrap;background:#12151b;border:1px solid var(--line);border-radius:10px;padding:8px;font-size:11px;margin:8px 0}
 @media(max-width:780px){.layout{grid-template-columns:1fr}.reader{max-height:52vh;font-size:18px}.panel{padding:13px}.chapter-title{font-size:20px}.pill{display:none}}
 @media(prefers-reduced-motion:reduce){.reader{scroll-behavior:auto}.seg,.progress>div{transition:none}}
 </style>
@@ -58,19 +71,36 @@
 <label class="check"><input type="checkbox" id="keepAwake"> Keep screen on while the app is open</label>
 <div class="hint">Audio keeps playing with the screen off or while you use other apps, with lock-screen and notification controls. If Android stops it anyway, set this app's battery usage to Unrestricted.</div>
 <div class="hint">Tip: tap any sentence in the reader to start playing from there.</div>
+<details class="diag"><summary>Playback log (for troubleshooting)</summary><pre id="dbg"></pre><button id="dbgCopy" style="width:100%">Copy log</button></details>
+</section>
+<section class="panel" style="margin-top:13px">
+<h2>Novel library</h2>
+<div id="novels" class="library"></div>
+<div id="nvStatus" class="status" aria-live="polite"></div>
+<button id="addCurrent" style="width:100%;margin-top:8px" disabled>＋ Add current novel</button>
+<details class="diag"><summary>Add a novel by link</summary>
+<div class="field" style="margin-top:10px"><label for="nvTitle">NOVEL TITLE (OPTIONAL)</label><input id="nvTitle" placeholder="Novel name"></div>
+<div class="field"><label for="nvUrl">CHAPTER OR NOVEL LINK</label><input id="nvUrl" type="url" inputmode="url" autocapitalize="off" autocorrect="off" placeholder="https://novelsite.com/novel/name/12"></div>
+<button id="nvAdd" class="primary" style="width:100%">Add to library</button>
+</details>
+<div class="hint">Keep links to novels from any site here and tap Continue to pick up where you left off. The last chapter you load from a saved novel is remembered automatically. Sites that block automatic fetching can still be opened in your browser, then copied or shared back here.</div>
 </section>
 <section class="panel" style="margin-top:13px">
 <h2>Saved chapters</h2><div id="library" class="library"><div class="hint">No saved chapters yet.</div></div><div class="hint">Stored in this browser's local storage.</div>
 </section>
 </aside>
-<main class="panel">
-<div class="reader-head"><div><h1 class="chapter-title" id="chapterTitle">Your reading space</h1><div class="source" id="chapterSource">Load a chapter to begin</div></div><button id="saveBtn" disabled>☆ Save</button></div>
+<main class="panel" id="readerPanel">
+<div class="reader-head"><div><h1 class="chapter-title" id="chapterTitle">Your reading space</h1><div class="source" id="chapterSource">Load a chapter to begin</div></div><div class="head-actions"><button id="fsBtn" aria-pressed="false">⛶ Fullscreen</button><button id="saveBtn" disabled>☆ Save</button></div></div>
 <div class="controls"><button id="fontDown">A− Smaller</button><button id="fontUp">A+ Larger</button><button id="prevBtn" disabled>← Previous</button><button id="nextBtn" disabled>Next →</button></div>
 <div id="reader" class="reader"><div class="empty">Paste a chapter, import a text file, or paste a chapter URL to begin.</div></div>
+<div class="fsbar"><button id="fsPrev" aria-label="Previous section">⏮</button><button id="fsPlay" aria-label="Play or pause">▶</button><button id="fsNext" aria-label="Next section">⏭</button><button id="fsDown" aria-label="Smaller text">A−</button><button id="fsUp" aria-label="Larger text">A+</button><button id="fsExit" aria-label="Exit fullscreen">✕</button></div>
+<div class="fsstat" id="fsStat"></div>
+<div class="fs-hide">
 <div class="divider"></div>
 <div class="row"><div class="grow"><label for="nextUrl">NEXT CHAPTER URL</label><input id="nextUrl" type="url" inputmode="url" autocapitalize="off" autocorrect="off" placeholder="Paste the next chapter address"></div><button id="fetchNext">Fetch next</button></div>
 <div class="hint">Filled in automatically when the page exposes a next-chapter link. Otherwise PageWhisper guesses by adding 1 to the chapter number in the address, so check that it looks right.</div>
 <label class="check"><input type="checkbox" id="autoNext"> Auto-play the next chapter when this one finishes</label>
+</div>
 </main>
 </div>
 <div class="footer">PageWhisper · Static GitHub Pages app · Kokoro model files download from Hugging Face on first use</div>
@@ -88,14 +118,20 @@ const KOKORO_SOURCES = [
   "https://unpkg.com/kokoro-js@1.2.1/dist/kokoro.web.js"
 ];
 const state = {
-  tts:null, loadingP:null, device:"", forceWasm:false,
+  tts:null, loadingP:null, device:"", forceWasm:false, noWorker:false, reload:false,
   playing:false, paused:false, inClip:false, runId:0, endCur:null, wake:null, unlockP:null, chain:Promise.resolve(),
   title:"", text:"", url:"", chunks:[], index:0, activeEl:null, font:19,
   history:[], pos:-1
 };
 const audio = $("audio");
 const clean = s => s.replace(/\r/g,"").replace(/[ \t]+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
-const sayStatus = (msg,kind="") => {$("ttsStatus").textContent=msg;$("ttsStatus").className="status "+kind;};
+const sayStatus = (msg,kind="") => {$("ttsStatus").textContent=msg;$("ttsStatus").className="status "+kind;$("fsStat").textContent=msg;};
+const dbgLines=[];
+function dbg(msg){
+  dbgLines.push(`${new Date().toTimeString().slice(0,8)}${document.visibilityState==="hidden"?" [bg]":""} ${msg}`);
+  if(dbgLines.length>150)dbgLines.shift();
+  const el=document.getElementById("dbg");if(el){el.textContent=dbgLines.join("\n");el.scrollTop=el.scrollHeight;}
+}
 const fetchStatus = (msg,kind="") => {$("fetchStatus").textContent=msg;$("fetchStatus").className="status "+kind;};
 const errMsg = e => e?.name==="AbortError" ? "timed out" : (e?.message||String(e));
 const store = {
@@ -167,6 +203,7 @@ function setLoaded(title,text,url="",o={}){
   $("chapterTitle").textContent=state.title;$("chapterSource").textContent=url||"Imported / pasted text";
   $("reader").scrollTop=0;
   $("saveBtn").disabled=false;$("saveBtn").textContent="☆ Save";
+  $("addCurrent").disabled=!validHttp(url);trackNovel(state.title,url);
   ui("idle");updateNav();
   $("progressBar").style.width="0%";
   sayStatus(`${text.split(/\s+/).length.toLocaleString()} words ready. Press Play to initialize Kokoro.`,"good");
@@ -303,39 +340,90 @@ async function importKokoro(){
   }
   throw Error("Could not load the Kokoro library from jsDelivr or unpkg ("+errMsg(last)+"). Check your connection and try again.");
 }
+// The model runs inside tts-worker.js (off the main thread). If workers are unavailable it falls back to the main thread.
+let worker=null,reqId=0;const pending=new Map();
+function failAll(er){for(const p of pending.values())p.rej(er);pending.clear();}
+function getWorker(){
+  if(worker)return worker;
+  worker=new Worker("tts-worker.js",{type:"module"});
+  worker.onmessage=ev=>{
+    const m=ev.data,p=pending.get(m.id);if(!p)return;
+    if(m.type==="progress"){p.onProgress?.(m.text);return;}
+    pending.delete(m.id);
+    if(m.type==="error"){const er=new Error(m.message);er.infra=!!m.infra;p.rej(er);}else p.res(m);
+  };
+  worker.onerror=ev=>{
+    ev.preventDefault?.();
+    const er=new Error("The speech worker failed to start"+(ev.message?": "+ev.message:"."));er.infra=true;
+    try{worker.terminate();}catch{}worker=null;failAll(er);
+  };
+  return worker;
+}
+function workerCall(msg,onProgress){
+  return new Promise((res,rej)=>{
+    const id=++reqId;pending.set(id,{res,rej,onProgress});
+    try{getWorker().postMessage({...msg,id});}catch(e){pending.delete(id);e.infra=true;rej(e);}
+  });
+}
+const setMinRun=r=>{try{worker?.postMessage({type:"minRun",run:r});}catch{}};
+
+async function loadMain(){
+  sayStatus("Loading Kokoro library…");
+  const {KokoroTTS}=await importKokoro();
+  const choice=$("engine").value,canGpu=!!navigator.gpu;
+  if(choice==="webgpu"&&!canGpu)throw Error("This browser does not expose WebGPU. Choose Auto or WASM.");
+  const order=(choice==="wasm"||!canGpu||state.forceWasm)?["wasm"]:choice==="webgpu"?["webgpu"]:["webgpu","wasm"];
+  let lastErr;
+  for(const dev of order){
+    try{
+      sayStatus(`Loading Kokoro model (${dev==="webgpu"?"WebGPU":"WASM"})… first load downloads model files. Keep this page open.`);
+      const tts=await KokoroTTS.from_pretrained(MODEL,{
+        dtype:dev==="webgpu"?"fp32":"q8",device:dev,
+        progress_callback:p=>{if(p?.status==="progress"&&p.file)sayStatus(`Downloading ${p.file.split("/").pop()} · ${Math.round(p.progress||0)}%`);}
+      });
+      state.device=dev;
+      sayStatus(`Kokoro ready · ${dev==="webgpu"?"WebGPU acceleration":"WASM mode"}`,"good");
+      return tts;
+    }catch(e){lastErr=e;console.warn("Kokoro load failed on",dev,e);}
+  }
+  throw lastErr||Error("Model failed to load.");
+}
 async function loadKokoro(){
   if(state.tts)return state.tts;
   if(state.loadingP)return state.loadingP;
   state.loadingP=(async()=>{
-    sayStatus("Loading Kokoro library…");
-    const {KokoroTTS}=await importKokoro();
-    const choice=$("engine").value,canGpu=!!navigator.gpu;
-    if(choice==="webgpu"&&!canGpu)throw Error("This browser does not expose WebGPU. Choose Auto or WASM.");
-    const order=(choice==="wasm"||!canGpu||state.forceWasm)?["wasm"]:choice==="webgpu"?["webgpu"]:["webgpu","wasm"];
-    let lastErr;
-    for(const dev of order){
+    if(!state.noWorker){
       try{
-        sayStatus(`Loading Kokoro model (${dev==="webgpu"?"WebGPU":"WASM"})… first load downloads model files. Keep this page open.`);
-        const tts=await KokoroTTS.from_pretrained(MODEL,{
-          dtype:dev==="webgpu"?"fp32":"q8",device:dev,
-          progress_callback:p=>{if(p?.status==="progress"&&p.file)sayStatus(`Downloading ${p.file.split("/").pop()} · ${Math.round(p.progress||0)}%`);}
-        });
-        state.device=dev;
-        sayStatus(`Kokoro ready · ${dev==="webgpu"?"WebGPU acceleration":"WASM mode"}`,"good");
-        return tts;
-      }catch(e){lastErr=e;console.warn("Kokoro load failed on",dev,e);}
+        sayStatus("Starting the speech engine…");
+        const r=await workerCall({type:"load",choice:$("engine").value,forceWasm:state.forceWasm,reload:state.reload},t=>sayStatus(t));
+        state.reload=false;state.device=r.device;
+        dbg("engine ready: "+r.device+" (worker)");
+        sayStatus(`Kokoro ready · ${r.device==="webgpu"?"WebGPU acceleration":"WASM mode"} · background engine`,"good");
+        return {worker:true};
+      }catch(e){
+        if(!e.infra)throw e;
+        console.warn("Worker unavailable, using the main thread:",e);dbg("worker unavailable, using main thread: "+errMsg(e));
+        state.noWorker=true;try{worker?.terminate();}catch{}worker=null;
+      }
     }
-    throw lastErr||Error("Model failed to load.");
+    dbg("engine: main thread");
+    return loadMain();
   })();
   try{state.tts=await state.loadingP;return state.tts;}
   finally{state.loadingP=null;}
 }
-// ONNX sessions cannot run concurrently, so every generate() call goes through one queue.
-function synth(text,skip){
-  const run=async()=>{
+// Worker path: the worker queues requests itself. Main-thread path: ONNX cannot run concurrently, so serialize.
+function synth(text,skip,run){
+  const direct=async()=>{
     if(skip&&skip())return null; // the run that asked for this was stopped
     const tts=await loadKokoro();
     const opts={voice:$("voice").value,speed:Number($("rate").value)};
+    if(tts.worker){
+      const r=await workerCall({type:"gen",text,run,...opts});
+      if(r.type==="skipped")return null;
+      dbg(`generated ${text.length} chars in ${Math.round(r.ms)} ms (${(r.samples.length/r.rate).toFixed(1)} s of audio)`);
+      return {audio:r.samples,sampling_rate:r.rate};
+    }
     try{return await tts.generate(text,opts);}
     catch(e){
       if(state.device==="webgpu"&&$("engine").value==="auto"){
@@ -346,9 +434,8 @@ function synth(text,skip){
       throw e;
     }
   };
-  const p=state.chain.then(run);
-  state.chain=p.catch(()=>{});
-  return p;
+  if(state.tts?.worker)return direct();
+  const p=state.chain.then(direct);state.chain=p.catch(()=>{});return p;
 }
 function floatToWavBlob(samples,sampleRate){
   const buffer=new ArrayBuffer(44+samples.length*2),view=new DataView(buffer);
@@ -367,6 +454,7 @@ function ui(mode){
 }
 function updateMedia(){
   try{if("mediaSession" in navigator)navigator.mediaSession.playbackState=!state.playing?"none":(state.paused?"paused":"playing");}catch{}
+  $("fsPlay").textContent=(state.playing&&!state.paused)?"Ⅱ":"▶";
 }
 // While playing, hold a Web Lock: Chrome does not freeze or heavily throttle pages that hold one.
 let lockWanted=false,lockPending=false,lockRelease=null;
@@ -417,15 +505,16 @@ function resume(){
   state.wake?.();state.wake=null;sayStatus("Playing.");updateMedia();
 }
 function stopPlayback(){
-  state.runId++;state.playing=false;state.paused=false;state.inClip=false;state.index=0;
+  state.runId++;setMinRun(state.runId);dbg("stop");
+  state.playing=false;state.paused=false;state.inClip=false;state.index=0;
   audio.loop=false;audio.pause();dropLock();
   state.endCur?.();state.endCur=null;state.wake?.();state.wake=null;
   setActive(-1);ui("idle");$("progressBar").style.width="0%";
 }
-const AHEAD=4; // sections generated in advance, so playback survives a slow moment in the background
+const AHEAD=6; // sections generated in advance, so playback survives a slow moment in the background
 async function playFrom(index){
   const unlock=unlockAudio(); // must run synchronously inside the tap
-  const run=++state.runId;
+  const run=++state.runId;setMinRun(run);dbg("play from section "+(index+1));
   state.playing=true;state.paused=false;state.index=index;
   holdLock();ui("busy");
   const n=state.chunks.length;
@@ -433,7 +522,7 @@ async function playFrom(index){
   const gen=i=>{
     const c=state.chunks[i],e={done:false,p:null};
     const base=(!c||!c.speech)?Promise.resolve(null)
-      :synth(c.speech,()=>run!==state.runId).then(g=>g?URL.createObjectURL(floatToWavBlob(g.audio,g.sampling_rate||24000)):null);
+      :synth(c.speech,()=>run!==state.runId,run).then(g=>g?URL.createObjectURL(floatToWavBlob(g.audio,g.sampling_rate||24000)):null);
     e.p=base.finally(()=>{e.done=true;});e.p.catch(()=>{});
     return e;
   };
@@ -554,11 +643,12 @@ $("reader").addEventListener("click",e=>{
 });
 $("rate").oninput=()=>{$("rateOut").textContent=Number($("rate").value).toFixed(2)+"×";};
 $("chunk").onchange=()=>{if(state.text){stopPlayback();buildChunks();state.index=0;}};
-$("engine").addEventListener("change",()=>{state.tts=null;state.forceWasm=false;});
+$("engine").addEventListener("change",()=>{state.tts=null;state.forceWasm=false;state.reload=true;});
 for(const k of SETTINGS)$(k).addEventListener("change",saveSettings);
 $("autoNext").addEventListener("change",saveSettings);
-$("fontDown").onclick=()=>{state.font=Math.max(14,state.font-1);$("reader").style.fontSize=state.font+"px";saveSettings();};
-$("fontUp").onclick=()=>{state.font=Math.min(30,state.font+1);$("reader").style.fontSize=state.font+"px";saveSettings();};
+const changeFont=d=>{state.font=Math.min(30,Math.max(14,state.font+d));$("reader").style.fontSize=state.font+"px";saveSettings();};
+$("fontDown").onclick=()=>changeFont(-1);
+$("fontUp").onclick=()=>changeFont(1);
 $("saveBtn").onclick=()=>{
   if(!state.text)return;
   const a=getLibrary();const item={title:state.title,text:state.text,url:state.url,next:$("nextUrl").value};
@@ -571,8 +661,12 @@ $("saveBtn").onclick=()=>{
 audio.addEventListener("pause",()=>{
   if(state.playing&&state.inClip&&!state.paused&&!audio.ended){state.paused=true;$("pauseBtn").textContent="▶ Resume";sayStatus("Paused.");}
 });
+for(const ev of ["play","pause","ended","stalled","waiting","error"])audio.addEventListener(ev,()=>dbg("audio "+ev+(ev==="error"&&audio.error?" (code "+audio.error.code+")":"")));
+document.addEventListener("visibilitychange",()=>dbg("page "+document.visibilityState));
+document.addEventListener("freeze",()=>dbg("page frozen by the browser"));
+document.addEventListener("resume",()=>dbg("page resumed"));
 if("mediaSession" in navigator){
-  const on=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f);}catch{}};
+  const on=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,()=>{dbg("media control: "+a);f();});}catch{}};
   on("play",()=>{if(state.paused)resume();else if(!state.playing&&state.text)playFrom(state.index);});
   on("pause",pauseNow);
   on("stop",()=>{stopPlayback();});
@@ -588,7 +682,7 @@ async function setWake(on,loud){
     if(on){
       if(wakeSentinel)return;
       wakeSentinel=await navigator.wakeLock.request("screen");
-      wakeSentinel.addEventListener("release",()=>{wakeSentinel=null;});
+      wakeSentinel.addEventListener("release",()=>{wakeSentinel=null;dbg("screen lock released");});
     }else if(wakeSentinel){await wakeSentinel.release();wakeSentinel=null;}
   }catch(e){
     wakeSentinel=null;
@@ -601,9 +695,118 @@ $("keepAwake").addEventListener("change",()=>{setWake($("keepAwake").checked,tru
 if(!wakeSupported){$("keepAwake").disabled=true;$("keepAwake").closest("label").append(" (not supported in this browser)");}
 window.addEventListener("beforeunload",()=>audio.pause());
 
+/* ---------- Fullscreen reader with playback controls ---------- */
+const panel=$("readerPanel");
+function setFs(on,pseudo){
+  panel.classList.toggle("fs",on);panel.classList.toggle("pfs",!!on&&!!pseudo);
+  document.body.classList.toggle("noscroll",!!on&&!!pseudo);
+  $("fsBtn").textContent=on?"✕ Exit":"⛶ Fullscreen";$("fsBtn").setAttribute("aria-pressed",String(!!on));
+  requestAnimationFrame(()=>{if(state.playing&&state.chunks.length)setActive(state.index,true);});
+}
+async function enterFs(){
+  try{await panel.requestFullscreen({navigationUI:"hide"});setFs(true,false);}
+  catch{setFs(true,true);} // browsers without the Fullscreen API get a full-window view instead
+}
+async function exitFs(){
+  if(document.fullscreenElement){try{await document.exitFullscreen();}catch{}}
+  setFs(false);
+}
+document.addEventListener("fullscreenchange",()=>{
+  if(!document.fullscreenElement&&panel.classList.contains("fs")&&!panel.classList.contains("pfs"))setFs(false);
+});
+function togglePlay(){
+  if(!state.text)return;
+  if(!state.playing)playFrom(state.index>=state.chunks.length?0:state.index);
+  else if(state.paused)resume();else pauseNow();
+}
+$("fsBtn").onclick=()=>panel.classList.contains("fs")?exitFs():enterFs();
+$("fsExit").onclick=exitFs;
+$("fsPlay").onclick=togglePlay;
+$("fsPrev").onclick=()=>skip(-1);
+$("fsNext").onclick=()=>skip(1);
+$("fsDown").onclick=()=>changeFont(-1);
+$("fsUp").onclick=()=>changeFont(1);
+
+/* ---------- Novel library (links to novels on any site) ---------- */
+const NV_KEY="pw-novels";
+const getNovels=()=>{const a=store.get(NV_KEY,[]);return Array.isArray(a)?a:[];};
+const nvSay=(m,k="")=>{$("nvStatus").textContent=m;$("nvStatus").className="status "+k;};
+function validHttp(u){try{return /^https?:$/.test(new URL(u).protocol);}catch{return false;}}
+function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,"");}catch{return "";}}
+// Chapters of one novel share a key: host + path without the trailing chapter number.
+function novelKey(u){
+  try{
+    const seg=new URL(u).pathname.split("/").filter(Boolean);
+    if(seg.length>1&&/\d/.test(seg[seg.length-1]))seg.pop();
+    return hostOf(u)+"/"+seg.join("/");
+  }catch{return "";}
+}
+function titleFromUrl(u){
+  try{
+    const seg=new URL(u).pathname.split("/").filter(s=>s&&!/^\d+$/.test(s)&&!/^(novel|novels|book|books|read|chapter|series|title)$/i.test(s));
+    const s=(seg[seg.length-1]||hostOf(u)).replace(/[-_]+/g," ").replace(/\.\w+$/,"").trim();
+    return s.replace(/\b\w/g,c=>c.toUpperCase());
+  }catch{return "Untitled novel";}
+}
+function addNovel(title,url,chapter=""){
+  url=(url||"").trim();
+  if(!validHttp(url)){nvSay("Enter a valid link starting with https://","error");return false;}
+  const a=getNovels(),key=novelKey(url),i=a.findIndex(n=>n.key===key);
+  const entry={id:i>=0?a[i].id:Date.now().toString(36),title:(title||"").trim()||(i>=0?a[i].title:titleFromUrl(url)),url,key,chapter:chapter||(i>=0?a[i].chapter:""),updated:Date.now()};
+  if(i>=0)a[i]=entry;else a.unshift(entry);
+  if(!store.set(NV_KEY,a)){nvSay("Could not save: browser storage may be full.","error");return false;}
+  renderNovels();nvSay(i>=0?"Updated this novel in your library.":"Added to your library.","good");return true;
+}
+// Loading any chapter of a saved novel moves its bookmark to that chapter.
+function trackNovel(title,url){
+  if(!url)return;
+  const a=getNovels(),i=a.findIndex(n=>n.key===novelKey(url));
+  if(i<0)return;
+  a[i].url=url;a[i].chapter=title;a[i].updated=Date.now();
+  store.set(NV_KEY,a);renderNovels();
+}
+function updateNovelUrl(id,url){
+  url=(url||"").trim();
+  if(!validHttp(url)){nvSay("That link is not valid.","error");return;}
+  const a=getNovels(),i=a.findIndex(n=>n.id===id);
+  if(i<0)return;
+  a[i].url=url;a[i].key=novelKey(url);a[i].updated=Date.now();
+  store.set(NV_KEY,a);renderNovels();nvSay("Link updated.","good");
+}
+function renderNovels(){
+  const a=getNovels().sort((x,y)=>(y.updated||0)-(x.updated||0)),el=$("novels");
+  el.replaceChildren();
+  if(!a.length){el.innerHTML='<div class="hint">No novels yet. Load a chapter from a link and tap “Add current novel”, or add one by link below.</div>';return;}
+  for(const n of a){
+    const row=document.createElement("div");row.className="novel";
+    const t=document.createElement("div");t.className="nt";t.textContent=n.title;t.title=n.title;
+    const s=document.createElement("div");s.className="ns";s.textContent=hostOf(n.url)+(n.chapter?" · "+n.chapter:"");
+    const act=document.createElement("div");act.className="na";
+    const cont=document.createElement("button");cont.textContent="▶ Continue";
+    cont.onclick=()=>{$("url").value=n.url;window.scrollTo({top:0,behavior:"smooth"});fetchChapter(n.url);};
+    const open=document.createElement("a");open.textContent="Open in browser";open.href=n.url;open.target="_blank";open.rel="noopener noreferrer";
+    const edit=document.createElement("button");edit.textContent="Edit link";
+    edit.onclick=()=>{const v=prompt("Link for “"+n.title+"”",n.url);if(v!=null)updateNovelUrl(n.id,v);};
+    const del=document.createElement("button");del.textContent="Remove";
+    del.onclick=()=>{store.set(NV_KEY,getNovels().filter(x=>x.id!==n.id));renderNovels();};
+    act.append(cont,open,edit,del);row.append(t,s,act);el.append(row);
+  }
+}
+$("addCurrent").onclick=()=>{
+  if(!validHttp(state.url))return;
+  const t=state.title.replace(/\s*[-–—:|]?\s*(?:chapter|ch\.?|episode|ep\.?)\s*\d+.*$/i,"").trim();
+  addNovel(t,state.url,state.title);
+};
+$("nvAdd").onclick=()=>{if(addNovel($("nvTitle").value,$("nvUrl").value)){$("nvTitle").value="";$("nvUrl").value="";}};
+$("dbgCopy").onclick=async()=>{
+  try{await navigator.clipboard.writeText(dbgLines.join("\n"));sayStatus("Log copied.","good");}
+  catch{sayStatus("Could not copy. Long-press the log text to select it.","error");}
+};
+
 /* ---------- Init ---------- */
 applySettings();
 renderLibrary();
+renderNovels();
 if($("keepAwake").checked)setWake(true,false);
 ui("idle");
 // Restore the last chapter and reading position.

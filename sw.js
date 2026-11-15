@@ -1,11 +1,11 @@
 /* PageWhisper service worker: offline app shell + cached Kokoro library code.
    The Kokoro model files themselves are cached by transformers.js, not here. */
-const VERSION = "v2";
+const VERSION = "v3";
 const SHELL = "pw-shell-" + VERSION;
 const LIBS = "pw-libs-v2";
 const SHELL_FILES = [
   "./", "./index.html", "./manifest.json",
-  "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png", "./apple-touch-icon.png"
+  "./tts-worker.js", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png", "./apple-touch-icon.png"
 ];
 const LIB_HOSTS = ["cdn.jsdelivr.net", "unpkg.com"];
 
@@ -45,6 +45,19 @@ self.addEventListener("fetch", e => {
   }
 
   if (url.origin !== self.location.origin) return; // fetch services, Hugging Face, proxies: never touched
+
+  // The speech worker script: network first so an update never mismatches the page, cache when offline.
+  if (req.destination === "worker") {
+    e.respondWith((async () => {
+      const c = await caches.open(SHELL);
+      try {
+        const res = await Promise.race([fetch(req), timeout(4000)]);
+        if (res && res.ok) c.put(req, res.clone());
+        return res;
+      } catch { return (await c.match(req)) || Response.error(); }
+    })());
+    return;
+  }
 
   // Page loads: network first (so updates arrive), fall back to cache when offline or slow.
   if (req.mode === "navigate") {
