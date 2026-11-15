@@ -1,6 +1,6 @@
 /* PageWhisper service worker: offline app shell + cached Kokoro library code.
    The Kokoro model files themselves are cached by transformers.js, not here. */
-const VERSION = "v3";
+const VERSION = "v4";
 const SHELL = "pw-shell-" + VERSION;
 const LIBS = "pw-libs-v2";
 const SHELL_FILES = [
