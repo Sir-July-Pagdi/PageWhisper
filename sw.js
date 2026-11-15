@@ -1,13 +1,13 @@
 /* PageWhisper service worker: offline app shell + cached Kokoro library code.
    The Kokoro model files themselves are cached by transformers.js, not here. */
-const VERSION = "v1";
+const VERSION = "v2";
 const SHELL = "pw-shell-" + VERSION;
-const LIBS = "pw-libs-v1";
+const LIBS = "pw-libs-v2";
 const SHELL_FILES = [
   "./", "./index.html", "./manifest.json",
   "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png", "./apple-touch-icon.png"
 ];
-const LIB_HOSTS = ["esm.sh", "cdn.jsdelivr.net"];
+const LIB_HOSTS = ["cdn.jsdelivr.net", "unpkg.com"];
 
 self.addEventListener("install", e => {
   e.waitUntil((async () => {
@@ -19,7 +19,7 @@ self.addEventListener("install", e => {
 
 self.addEventListener("activate", e => {
   e.waitUntil((async () => {
-    for (const k of await caches.keys()) if (k.startsWith("pw-shell-") && k !== SHELL) await caches.delete(k);
+    for (const k of await caches.keys()) if ((k.startsWith("pw-shell-") && k !== SHELL) || (k.startsWith("pw-libs-") && k !== LIBS)) await caches.delete(k);
     await self.clients.claim();
   })());
 });

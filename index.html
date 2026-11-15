@@ -80,8 +80,10 @@ const $ = id => document.getElementById(id);
 const MODEL = "onnx-community/Kokoro-82M-v1.0-ONNX";
 // Loaded lazily (dynamic import) so a CDN failure can never break the rest of the app.
 const KOKORO_SOURCES = [
-  "https://esm.sh/kokoro-js@1.2.1",
-  "https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/+esm"
+  // The prebuilt browser bundle. (esm.sh is deliberately not used: it swaps Node's fs for a stub
+  // that kokoro-js mistakes for a real file reader, which breaks loading voices.)
+  "https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js",
+  "https://unpkg.com/kokoro-js@1.2.1/dist/kokoro.web.js"
 ];
 const state = {
   tts:null, loadingP:null, device:"", forceWasm:false,
@@ -297,7 +299,7 @@ async function importKokoro(){
     try{const m=await import(u);if(m.KokoroTTS){kokoroModule=m;return m;}}
     catch(e){last=e;console.warn("Kokoro import failed from",u,e);}
   }
-  throw Error("Could not load the Kokoro library ("+errMsg(last)+"). Check your connection and try again.");
+  throw Error("Could not load the Kokoro library from jsDelivr or unpkg ("+errMsg(last)+"). Check your connection and try again.");
 }
 async function loadKokoro(){
   if(state.tts)return state.tts;
