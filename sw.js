@@ -1,6 +1,6 @@
 /* PageWhisper service worker: offline app shell + cached Kokoro library code.
    The Kokoro model files themselves are cached by transformers.js, not here. */
-const VERSION = "v4";
+const VERSION = "v5";
 const SHELL = "pw-shell-" + VERSION;
 const LIBS = "pw-libs-v2";
 const SHELL_FILES = [
@@ -51,7 +51,7 @@ self.addEventListener("fetch", e => {
     e.respondWith((async () => {
       const c = await caches.open(SHELL);
       try {
-        const res = await Promise.race([fetch(req), timeout(4000)]);
+        const res = await Promise.race([fetch(req.url, { cache: "no-cache" }), timeout(4000)]);
         if (res && res.ok) c.put(req, res.clone());
         return res;
       } catch { return (await c.match(req)) || Response.error(); }
@@ -64,7 +64,8 @@ self.addEventListener("fetch", e => {
     e.respondWith((async () => {
       const c = await caches.open(SHELL);
       try {
-        const res = await Promise.race([fetch(req), timeout(4000)]);
+        // "no-cache" makes the browser revalidate instead of serving a copy up to 10 minutes old (GitHub Pages default).
+        const res = await Promise.race([fetch(req.url, { cache: "no-cache" }), timeout(4000)]);
         if (res && res.ok) c.put("./index.html", res.clone());
         return res;
       } catch {

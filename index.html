@@ -38,7 +38,7 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 
 .app{height:100vh;height:100dvh;display:flex;flex-direction:column;max-width:760px;margin:0 auto;background:var(--bg)}
 .topbar{flex:none;display:flex;align-items:center;gap:10px;padding:max(8px,env(safe-area-inset-top)) 14px 6px}
-.topbar img{border-radius:8px}.brand{font-size:18px;font-weight:850;letter-spacing:.2px}.brand span{color:var(--accent2)}
+.topbar img{border-radius:8px}.vtag{margin-left:auto;font-size:11px;color:var(--muted)}.brand{font-size:18px;font-weight:850;letter-spacing:.2px}.brand span{color:var(--accent2)}
 .views{flex:1;min-height:0;position:relative}
 .view{display:none;height:100%;overflow-y:auto;overscroll-behavior:contain;padding:4px 12px 16px}
 .view.active{display:block}#view-read.active{display:flex;flex-direction:column;overflow:hidden;padding-bottom:6px}
@@ -88,9 +88,10 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 .toast.show{opacity:1;transform:translate(-50%,0)}.toast.error{border-color:var(--red);color:var(--red)}
 .app{position:relative}
 .sheetwrap{position:absolute;inset:0;z-index:60;display:none}.sheetwrap.open{display:block}.sheetback{position:absolute;inset:0}
-.sheet{position:absolute;left:0;right:0;bottom:0;max-height:64%;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:18px 18px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.35);padding-bottom:env(safe-area-inset-bottom)}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:72%;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:18px 18px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.35);padding-bottom:env(safe-area-inset-bottom)}
 .sheethead{flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px 6px}.sheethead h2{margin:0;font-size:15px}.sheethead button{min-height:38px;padding:0 14px;font-size:13px}
-.sheetbody{overflow-y:auto;overscroll-behavior:contain;padding:6px 14px 18px}.rs-row{margin-bottom:16px}
+.sheetbody{overflow-y:auto;overscroll-behavior:contain;padding:10px 14px 18px}
+.rs-preview{flex:none;margin:0 14px 6px;padding:8px calc(var(--r-pad) + 10px);background:var(--bg);border:1px solid var(--line);border-radius:12px;max-height:132px;overflow:auto;color:var(--text);font-family:var(--r-font);font-size:var(--r-size);line-height:var(--r-line);text-align:var(--r-align);font-weight:var(--r-weight);hyphens:var(--r-hyph);-webkit-hyphens:var(--r-hyph);letter-spacing:var(--r-ls);overflow-wrap:break-word}.rs-row{margin-bottom:16px}
 .segbtns{display:flex;gap:6px}.segbtns button{flex:1;min-height:42px;font-size:13px;padding:0 4px}
 .segbtns button.on,.fontgrid button.on{background:rgba(var(--accent-rgb),.22);border-color:var(--accent);color:var(--accent2)}
 .fontgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fontgrid button{min-height:54px;text-align:left;padding:6px 10px;line-height:1.25}.fontgrid small{display:block;color:var(--muted);font-size:10px;font-family:system-ui,sans-serif;margin-top:1px}
@@ -102,7 +103,7 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 </head>
 <body>
 <div id="app" class="app">
-<header class="topbar"><img src="icon-192.png" alt="" width="30" height="30"><div class="brand">Page<span>Whisper</span></div></header>
+<header class="topbar"><img src="icon-192.png" alt="" width="30" height="30"><div class="brand">Page<span>Whisper</span></div><span class="vtag" id="verTag"></span></header>
 <main class="views">
 
 <section id="view-read" class="view active">
@@ -165,6 +166,12 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 
 <section id="view-voice" class="view">
 <div class="card">
+<h2>Reading style</h2>
+<div class="swatches" id="rsThemes2" style="margin-bottom:12px"></div>
+<button id="openReading" class="primary" style="width:100%">Fonts, spacing, alignment &amp; more</button>
+<div class="hint">Opens the style panel over the reader so you can see changes as you make them. You can also reach it from the <b>Aa</b> button in the Read tab.</div>
+</div>
+<div class="card">
 <h2>Voice</h2>
 <div class="field"><label for="voice">VOICE</label><select id="voice">
 <option value="af_heart">American · Heart (female)</option><option value="af_bella">American · Bella (female)</option><option value="af_nicole">American · Nicole (female)</option><option value="af_sarah">American · Sarah (female)</option><option value="af_nova">American · Nova (female)</option><option value="af_sky">American · Sky (female)</option><option value="af_kore">American · Kore (female)</option><option value="af_aoede">American · Aoede (female)</option><option value="af_alloy">American · Alloy (female)</option><option value="af_jessica">American · Jessica (female)</option><option value="af_river">American · River (female)</option><option value="am_michael">American · Michael (male)</option><option value="am_fenrir">American · Fenrir (male)</option><option value="am_puck">American · Puck (male)</option><option value="am_echo">American · Echo (male)</option><option value="am_eric">American · Eric (male)</option><option value="am_liam">American · Liam (male)</option><option value="am_onyx">American · Onyx (male)</option><option value="am_adam">American · Adam (male)</option><option value="am_santa">American · Santa (male)</option><option value="bf_emma">British · Emma (female)</option><option value="bf_isabella">British · Isabella (female)</option><option value="bf_alice">British · Alice (female)</option><option value="bf_lily">British · Lily (female)</option><option value="bm_george">British · George (male)</option><option value="bm_fable">British · Fable (male)</option><option value="bm_lewis">British · Lewis (male)</option><option value="bm_daniel">British · Daniel (male)</option>
@@ -205,6 +212,13 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 </div>
 
 <div class="card">
+<h2>About</h2>
+<div class="hint" style="margin:0">PageWhisper Lab <b id="verText"></b></div>
+<button id="updBtn" style="width:100%;margin-top:10px">Get the latest version</button>
+<div id="updStatus" class="status" aria-live="polite"></div>
+</div>
+
+<div class="card">
 <details class="diag"><summary>Playback log (for troubleshooting)</summary><pre id="dbg"></pre><button id="dbgCopy" style="width:100%">Copy log</button></details>
 </div>
 </section>
@@ -222,14 +236,16 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <button data-view="read" class="active"><svg viewBox="0 0 24 24"><path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2zM12 6.5v13"/></svg>Read</button>
 <button data-view="open"><svg viewBox="0 0 24 24"><path d="M12 4v10M8 10.5l4 4 4-4M5 19h14"/></svg>Open</button>
 <button data-view="library"><svg viewBox="0 0 24 24"><path d="M5 4v16M10 4v16M15 5.5l4 14.5"/></svg>Library</button>
-<button data-view="voice"><svg viewBox="0 0 24 24"><path d="M4 6h8M17 6h3M4 12h3M12 12h8M4 18h10M19 18h1"/><circle cx="14.5" cy="6" r="2"/><circle cx="9.5" cy="12" r="2"/><circle cx="16.5" cy="18" r="2"/></svg>Voice</button>
+<button data-view="voice"><svg viewBox="0 0 24 24"><path d="M4 6h8M17 6h3M4 12h3M12 12h8M4 18h10M19 18h1"/><circle cx="14.5" cy="6" r="2"/><circle cx="9.5" cy="12" r="2"/><circle cx="16.5" cy="18" r="2"/></svg>Settings</button>
 </nav>
 
 <div id="sheetWrap" class="sheetwrap" aria-hidden="true">
 <div id="sheetBack" class="sheetback"></div>
 <div class="sheet" role="dialog" aria-label="Reading style">
 <div class="sheethead"><h2>Reading style</h2><div style="display:flex;gap:8px"><button id="rsReset">Reset</button><button id="rsDone" class="primary">Done</button></div></div>
+<div class="rs-preview" id="rsPreview"><span class="seg">The rain had been falling over the old harbor town for three days.</span> <span class="seg active">Lanterns swayed above the narrow streets, and the smell of salt drifted up from the docks.</span> <span class="seg">Mira pulled her coat tighter and stepped into the lamplight.</span></div>
 <div class="sheetbody">
+<div class="rs-row"><label>THEME</label><div class="swatches" id="rsThemes"></div></div>
 <div class="rs-row"><label>FONT</label><div class="fontgrid" id="rsFonts"></div><div class="hint" id="rsFontStatus"></div></div>
 <div class="rs-row"><label for="rsSize">TEXT SIZE</label><div class="range"><input id="rsSize" type="range" min="14" max="34" step="1"><output id="rsSizeOut"></output></div></div>
 <div class="rs-row"><label for="rsLine">LINE SPACING</label><div class="range"><input id="rsLine" type="range" min="1.3" max="2.4" step=".05"><output id="rsLineOut"></output></div></div>
@@ -238,7 +254,6 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <div class="rs-row"><label for="rsLs">LETTER SPACING</label><div class="range"><input id="rsLs" type="range" min="0" max=".12" step=".01"><output id="rsLsOut"></output></div></div>
 <div class="rs-row"><label>ALIGNMENT</label><div class="segbtns"><button data-align="left">Left</button><button data-align="justify">Justify</button><button data-align="center">Center</button></div></div>
 <div class="rs-row"><label>TEXT WEIGHT</label><div class="segbtns"><button data-weight="400">Regular</button><button data-weight="700">Bold</button></div><label class="check"><input type="checkbox" id="rsHyph"> Hyphenate long words</label></div>
-<div class="rs-row"><label>THEME</label><div class="swatches" id="rsThemes"></div></div>
 <div class="rs-row"><label>HIGHLIGHT COLOR</label><div class="dots" id="rsDots"></div></div>
 <div class="rs-row"><label>HIGHLIGHT STYLE</label><div class="segbtns"><button data-hlstyle="fill">Fill</button><button data-hlstyle="underline">Underline</button><button data-hlstyle="outline">Outline</button></div></div>
 </div>
@@ -1203,11 +1218,13 @@ function buildReadingUI(){
     const s=document.createElement("small");s.textContent=f.note;
     b.append(n,s);b.onclick=()=>selectFont(f.id);fg.append(b);
   }
-  const tg=$("rsThemes");tg.replaceChildren();
-  for(const t of THEMES){
-    const b=document.createElement("button");b.className="swatch";b.dataset.theme=t.id;b.textContent="Aa";b.title=t.name;b.setAttribute("aria-label",t.name+" theme");
-    b.style.background=t.bg;b.style.color=t.fg;
-    b.onclick=()=>{reading.theme=t.id;applyReading();saveReading();syncReadingUI();};tg.append(b);
+  for(const id of ["rsThemes","rsThemes2"]){ // the same swatches appear in the panel and in Settings
+    const tg=$(id);tg.replaceChildren();
+    for(const t of THEMES){
+      const b=document.createElement("button");b.className="swatch";b.dataset.theme=t.id;b.textContent="Aa";b.title=t.name;b.setAttribute("aria-label",t.name+" theme");
+      b.style.background=t.bg;b.style.color=t.fg;
+      b.onclick=()=>{reading.theme=t.id;applyReading();saveReading();syncReadingUI();};tg.append(b);
+    }
   }
   const dg=$("rsDots");dg.replaceChildren();
   for(const x of HLS){
@@ -1220,7 +1237,7 @@ function syncReadingUI(){
   for(const [id,key,fmt] of RANGES){$(id).value=reading[key];$(id+"Out").textContent=fmt(reading[key]);}
   $("rsHyph").checked=reading.hyph;
   document.querySelectorAll("#rsFonts button").forEach(b=>b.classList.toggle("on",b.dataset.font===reading.font));
-  document.querySelectorAll("#rsThemes button").forEach(b=>b.classList.toggle("on",b.dataset.theme===reading.theme));
+  document.querySelectorAll(".swatch").forEach(b=>b.classList.toggle("on",b.dataset.theme===reading.theme));
   document.querySelectorAll("#rsDots button").forEach(b=>b.classList.toggle("on",b.dataset.hl===reading.hl));
   document.querySelectorAll("[data-align]").forEach(b=>b.classList.toggle("on",b.dataset.align===reading.align));
   document.querySelectorAll("[data-weight]").forEach(b=>b.classList.toggle("on",Number(b.dataset.weight)===reading.weight));
@@ -1239,8 +1256,24 @@ $("aaBtn").onclick=()=>$("sheetWrap").classList.contains("open")?closeSheet():op
 $("rsDone").onclick=closeSheet;$("sheetBack").onclick=closeSheet;
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet();});
 $("rsReset").onclick=()=>{reading={...READING_DEFAULTS};applyReading();saveReading();syncReadingUI();fontSay("");};
+$("openReading").onclick=()=>{showView("read");openSheet();};
 buildReadingUI();applyReading();syncReadingUI();
 {const f=FONTS.find(x=>x.id===reading.font);if(f&&f.fs)loadFont(f);} // fetch (or read from cache) the chosen web font in the background
+
+/* ---------- Version + "get the latest" ---------- */
+const APP_VERSION="0.8.0",APP_BUILD="2026-11-16";
+$("verTag").textContent="v"+APP_VERSION;$("verText").textContent="v"+APP_VERSION+" · build "+APP_BUILD;
+$("updBtn").onclick=async()=>{
+  const say=(m,k="")=>{$("updStatus").textContent=m;$("updStatus").className="status "+k;};
+  say("Checking for a newer version…");
+  try{
+    for(const r of (await navigator.serviceWorker?.getRegistrations?.())||[])await r.update();
+    await Promise.all(["index.html","tts-worker.js","sw.js","manifest.json"].map(f=>fetch(f,{cache:"reload"}).catch(()=>{}))); // refresh the browser's HTTP cache
+    for(const k of await caches.keys())if(k.startsWith("pw-shell-"))await caches.delete(k);
+    say("Reloading with the newest files…","good");
+    setTimeout(()=>location.reload(),600);
+  }catch(e){say("Could not update: "+errMsg(e),"error");}
+};
 
 /* ---------- Init ---------- */
 applySettings();
