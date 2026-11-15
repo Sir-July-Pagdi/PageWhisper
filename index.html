@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111318">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PageWhisper">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>PageWhisper — Kokoro Novel Reader</title>
+<style>
+:root{color-scheme:dark;--bg:#111318;--panel:#1a1d24;--panel2:#242832;--line:#343a47;--text:#edf0f6;--muted:#a4adbd;--gold:#d9b477;--gold2:#f0d5a5;--red:#ff9696;--green:#9ed6b0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}button,input,textarea,select{font:inherit}button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:12px;padding:10px 13px;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}button.primary{background:var(--gold);border-color:var(--gold);color:#171717;font-weight:750}input,textarea,select{width:100%;background:#12151b;border:1px solid var(--line);border-radius:11px;color:var(--text);padding:11px 12px;outline:none}input:focus,textarea:focus,select:focus{border-color:var(--gold)}button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}label{display:block;color:var(--muted);font-size:11px;letter-spacing:.07em;margin:0 0 6px;font-weight:700}label.check{display:flex;align-items:center;gap:9px;letter-spacing:0;font-size:12px;font-weight:500;margin:12px 0 0;cursor:pointer}label.check input{width:auto;accent-color:var(--gold)}
+.app{max-width:1160px;margin:auto;padding:max(17px,env(safe-area-inset-top)) max(15px,env(safe-area-inset-right)) max(48px,env(safe-area-inset-bottom)) max(15px,env(safe-area-inset-left))}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:10px}.logo{display:flex;align-items:center;gap:11px}.logo img{border-radius:10px;flex:none}.brand{font-size:21px;font-weight:850;letter-spacing:.2px}.brand span{color:var(--gold)}.sub,.hint,.source,.footer{color:var(--muted);font-size:12px}.layout{display:grid;grid-template-columns:340px minmax(0,1fr);gap:15px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:15px;min-width:0}.panel h2{font-size:14px;margin:0 0 13px}.field{margin-bottom:12px}.hint{line-height:1.5;margin-top:6px}.status{font-size:12px;color:var(--muted);min-height:18px;margin-top:8px;overflow-wrap:anywhere}.status.error{color:var(--red)}.status.good{color:var(--green)}.divider{height:1px;background:var(--line);margin:15px 0}.tabs{display:flex;gap:6px;margin:11px 0}.tabs button{flex:1;font-size:12px;padding:8px}.tabs button.active{border-color:var(--gold);color:var(--gold2)}.row{display:flex;gap:8px;align-items:end}.grow{flex:1;min-width:0}.smallgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.reader-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.chapter-title{font-size:22px;line-height:1.25;margin:0 0 5px}.source{overflow-wrap:anywhere}
+.reader{position:relative;font-family:Georgia,"Times New Roman",serif;font-size:19px;line-height:1.85;overflow-wrap:anywhere;max-height:62vh;overflow:auto;padding:18px 5px 30px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}.reader .empty{color:var(--muted);text-align:center;padding:65px 10px;font-family:system-ui,sans-serif;font-size:14px}.reader p{margin:0 0 1.05em}
+.seg{border-radius:4px;cursor:pointer;transition:background .15s;-webkit-box-decoration-break:clone;box-decoration-break:clone}.seg:hover{background:#ffffff0d}.seg.active{background:#6c552d99}
+.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:13px 0}.controls button{padding:10px 6px;font-size:13px}.playbar{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:7px}.playbar button{padding:11px 7px}.range{display:grid;grid-template-columns:1fr 43px;gap:8px;align-items:center}.range input{padding:0;accent-color:var(--gold)}output{font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}.library{display:flex;flex-direction:column;gap:7px;max-height:210px;overflow:auto}.book{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px;background:#12151b;border:1px solid var(--line);border-radius:10px}.bookname{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}.book button{font-size:11px;padding:5px 8px}.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:3px 8px;color:var(--muted);font-size:10px}.voice-note{font-size:11px;color:var(--muted);margin-top:6px}.progress{height:4px;background:#303541;border-radius:10px;overflow:hidden;margin-top:8px}.progress>div{height:100%;width:0;background:var(--gold);transition:width .2s}.footer{text-align:center;margin-top:17px}.hidden{display:none!important}
+@media(max-width:780px){.layout{grid-template-columns:1fr}.reader{max-height:52vh;font-size:18px}.panel{padding:13px}.chapter-title{font-size:20px}.pill{display:none}}
+@media(prefers-reduced-motion:reduce){.reader{scroll-behavior:auto}.seg,.progress>div{transition:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="logo"><img src="icon-192.png" alt="" width="42" height="42"><div><div class="brand">Page<span>Whisper</span></div><div class="sub">Novel reader powered by Kokoro neural voices</div></div></div><span class="pill">KOKORO · LOCAL IN-BROWSER TTS</span></header>
+<div class="layout">
+<aside>
+<section class="panel">
+<h2>Open a novel chapter</h2>
+<div class="field"><label for="url">CHAPTER WEB ADDRESS</label><input id="url" type="url" inputmode="url" autocapitalize="off" autocorrect="off" placeholder="https://novelsite.com/chapter/123"></div>
+<button id="fetchBtn" class="primary" style="width:100%">Fetch chapter</button>
+<div id="fetchStatus" class="status" aria-live="polite"></div>
+<div class="hint">Tries a reader extraction service first, then direct page access, then a public proxy. Sites requiring login, subscriptions, or anti-bot challenges may still block extraction. Pasting the text always works.</div>
+<div class="divider"></div>
+<div class="tabs"><button id="tabPaste" class="active">Paste text</button><button id="tabFile">Import .txt</button></div>
+<div id="pastePane">
+<div class="field"><label for="manualTitle">CHAPTER TITLE</label><input id="manualTitle" placeholder="Novel — Chapter 1"></div>
+<div class="field"><label for="manualText">CHAPTER TEXT</label><textarea id="manualText" rows="6" placeholder="Paste chapter text here…"></textarea></div>
+<button id="loadText" class="primary" style="width:100%">Load chapter</button>
+</div>
+<div id="filePane" class="hidden"><label for="fileInput">TEXT FILE</label><input id="fileInput" type="file" accept=".txt,text/plain"><div class="hint">Text files are opened locally on this device.</div></div>
+</section>
+<section class="panel" style="margin-top:13px">
+<h2>Kokoro voice engine <span class="pill">82M</span></h2>
+<div class="field"><label for="voice">VOICE</label><select id="voice">
+<option value="af_heart">American · Heart (female)</option><option value="af_bella">American · Bella (female)</option><option value="af_nicole">American · Nicole (female)</option><option value="af_sarah">American · Sarah (female)</option><option value="af_nova">American · Nova (female)</option><option value="af_sky">American · Sky (female)</option><option value="af_kore">American · Kore (female)</option><option value="af_aoede">American · Aoede (female)</option><option value="af_alloy">American · Alloy (female)</option><option value="af_jessica">American · Jessica (female)</option><option value="af_river">American · River (female)</option><option value="am_michael">American · Michael (male)</option><option value="am_fenrir">American · Fenrir (male)</option><option value="am_puck">American · Puck (male)</option><option value="am_echo">American · Echo (male)</option><option value="am_eric">American · Eric (male)</option><option value="am_liam">American · Liam (male)</option><option value="am_onyx">American · Onyx (male)</option><option value="am_adam">American · Adam (male)</option><option value="am_santa">American · Santa (male)</option><option value="bf_emma">British · Emma (female)</option><option value="bf_isabella">British · Isabella (female)</option><option value="bf_alice">British · Alice (female)</option><option value="bf_lily">British · Lily (female)</option><option value="bm_george">British · George (male)</option><option value="bm_fable">British · Fable (male)</option><option value="bm_lewis">British · Lewis (male)</option><option value="bm_daniel">British · Daniel (male)</option>
+</select><div class="voice-note">Kokoro runs on your device after its model files download (about 90 MB in WASM mode, about 330 MB in WebGPU mode, cached afterwards). No Hugging Face token is needed.</div></div>
+<div class="field"><label for="engine">INFERENCE MODE</label><select id="engine"><option value="auto">Auto (WebGPU if it works, otherwise WASM)</option><option value="webgpu">WebGPU (faster on supported devices)</option><option value="wasm">WASM (broader compatibility, smaller download)</option></select></div>
+<div class="smallgrid">
+<div class="field"><label for="rate">SPEECH SPEED</label><div class="range"><input id="rate" type="range" min=".7" max="1.4" step=".05" value="1"><output id="rateOut">1.00×</output></div></div>
+<div class="field"><label for="chunk">CHUNK SIZE</label><select id="chunk"><option value="160">Short</option><option value="280" selected>Balanced</option><option value="380">Long</option></select></div>
+</div>
+<div class="playbar"><button id="playBtn" class="primary" disabled>▶ Play</button><button id="pauseBtn" disabled>Ⅱ Pause</button><button id="stopBtn" disabled>■ Stop</button></div>
+<div id="ttsStatus" class="status" aria-live="polite">Load a chapter, then press Play.</div><div class="progress"><div id="progressBar"></div></div>
+<div class="hint">Tip: tap any sentence in the reader to start playing from there.</div>
+</section>
+<section class="panel" style="margin-top:13px">
+<h2>Saved chapters</h2><div id="library" class="library"><div class="hint">No saved chapters yet.</div></div><div class="hint">Stored in this browser's local storage.</div>
+</section>
+</aside>
+<main class="panel">
+<div class="reader-head"><div><h1 class="chapter-title" id="chapterTitle">Your reading space</h1><div class="source" id="chapterSource">Load a chapter to begin</div></div><button id="saveBtn" disabled>☆ Save</button></div>
+<div class="controls"><button id="fontDown">A− Smaller</button><button id="fontUp">A+ Larger</button><button id="prevBtn" disabled>← Previous</button><button id="nextBtn" disabled>Next →</button></div>
+<div id="reader" class="reader"><div class="empty">Paste a chapter, import a text file, or paste a chapter URL to begin.</div></div>
+<div class="divider"></div>
+<div class="row"><div class="grow"><label for="nextUrl">NEXT CHAPTER URL</label><input id="nextUrl" type="url" inputmode="url" autocapitalize="off" autocorrect="off" placeholder="Paste the next chapter address"></div><button id="fetchNext">Fetch next</button></div>
+<div class="hint">Filled in automatically when the page exposes a next-chapter link. Otherwise PageWhisper guesses by adding 1 to the chapter number in the address, so check that it looks right.</div>
+<label class="check"><input type="checkbox" id="autoNext"> Auto-play the next chapter when this one finishes</label>
+</main>
+</div>
+<div class="footer">PageWhisper · Static GitHub Pages app · Kokoro model files download from Hugging Face on first use</div>
+<audio id="audio" class="hidden" playsinline preload="auto"></audio>
+</div>
+<script type="module">
+/* ---------- Setup ---------- */
+const $ = id => document.getElementById(id);
+const MODEL = "onnx-community/Kokoro-82M-v1.0-ONNX";
+// Loaded lazily (dynamic import) so a CDN failure can never break the rest of the app.
+const KOKORO_SOURCES = [
+  "https://esm.sh/kokoro-js@1.2.1",
+  "https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/+esm"
+];
+const state = {
+  tts:null, loadingP:null, device:"", forceWasm:false,
+  playing:false, paused:false, inClip:false, runId:0, endCur:null, wake:null, unlockP:null, chain:Promise.resolve(),
+  title:"", text:"", url:"", chunks:[], index:0, activeEl:null, font:19,
+  history:[], pos:-1
+};
+const audio = $("audio");
+const clean = s => s.replace(/\r/g,"").replace(/[ \t]+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
+const sayStatus = (msg,kind="") => {$("ttsStatus").textContent=msg;$("ttsStatus").className="status "+kind;};
+const fetchStatus = (msg,kind="") => {$("fetchStatus").textContent=msg;$("fetchStatus").className="status "+kind;};
+const errMsg = e => e?.name==="AbortError" ? "timed out" : (e?.message||String(e));
+const store = {
+  get(k,d=null){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch{return d;}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch{return false;}}
+};
+
+/* ---------- Text splitting ---------- */
+function splitForSpeech(text,max){
+  // Keeps closing quotes/brackets attached to the sentence they close.
+  const sentences = text.match(/[^.!?…。！？]+(?:[.!?…。！？]+["'”’»)\]]*)?/g) || [text];
+  const out=[];let current="";
+  for(let s of sentences){
+    s=s.trim();if(!s)continue;
+    if(current && (current+" "+s).length>max){out.push(current);current="";}
+    while(s.length>max){
+      let cut=s.lastIndexOf(" ",max);if(cut<max*.55)cut=max;
+      if(current){out.push(current);current="";}
+      out.push(s.slice(0,cut).trim());s=s.slice(cut).trim();
+    }
+    if(s)current+=(current?" ":"")+s;
+  }
+  if(current)out.push(current);
+  return out;
+}
+// Text actually sent to the voice: strip markup noise, skip chunks with nothing to say.
+function speechText(s){
+  s=s.replace(/[*_~#|^<>\\]+/g," ").replace(/[\[\]]/g,"").replace(/\s+/g," ").trim();
+  return /[\p{L}\p{N}]/u.test(s)?s:"";
+}
+function buildChunks(){
+  const max=Number($("chunk").value),root=$("reader");
+  root.replaceChildren();state.chunks=[];state.activeEl=null;
+  for(const para of state.text.split(/\n+/).map(s=>s.trim()).filter(Boolean)){
+    const p=document.createElement("p");
+    for(const piece of splitForSpeech(para,max)){
+      const span=document.createElement("span");
+      span.className="seg";span.dataset.i=state.chunks.length;span.textContent=piece+" ";
+      state.chunks.push({text:piece,speech:speechText(piece),el:span});
+      p.append(span);
+    }
+    root.append(p);
+  }
+}
+function setActive(i,scroll=true){
+  state.activeEl?.classList.remove("active");
+  const c=state.chunks[i];state.activeEl=c?.el||null;
+  if(!c)return;
+  c.el.classList.add("active");
+  if(scroll){const r=$("reader");r.scrollTo({top:Math.max(0,c.el.offsetTop-r.clientHeight/3)});}
+}
+
+/* ---------- Loading a chapter ---------- */
+function updateNav(){$("prevBtn").disabled=state.pos<=0;$("nextBtn").disabled=!state.text;}
+function setLoaded(title,text,url="",o={}){
+  text=clean(text||"");
+  if(!text){fetchStatus("No readable chapter text was found.","error");return;}
+  stopPlayback();
+  const {push=true,next}=o;
+  state.title=(title||"").trim()||"Untitled chapter";state.text=text;state.url=url;
+  if(next!==undefined)$("nextUrl").value=next||"";
+  if(push){
+    state.history=state.history.slice(0,state.pos+1);
+    state.history.push({title:state.title,text,url,next:$("nextUrl").value});
+    if(state.history.length>30)state.history.shift();
+    state.pos=state.history.length-1;
+  }
+  buildChunks();state.index=0;
+  $("chapterTitle").textContent=state.title;$("chapterSource").textContent=url||"Imported / pasted text";
+  $("reader").scrollTop=0;
+  $("saveBtn").disabled=false;$("saveBtn").textContent="☆ Save";
+  ui("idle");updateNav();
+  $("progressBar").style.width="0%";
+  sayStatus(`${text.split(/\s+/).length.toLocaleString()} words ready. Press Play to initialize Kokoro.`,"good");
+  store.set("pw-last",{title:state.title,text,url,next:$("nextUrl").value});store.set("pw-idx",0);
+  try{if("mediaSession" in navigator)navigator.mediaSession.metadata=new MediaMetadata({title:state.title,artist:"PageWhisper"});}catch{}
+}
+function openHistory(p,autoplay=false){
+  const h=state.history[p];if(!h)return;
+  state.pos=p;setLoaded(h.title,h.text,h.url,{push:false,next:h.next});
+  if(autoplay)playFrom(0);
+}
+
+/* ---------- Fetching ---------- */
+const NAVW="(?:prev(?:ious)?(?:\\s+chapter)?|next(?:\\s+chapter)?|home|menu|index|contents|table of contents|chapter list|bookmark|report|login|sign in|register)";
+const NAVSEP="[\\s|·»«›‹→←<>•-]*";
+const NAV=new RegExp("^"+NAVSEP+NAVW+"(?:"+NAVSEP+NAVW+")*"+NAVSEP+"$","i");
+function findNextInMarkdown(md){
+  const re=/\[([^\]\n]{0,40})\]\((https?:\/\/[^)\s]+)[^)]*\)/g;let m;
+  while((m=re.exec(md))){if(/\bnext\b|^[\s→›»>]+$/i.test(m[1]))return m[2];}
+  return "";
+}
+function parseReader(md,url){
+  const h1=(md.match(/^#\s+(.+)$/m)||[])[1];
+  const t=(md.match(/^Title:\s*(.+)$/m)||[])[1];
+  const next=findNextInMarkdown(md);
+  let b=md.replace(/^Title:.*$/m,"").replace(/^URL Source:.*$/mi,"").replace(/^Published Time:.*$/mi,"").replace(/^Warning:.*$/gmi,"").replace(/^Markdown Content:\s*$/mi,"")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g,"").replace(/\[([^\]]*)\]\([^)]*\)/g,"$1").replace(/https?:\/\/\S+/g,"")
+    .replace(/^#{1,6}\s*/gm,"").replace(/^>\s?/gm,"").replace(/^\s*[-*_=]{3,}\s*$/gm,"")
+    .replace(/(\*\*|__|~~)(.+?)\1/g,"$2").replace(/(^|[\s(])[*_]([^*_\n]+)[*_](?=[\s).,!?:;]|$)/g,"$1$2").replace(/`/g,"");
+  b=b.split("\n").filter(l=>!NAV.test(l.trim())).join("\n");
+  let host="";try{host=new URL(url).hostname;}catch{}
+  return {title:(h1||t||host).trim(),body:clean(b),next};
+}
+function findNextInDoc(doc,url){
+  const abs=h=>{try{const u=new URL(h,url).href;return /^https?:/.test(u)?u:"";}catch{return "";}};
+  const rel=doc.querySelector("a[rel~='next'],link[rel='next']");
+  if(rel?.getAttribute("href")){const u=abs(rel.getAttribute("href"));if(u)return u;}
+  for(const a of doc.querySelectorAll("a[href]")){
+    const t=(a.textContent||"").trim();
+    if(t.length<=30&&/^(?:next(?:\s+chapter)?|[→›»>]+)\s*[→›»>]*$/i.test(t)){const u=abs(a.getAttribute("href"));if(u)return u;}
+  }
+  return "";
+}
+function extractFromHTML(html,url){
+  const doc=new DOMParser().parseFromString(html,"text/html");
+  const title=(doc.querySelector("h1")?.textContent||doc.title||"").replace(/\s+/g," ").trim();
+  const next=findNextInDoc(doc,url);
+  doc.querySelectorAll("script,style,noscript,nav,header,footer,aside,form,button,svg,iframe,.ads,.ad,.sidebar,.comments,#comments,[class*='advert']").forEach(x=>x.remove());
+  const len=el=>(el.textContent||"").trim().length;
+  const sels=["#chapter-content",".chapter-content","[itemprop='articleBody']",".entry-content",".reading-content","#chr-content","article","main","#content",".content"];
+  let best=null;
+  for(const sel of sels){const el=doc.querySelector(sel);if(el&&len(el)>=500){best=el;break;}}
+  if(!best){let n=0;for(const sel of sels)for(const el of doc.querySelectorAll(sel)){if(len(el)>n){best=el;n=len(el);}}}
+  best=best||doc.body;
+  // A detached document has no layout, so innerText is unusable: build paragraphs from the DOM.
+  let body="";
+  const ps=[...best.querySelectorAll("p")].map(p=>p.textContent.replace(/\s+/g," ").trim()).filter(Boolean);
+  if(ps.join(" ").length>=250)body=ps.join("\n\n");
+  else{
+    best.querySelectorAll("br").forEach(b=>b.replaceWith("\n"));
+    best.querySelectorAll("div,li,h1,h2,h3,h4,h5,h6,section").forEach(b=>b.append("\n"));
+    body=clean(best.textContent||"");
+  }
+  if(body.length<250)throw Error("No chapter body found.");
+  return {title,body,next};
+}
+function guessNext(url){
+  try{
+    const u=new URL(url);const m=u.pathname.match(/^(.*?)(\d+)(\D*)$/);
+    if(!m)return "";
+    u.pathname=m[1]+(Number(m[2])+1)+m[3];return u.href;
+  }catch{return "";}
+}
+async function fetchText(url,opts={},ms=25000){
+  const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);
+  try{
+    const r=await fetch(url,{...opts,signal:c.signal});
+    if(!r.ok)throw Error("HTTP "+r.status);
+    return await r.text();
+  }finally{clearTimeout(t);}
+}
+async function fetchChapter(url,{autoplay=false}={}){
+  try{const u=new URL(url);if(!/^https?:$/.test(u.protocol))throw Error("Use an http or https chapter URL.");}
+  catch(e){fetchStatus(/http/.test(e.message)?e.message:"Enter a valid URL, including https://","error");return;}
+  $("fetchBtn").disabled=true;$("fetchNext").disabled=true;$("nextBtn").disabled=true;
+  const errors=[];let result=null;
+  try{
+    try{
+      fetchStatus("Trying reader extraction…");
+      const r=parseReader(await fetchText("https://r.jina.ai/"+url,{headers:{"Accept":"text/plain"}}),url);
+      if(r.body.length<250)throw Error("too little text returned");
+      result=r;
+    }catch(e){errors.push("reader: "+errMsg(e));}
+    if(!result){
+      try{
+        fetchStatus("Reader extraction unavailable. Trying direct page access…");
+        result=extractFromHTML(await fetchText(url,{mode:"cors",credentials:"omit"}),url);
+      }catch(e){errors.push("direct: "+errMsg(e));}
+    }
+    if(!result){
+      try{
+        fetchStatus("Direct access blocked. Trying proxy…");
+        result=extractFromHTML(await fetchText("https://api.allorigins.win/raw?url="+encodeURIComponent(url)),url);
+      }catch(e){errors.push("proxy: "+errMsg(e));}
+    }
+    if(!result){
+      fetchStatus("Could not fetch this chapter. The site may block extraction, require login, or use anti-bot protection. Paste the chapter text instead. Details: "+errors.join(" · "),"error");
+      return;
+    }
+    const guessed=!result.next;
+    const next=result.next||guessNext(url);
+    setLoaded(result.title,result.body,url,{next});
+    fetchStatus("Chapter extracted successfully."+(next?(guessed?" Next URL was guessed, so double-check it.":" Next chapter link found."):""),"good");
+    if(autoplay)playFrom(0);
+  }finally{
+    $("fetchBtn").disabled=false;$("fetchNext").disabled=false;updateNav();
+  }
+}
+async function goNext(autoplay=false){
+  if(state.pos<state.history.length-1){openHistory(state.pos+1,autoplay);return;}
+  const u=$("nextUrl").value.trim();
+  if(!u){fetchStatus("Paste the next chapter URL first.","error");return;}
+  await fetchChapter(u,{autoplay});
+}
+
+/* ---------- Kokoro ---------- */
+let kokoroModule=null;
+async function importKokoro(){
+  if(kokoroModule)return kokoroModule;
+  let last;
+  for(const u of KOKORO_SOURCES){
+    try{const m=await import(u);if(m.KokoroTTS){kokoroModule=m;return m;}}
+    catch(e){last=e;console.warn("Kokoro import failed from",u,e);}
+  }
+  throw Error("Could not load the Kokoro library ("+errMsg(last)+"). Check your connection and try again.");
+}
+async function loadKokoro(){
+  if(state.tts)return state.tts;
+  if(state.loadingP)return state.loadingP;
+  state.loadingP=(async()=>{
+    sayStatus("Loading Kokoro library…");
+    const {KokoroTTS}=await importKokoro();
+    const choice=$("engine").value,canGpu=!!navigator.gpu;
+    if(choice==="webgpu"&&!canGpu)throw Error("This browser does not expose WebGPU. Choose Auto or WASM.");
+    const order=(choice==="wasm"||!canGpu||state.forceWasm)?["wasm"]:choice==="webgpu"?["webgpu"]:["webgpu","wasm"];
+    let lastErr;
+    for(const dev of order){
+      try{
+        sayStatus(`Loading Kokoro model (${dev==="webgpu"?"WebGPU":"WASM"})… first load downloads model files. Keep this page open.`);
+        const tts=await KokoroTTS.from_pretrained(MODEL,{
+          dtype:dev==="webgpu"?"fp32":"q8",device:dev,
+          progress_callback:p=>{if(p?.status==="progress"&&p.file)sayStatus(`Downloading ${p.file.split("/").pop()} · ${Math.round(p.progress||0)}%`);}
+        });
+        state.device=dev;
+        sayStatus(`Kokoro ready · ${dev==="webgpu"?"WebGPU acceleration":"WASM mode"}`,"good");
+        return tts;
+      }catch(e){lastErr=e;console.warn("Kokoro load failed on",dev,e);}
+    }
+    throw lastErr||Error("Model failed to load.");
+  })();
+  try{state.tts=await state.loadingP;return state.tts;}
+  finally{state.loadingP=null;}
+}
+// ONNX sessions cannot run concurrently, so every generate() call goes through one queue.
+function synth(text){
+  const run=async()=>{
+    const tts=await loadKokoro();
+    const opts={voice:$("voice").value,speed:Number($("rate").value)};
+    try{return await tts.generate(text,opts);}
+    catch(e){
+      if(state.device==="webgpu"&&$("engine").value==="auto"){
+        console.warn("WebGPU generation failed, retrying on WASM",e);
+        state.tts=null;state.forceWasm=true;
+        return (await loadKokoro()).generate(text,opts);
+      }
+      throw e;
+    }
+  };
+  const p=state.chain.then(run);
+  state.chain=p.catch(()=>{});
+  return p;
+}
+function floatToWavBlob(samples,sampleRate){
+  const buffer=new ArrayBuffer(44+samples.length*2),view=new DataView(buffer);
+  const write=(o,s)=>{for(let i=0;i<s.length;i++)view.setUint8(o+i,s.charCodeAt(i));};
+  write(0,"RIFF");view.setUint32(4,36+samples.length*2,true);write(8,"WAVE");write(12,"fmt ");view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);view.setUint32(24,sampleRate,true);view.setUint32(28,sampleRate*2,true);view.setUint16(32,2,true);view.setUint16(34,16,true);write(36,"data");view.setUint32(40,samples.length*2,true);
+  let offset=44;for(let i=0;i<samples.length;i++,offset+=2){const s=Math.max(-1,Math.min(1,samples[i]));view.setInt16(offset,s<0?s*0x8000:s*0x7fff,true);}
+  return new Blob([buffer],{type:"audio/wav"});
+}
+
+/* ---------- Playback ---------- */
+function ui(mode){
+  const idle=mode==="idle";
+  $("playBtn").disabled=!idle||!state.text;$("pauseBtn").disabled=idle;$("stopBtn").disabled=idle;
+  if(idle){$("playBtn").textContent="▶ Play";$("pauseBtn").textContent="Ⅱ Pause";}
+}
+// iOS/iPadOS only lets an <audio> element play later if it was started by a tap, so a silent
+// clip is played inside the tap handler. Model loading takes seconds and would otherwise lose that permission.
+function unlockAudio(){
+  if(state.unlockP)return state.unlockP;
+  try{
+    audio.src=URL.createObjectURL(floatToWavBlob(new Float32Array(2400),24000));
+    state.unlockP=audio.play().then(()=>audio.pause()).catch(()=>{});
+  }catch{state.unlockP=Promise.resolve();}
+  return state.unlockP;
+}
+function playUrl(url){
+  return new Promise((resolve,reject)=>{
+    state.endCur=resolve;state.inClip=true;
+    audio.onended=()=>resolve();
+    audio.onerror=()=>reject(Error("Audio playback failed."));
+    audio.src=url;
+    audio.play().catch(e=>{if(e?.name!=="AbortError")reject(e);});
+  });
+}
+const waitIfPaused=()=>state.paused?new Promise(r=>{state.wake=r;}):null;
+function pauseNow(){
+  if(!state.playing||state.paused)return;
+  state.paused=true;audio.pause();$("pauseBtn").textContent="▶ Resume";sayStatus("Paused.");
+}
+function resume(){
+  if(!state.playing||!state.paused)return;
+  state.paused=false;$("pauseBtn").textContent="Ⅱ Pause";
+  if(state.inClip&&!audio.ended)audio.play().catch(()=>{});
+  state.wake?.();state.wake=null;sayStatus("Playing.");
+}
+function stopPlayback(){
+  state.runId++;state.playing=false;state.paused=false;state.inClip=false;state.index=0;
+  audio.pause();
+  state.endCur?.();state.endCur=null;state.wake?.();state.wake=null;
+  setActive(-1);ui("idle");$("progressBar").style.width="0%";
+}
+async function playFrom(index){
+  const unlock=unlockAudio(); // must run synchronously inside the tap
+  const run=++state.runId;
+  state.playing=true;state.paused=false;state.index=index;
+  ui("busy");
+  const n=state.chunks.length;
+  const gen=i=>{
+    const c=state.chunks[i];
+    if(!c||!c.speech)return Promise.resolve(null);
+    return synth(c.speech).then(g=>URL.createObjectURL(floatToWavBlob(g.audio,g.sampling_rate||24000)));
+  };
+  try{
+    await loadKokoro();await unlock;
+    if(run!==state.runId)return;
+    let next=gen(index);next.catch(()=>{});
+    for(let i=index;i<n;i++){
+      if(run!==state.runId)return;
+      state.index=i;setActive(i);store.set("pw-idx",i);
+      $("progressBar").style.width=((i+1)/n*100)+"%";
+      sayStatus(`Generating audio · section ${i+1} of ${n}`);
+      const url=await next;
+      if(run!==state.runId){if(url)URL.revokeObjectURL(url);return;}
+      // Start generating the following chunk while this one plays, so there is no gap between sections.
+      next=i+1<n?gen(i+1):null;if(next)next.catch(()=>{});
+      if(url){
+        await waitIfPaused();
+        if(run!==state.runId){URL.revokeObjectURL(url);return;}
+        sayStatus(`Playing · section ${i+1} of ${n}`);
+        try{await playUrl(url);}finally{state.inClip=false;URL.revokeObjectURL(url);}
+      }
+    }
+    if(run===state.runId){
+      state.playing=false;state.index=0;store.set("pw-idx",0);
+      ui("idle");$("playBtn").textContent="↻ Play again";sayStatus("Chapter finished.","good");
+      if($("autoNext").checked)await goNext(true);
+    }
+  }catch(e){
+    if(run===state.runId){
+      state.playing=false;state.inClip=false;ui("idle");
+      sayStatus("Kokoro error: "+errMsg(e),"error");
+    }
+  }
+}
+
+/* ---------- Settings & library ---------- */
+const SETTINGS=["voice","engine","rate","chunk"];
+function applySettings(){
+  const s=store.get("pw-settings",{})||{};
+  for(const k of SETTINGS){
+    if(s[k]==null)continue;const el=$(k);
+    if(el.tagName==="SELECT"&&![...el.options].some(o=>o.value===String(s[k])))continue;
+    el.value=s[k];
+  }
+  if(s.font>=14&&s.font<=30)state.font=s.font;
+  $("autoNext").checked=!!s.auto;
+  $("reader").style.fontSize=state.font+"px";
+  $("rateOut").textContent=Number($("rate").value).toFixed(2)+"×";
+}
+function saveSettings(){
+  const s={font:state.font,auto:$("autoNext").checked};
+  for(const k of SETTINGS)s[k]=$(k).value;
+  store.set("pw-settings",s);
+}
+function getLibrary(){const a=store.get("pw-library",[]);return Array.isArray(a)?a:[];}
+function renderLibrary(){
+  const a=getLibrary(),el=$("library");el.replaceChildren();
+  if(!a.length){el.innerHTML='<div class="hint">No saved chapters yet.</div>';return;}
+  a.forEach((x,i)=>{
+    const row=document.createElement("div");row.className="book";
+    const title=document.createElement("div");title.className="bookname";title.textContent=x.title;title.title=x.title;
+    const open=document.createElement("button");open.textContent="Open";open.onclick=()=>setLoaded(x.title,x.text,x.url,{next:x.next||""});
+    const del=document.createElement("button");del.textContent="×";del.setAttribute("aria-label","Delete "+x.title);
+    del.onclick=()=>{const cur=getLibrary();cur.splice(i,1);store.set("pw-library",cur);renderLibrary();};
+    row.append(title,open,del);el.append(row);
+  });
+}
+
+/* ---------- Events ---------- */
+$("fetchBtn").onclick=()=>fetchChapter($("url").value.trim());
+$("url").addEventListener("keydown",e=>{if(e.key==="Enter")$("fetchBtn").click();});
+$("fetchNext").onclick=()=>fetchChapter($("nextUrl").value.trim());
+$("nextUrl").addEventListener("keydown",e=>{if(e.key==="Enter")$("fetchNext").click();});
+$("nextBtn").onclick=()=>goNext(false);
+$("prevBtn").onclick=()=>{if(state.pos>0)openHistory(state.pos-1);};
+$("loadText").onclick=()=>{
+  const t=$("manualText").value,first=clean(t).split("\n")[0]||"";
+  setLoaded($("manualTitle").value.trim()||(first&&first.length<=80?first:"Pasted chapter"),t);
+};
+$("fileInput").onchange=async e=>{const f=e.target.files?.[0];if(f)setLoaded(f.name.replace(/\.txt$/i,""),await f.text());};
+$("tabPaste").onclick=()=>{$("pastePane").classList.remove("hidden");$("filePane").classList.add("hidden");$("tabPaste").classList.add("active");$("tabFile").classList.remove("active");};
+$("tabFile").onclick=()=>{$("pastePane").classList.add("hidden");$("filePane").classList.remove("hidden");$("tabFile").classList.add("active");$("tabPaste").classList.remove("active");};
+$("playBtn").onclick=()=>{if(state.text)playFrom(state.index>=state.chunks.length?0:state.index);};
+$("pauseBtn").onclick=()=>{state.paused?resume():pauseNow();};
+$("stopBtn").onclick=()=>{stopPlayback();sayStatus("Playback stopped.");};
+$("reader").addEventListener("click",e=>{
+  const seg=e.target.closest?.(".seg");
+  if(seg&&state.text){const i=Number(seg.dataset.i);if(state.playing)stopPlayback();playFrom(i);}
+});
+$("rate").oninput=()=>{$("rateOut").textContent=Number($("rate").value).toFixed(2)+"×";};
+$("chunk").onchange=()=>{if(state.text){stopPlayback();buildChunks();state.index=0;}};
+$("engine").addEventListener("change",()=>{state.tts=null;state.forceWasm=false;});
+for(const k of SETTINGS)$(k).addEventListener("change",saveSettings);
+$("autoNext").addEventListener("change",saveSettings);
+$("fontDown").onclick=()=>{state.font=Math.max(14,state.font-1);$("reader").style.fontSize=state.font+"px";saveSettings();};
+$("fontUp").onclick=()=>{state.font=Math.min(30,state.font+1);$("reader").style.fontSize=state.font+"px";saveSettings();};
+$("saveBtn").onclick=()=>{
+  if(!state.text)return;
+  const a=getLibrary();const item={title:state.title,text:state.text,url:state.url,next:$("nextUrl").value};
+  const i=a.findIndex(x=>x.url===item.url&&x.title===item.title);
+  if(i>=0)a[i]=item;else a.unshift(item);
+  if(store.set("pw-library",a)){renderLibrary();$("saveBtn").textContent="★ Saved";sayStatus("Chapter saved on this device.","good");}
+  else sayStatus("Could not save: browser storage may be full.","error");
+};
+// Lock-screen / headphone controls, and OS-initiated pauses.
+audio.addEventListener("pause",()=>{
+  if(state.playing&&state.inClip&&!state.paused&&!audio.ended){state.paused=true;$("pauseBtn").textContent="▶ Resume";sayStatus("Paused.");}
+});
+try{
+  if("mediaSession" in navigator){
+    navigator.mediaSession.setActionHandler("play",resume);
+    navigator.mediaSession.setActionHandler("pause",pauseNow);
+  }
+}catch{}
+window.addEventListener("beforeunload",()=>audio.pause());
+
+/* ---------- Init ---------- */
+applySettings();
+renderLibrary();
+ui("idle");
+// Restore the last chapter and reading position.
+{
+  const last=store.get("pw-last",null),idx=Number(store.get("pw-idx",0))||0;
+  if(last?.text){
+    setLoaded(last.title,last.text,last.url||"",{next:last.next||""});
+    if(idx>0&&idx<state.chunks.length){
+      state.index=idx;setActive(idx);store.set("pw-idx",idx);
+      sayStatus(`Restored your last chapter. Press Play to resume at section ${idx+1} of ${state.chunks.length}.`,"good");
+    }
+  }
+}
+
+/* ---------- PWA: service worker + "Share to PageWhisper" ---------- */
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(e=>console.warn("Service worker not registered",e)));}
+{
+  // Android share sheet: share a chapter link from Chrome to the installed app and it is fetched right away.
+  const q=new URLSearchParams(location.search);
+  const shared=[q.get("url"),q.get("text"),q.get("title")].filter(Boolean).join(" ");
+  const link=(shared.match(/https?:\/\/[^\s]+/)||[])[0];
+  if(link){
+    history.replaceState(null,"",location.pathname);
+    $("url").value=link;
+    fetchChapter(link);
+  }
+}
+</script>
+</body>
+</html>
