@@ -1,136 +1,134 @@
-
 # PageWhisper
 
-**A mobile-friendly web novel reader with Kokoro neural text-to-speech.**
-
-PageWhisper lets you open a web novel chapter, read it in a focused reading view, and listen using Kokoro-generated voices directly in your browser. It is a static web app designed for GitHub Pages and can be installed as a Progressive Web App (PWA) on supported devices.
-
-## Live App
-
-https://sir-july-pagdi.github.io/PageWhisper/
+A web novel reader that reads chapters aloud with **Kokoro**, a neural text-to-speech model that runs entirely on your device. It's a static web app that you can host free on GitHub Pages and install on Android as an app. There's no account, no server and no API key.
 
 ## Features
 
-- **Load chapters:** Fetch a chapter from a URL, paste text, paste from the clipboard, or import a `.txt` file.
-- **Kokoro neural TTS:** Generate speech in the browser with the Kokoro-82M ONNX model.
-- **Multiple voices:** Choose from available American and British English voices.
-- **Inference options:** Use WebGPU where supported or WASM for broader compatibility.
-- **Reading controls:** Adjust speech speed, speech chunk size, and reader font size.
-- **Sentence-level playback:** Tap a sentence to begin playback from that point. The currently spoken section is highlighted.
-- **Chapter navigation:** Use previous/next navigation and load following chapters.
-- **Auto-next:** Optionally play the next chapter when the current chapter finishes.
-- **Saved chapters:** Keep a local library of chapters in the browser.
-- **Playback integration:** Media Session controls for compatible browsers, operating systems, and headphones.
-- **PWA installation:** Includes a web app manifest, app icons, and a service worker.
-- **Share target:** Compatible apps can share chapter URLs or text to PageWhisper.
-- **Offline app shell:** Previously cached application files can open offline.
+- **Natural neural voices:** 28 Kokoro voices (American and British, female and male), with adjustable speed.
+- **Runs on your device:** after a one-time model download, speech is generated locally and works offline.
+- **Open chapters your way:**
+  - fetch a chapter from its web address
+  - paste text or load it from the clipboard
+  - import a `.txt` file
+  - share text or a link to the app from Chrome's share sheet
+- **Reader view:** the sentence being spoken is highlighted and followed automatically. Tap any sentence to start from there. Text size is adjustable, and there's a distraction-free fullscreen mode.
+- **Chapter navigation:** Previous/Next chapter, a next-chapter link that's auto-detected (or guessed from the chapter number), and optional auto-play of the next chapter.
+- **Novel library:** keep links to novels from any site. Continue reads from your last chapter, and the bookmark moves as you read.
+- **Saved chapters:** stored on your device for offline reading.
+- **Ambient sounds:** rain, heavy rain, thunderstorm, ocean waves, night insects, night forest, wind, campfire and brown noise. They're generated on the device, loop seamlessly, have their own volume, and can play only while narrating.
+- **Background playback:** audio keeps playing with the screen off or in other apps, with lock-screen and notification controls (play, pause, previous and next section, stop).
+- **Keep screen on:** an optional toggle.
+- **Installable (PWA):** opens fullscreen like a native app, with offline support.
 
-## How It Works
+## Files
 
-PageWhisper is a client-side application. Its interface and reading logic run in the browser. Kokoro performs speech synthesis on the device after the required model assets have been downloaded.
-
-1. Load a chapter by URL, pasted text, clipboard, or text file.
-2. For URL loading, PageWhisper attempts reader-style extraction and other available page-access methods.
-3. The extracted text is cleaned and divided into manageable speech sections.
-4. When playback starts, the app loads Kokoro and generates audio for the sections.
-5. Generated audio is played in sequence while the current section is highlighted.
-
-The application uses the `kokoro-js` browser runtime and the `onnx-community/Kokoro-82M-v1.0-ONNX` model.
-
-Model assets are downloaded on first use and cached by the browser/runtime.
-
-## Getting Started
-
-### Use the Hosted App
-
-1. Open the [PageWhisper web app](https://sir-july-pagdi.github.io/PageWhisper/).
-2. Enter a chapter URL and select **Fetch chapter**, or use one of the paste/import options.
-3. Choose a voice and inference mode.
-4. Press **Play**.
-5. On first use, wait for the Kokoro runtime and model assets to download.
-6. Save chapters to keep them in this browser's local library.
-
-### Run Locally
-
-Do not open `index.html` directly using a `file://` URL. PageWhisper uses browser modules, service workers, and browser APIs that require a local web server.
-
-With Python installed, run:
-
-```bash
-python -m http.server 8000
-```
-
-Then open:
-
-http://localhost:8000
-
-### Deploy to GitHub Pages
-
-PageWhisper is a static website and does not require a build step or application backend.
-
-1. Push the project files to the repository's `main` branch.
-2. Open **Settings → Pages** in GitHub.
-3. Under **Build and deployment**, select **Deploy from a branch**.
-4. Choose **main** and the **/(root)** folder.
-5. Save and wait for deployment to finish.
-
-Keep the application files together in the repository root. The manifest and service worker use relative paths.
-
-## Browser and Device Notes
-
-- Use a modern browser with JavaScript modules, WebAssembly, service worker, and browser storage support.
-- WebGPU is optional. If unavailable or unstable, select **WASM**.
-- The interface estimates first-use model downloads at approximately **90 MB in WASM mode** and **330 MB in WebGPU mode**. Actual download and storage sizes may vary.
-- Speech generation is computationally intensive. Performance depends on the device, browser, available memory, and inference mode.
-- Keep the page open while the model loads and while starting playback.
-- Mobile operating systems may suspend browser activity or restrict background playback.
-- Browser storage may be cleared or evicted. The local chapter library is not a backup.
-
-## URL Extraction Limitations
-
-PageWhisper cannot guarantee that every novel website can be fetched.
-
-A website may:
-- Require login or a subscription.
-- Block automated requests.
-- Use anti-bot protection.
-- Prevent cross-origin access.
-- Use a page structure that makes chapter extraction difficult.
-
-If URL loading fails or returns incomplete text, use **Paste text**, **Paste from clipboard**, or **Import .txt**.
-
-Only access and load content you are authorized to use.
-
-## Privacy and Data
-
-- Chapter text, saved chapters, and reading settings are handled in the browser.
-- Saved chapters and settings use local browser storage and are not synchronized between devices.
-- Kokoro speech synthesis runs on the device after model assets are downloaded.
-- Loading a chapter URL may contact the source website and extraction/proxy services used by the app.
-- The browser also downloads Kokoro runtime and model assets from their hosting/CDN providers.
-- PageWhisper does not provide user accounts or a cloud chapter library.
-
-## Project Structure
+Upload all of these to the **same folder** (no subfolders needed):
 
 | File | Purpose |
 |---|---|
-| `index.html` | Main application, interface, chapter extraction, reader, and Kokoro playback logic |
-| `manifest.json` | PWA metadata, icons, and share-target configuration |
-| `sw.js` | Service worker for app-shell and runtime CDN caching |
-| `icon-192.png` | PWA icon |
-| `icon-512.png` | High-resolution PWA icon |
-| `icon-maskable-512.png` | Maskable PWA icon |
-| `apple-touch-icon.png` | Apple home-screen icon |
+| `index.html` | The app (interface and logic) |
+| `tts-worker.js` | Runs Kokoro in a background worker |
+| `sw.js` | Service worker (offline support and caching) |
+| `manifest.json` | Install and app metadata |
+| `icon-192.png`, `icon-512.png` | App icons |
+| `icon-maskable-512.png` | Adaptive icon for Android |
+| `apple-touch-icon.png` | Icon for iOS home screens |
 
-## Acknowledgements
+## Deploy on GitHub Pages
 
-- [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) by Hexgrad.
-- [Kokoro JS](https://github.com/hexgrad/kokoro) and its browser inference tooling.
-- [ONNX Community Kokoro Model](https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX).
-- [Hugging Face](https://huggingface.co/) for model hosting and related tooling.
+1. Create a repository and upload all the files above to its root.
+2. Go to **Settings → Pages**, choose your branch and the `/ (root)` folder, then save.
+3. Open `https://<your-username>.github.io/<repo-name>/` once Pages finishes building.
 
-Refer to the upstream projects for their respective licenses and terms.
+The app must be served over **HTTPS**, which GitHub Pages does. It will not work correctly from `file://`.
 
----
+## Install on Android
 
-**PageWhisper** · Static GitHub Pages app · Built for reading and listening.
+1. Open your Pages link in **Chrome**.
+2. Tap the **⋮** menu and choose **Install app** (or **Add to Home screen**).
+3. Launch it from your home screen.
+
+Installing also enables **Share to PageWhisper**: in Chrome, select chapter text or use Share on a page and pick PageWhisper.
+
+## Using the app
+
+The bottom tabs are:
+
+- **Read:** the chapter, with a toolbar for text size, previous/next chapter, auto-next, and fullscreen.
+- **Open:** fetch by link, paste or import text, and set the next-chapter link.
+- **Library:** your novels and saved chapters.
+- **Voice:** voice, speed, chunk size, engine, ambient sound and playback options.
+
+The player bar at the bottom (previous section, play/pause, next section, stop) stays visible on every tab.
+
+**First run:** press play. The app downloads the model once (about 90 MB in WASM mode, about 330 MB in WebGPU mode), then caches it. Keep the app open while it downloads.
+
+### Sites that block fetching
+
+Some sites use bot protection or require a login, so no static web app can fetch them directly. If fetching fails:
+
+1. Open the chapter in your browser.
+2. Select and copy the text, then in PageWhisper tap **Paste from clipboard & load** (Open tab).
+3. Or select the text and use **Share → PageWhisper**.
+4. Tap the first real sentence to skip any menus copied before the chapter text.
+
+In the Library, **Open in browser** takes you straight to a saved novel's page.
+
+## Settings worth knowing
+
+- **Engine:** Auto tries WebGPU and falls back to WASM. WASM is the most compatible; WebGPU is faster on supported phones.
+- **Chunk size:** shorter chunks start sooner; longer chunks sound smoother.
+- **Only play while narrating:** keeps the ambient sound in step with the reading.
+- **Keep screen on:** stops the screen from sleeping while the app is open.
+
+## Background playback tips
+
+Audio keeps playing with the screen off, but Android's battery manager can still stop apps. If playback stops:
+
+- Go to **Settings → Apps → PageWhisper (or Chrome) → Battery** and choose **Unrestricted**.
+- Choose **WASM** as the engine (WebGPU can pause when the screen is off).
+- Open **Voice → Playback log**, tap **Copy log**, and check what happened when it stopped.
+
+An ambient sound helps keep the app active in the background.
+
+## Privacy
+
+- Your chapter text and saved data stay on your device (browser local storage).
+- Speech is generated locally. No audio or text is sent to any server.
+- Network requests the app makes:
+  - **Model files and voices** are downloaded from Hugging Face (cached after the first time).
+  - **Kokoro library code** is loaded from jsDelivr (backup: unpkg).
+  - **Fetching a chapter by link** sends that link to `r.jina.ai` (reader extraction) and, if needed, a public proxy (`api.allorigins.win`). Use paste or import if you'd rather not send links to third parties.
+
+## Troubleshooting
+
+| Problem | What to try |
+|---|---|
+| Old version keeps showing after an update | Close the app fully and reopen it twice. If needed, clear the site's data in Chrome's site settings. |
+| "Failed to fetch" / site blocks fetching | Use paste or share (see above). |
+| Nothing speaks / engine error | Check your connection (the model must download once). Try the WASM engine. Copy the playback log. |
+| Choppy audio or long pauses | Use WASM with the Long chunk size, or close other heavy apps. |
+| Ambient sound won't start | Tap a sound chip once, since browsers need a tap before audio can play. |
+| Stops with the screen off | See Background playback tips. |
+
+## Browser support
+
+Built for **Chrome on Android**. It also works in current desktop Chrome and Edge. WebGPU depends on your device; the WASM mode works more widely. Fullscreen and Keep screen on depend on browser support, and the app tells you when something isn't available.
+
+## Tech notes
+
+- **Text-to-speech:** [Kokoro-82M](https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX) through `kokoro-js` and Transformers.js (ONNX Runtime Web), running in a Web Worker.
+- **Playback:** Web Audio is not used for speech; sections are generated ahead as WAV clips and played through an `<audio>` element, so Media Session controls and background audio work.
+- **Ambient sounds:** procedural synthesis (filtered noise plus event layers), generated to seamless loops on the device.
+- **Offline:** a service worker caches the app shell and library code; the model is cached by Transformers.js.
+
+## Credits
+
+- Kokoro-82M (Apache 2.0) and `kokoro-js`
+- Hugging Face Transformers.js
+- r.jina.ai reader service
+- App icon and design by the project owner
+
+## License
+
+Add your preferred license here (for example MIT). Kokoro and the other libraries keep their own licenses.
