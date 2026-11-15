@@ -55,6 +55,8 @@
 </div>
 <div class="playbar"><button id="playBtn" class="primary" disabled>▶ Play</button><button id="pauseBtn" disabled>Ⅱ Pause</button><button id="stopBtn" disabled>■ Stop</button></div>
 <div id="ttsStatus" class="status" aria-live="polite">Load a chapter, then press Play.</div><div class="progress"><div id="progressBar"></div></div>
+<label class="check"><input type="checkbox" id="keepAwake"> Keep screen on while the app is open</label>
+<div class="hint">Audio keeps playing with the screen off or while you use other apps, with lock-screen and notification controls. If Android stops it anyway, set this app's battery usage to Unrestricted.</div>
 <div class="hint">Tip: tap any sentence in the reader to start playing from there.</div>
 </section>
 <section class="panel" style="margin-top:13px">
@@ -169,7 +171,7 @@ function setLoaded(title,text,url="",o={}){
   $("progressBar").style.width="0%";
   sayStatus(`${text.split(/\s+/).length.toLocaleString()} words ready. Press Play to initialize Kokoro.`,"good");
   store.set("pw-last",{title:state.title,text,url,next:$("nextUrl").value});store.set("pw-idx",0);
-  try{if("mediaSession" in navigator)navigator.mediaSession.metadata=new MediaMetadata({title:state.title,artist:"PageWhisper"});}catch{}
+  try{if("mediaSession" in navigator)navigator.mediaSession.metadata=new MediaMetadata({title:state.title,artist:"PageWhisper",album:"Novel reader",artwork:[{src:"icon-512.png",sizes:"512x512",type:"image/png"},{src:"icon-192.png",sizes:"192x192",type:"image/png"}]});}catch{}
 }
 function openHistory(p,autoplay=false){
   const h=state.history[p];if(!h)return;
@@ -329,8 +331,9 @@ async function loadKokoro(){
   finally{state.loadingP=null;}
 }
 // ONNX sessions cannot run concurrently, so every generate() call goes through one queue.
-function synth(text){
+function synth(text,skip){
   const run=async()=>{
+    if(skip&&skip())return null; // the run that asked for this was stopped
     const tts=await loadKokoro();
     const opts={voice:$("voice").value,speed:Number($("rate").value)};
     try{return await tts.generate(text,opts);}
@@ -360,13 +363,35 @@ function ui(mode){
   const idle=mode==="idle";
   $("playBtn").disabled=!idle||!state.text;$("pauseBtn").disabled=idle;$("stopBtn").disabled=idle;
   if(idle){$("playBtn").textContent="▶ Play";$("pauseBtn").textContent="Ⅱ Pause";}
+  updateMedia();
 }
+function updateMedia(){
+  try{if("mediaSession" in navigator)navigator.mediaSession.playbackState=!state.playing?"none":(state.paused?"paused":"playing");}catch{}
+}
+// While playing, hold a Web Lock: Chrome does not freeze or heavily throttle pages that hold one.
+let lockWanted=false,lockPending=false,lockRelease=null;
+function holdLock(){
+  lockWanted=true;
+  if(lockRelease||lockPending||!navigator.locks)return;
+  lockPending=true;
+  navigator.locks.request("pagewhisper-playback",()=>{lockPending=false;return lockWanted?new Promise(res=>{lockRelease=res;}):undefined;}).catch(()=>{lockPending=false;});
+}
+function dropLock(){lockWanted=false;lockRelease?.();lockRelease=null;}
+// Silent loop that keeps the audio session (and its notification) alive if the next section is not ready yet.
+function startSilence(){
+  if(!state.silentUrl||state.paused)return;
+  audio.loop=true;
+  if(audio.src!==state.silentUrl)audio.src=state.silentUrl;
+  audio.play().catch(()=>{});
+}
+function stopSilence(){audio.loop=false;}
 // iOS/iPadOS only lets an <audio> element play later if it was started by a tap, so a silent
 // clip is played inside the tap handler. Model loading takes seconds and would otherwise lose that permission.
 function unlockAudio(){
   if(state.unlockP)return state.unlockP;
   try{
-    audio.src=URL.createObjectURL(floatToWavBlob(new Float32Array(2400),24000));
+    state.silentUrl=URL.createObjectURL(floatToWavBlob(new Float32Array(24000),24000));
+    audio.src=state.silentUrl;
     state.unlockP=audio.play().then(()=>audio.pause()).catch(()=>{});
   }catch{state.unlockP=Promise.resolve();}
   return state.unlockP;
@@ -383,44 +408,49 @@ function playUrl(url){
 const waitIfPaused=()=>state.paused?new Promise(r=>{state.wake=r;}):null;
 function pauseNow(){
   if(!state.playing||state.paused)return;
-  state.paused=true;audio.pause();$("pauseBtn").textContent="▶ Resume";sayStatus("Paused.");
+  state.paused=true;audio.pause();$("pauseBtn").textContent="▶ Resume";sayStatus("Paused.");updateMedia();
 }
 function resume(){
   if(!state.playing||!state.paused)return;
   state.paused=false;$("pauseBtn").textContent="Ⅱ Pause";
   if(state.inClip&&!audio.ended)audio.play().catch(()=>{});
-  state.wake?.();state.wake=null;sayStatus("Playing.");
+  state.wake?.();state.wake=null;sayStatus("Playing.");updateMedia();
 }
 function stopPlayback(){
   state.runId++;state.playing=false;state.paused=false;state.inClip=false;state.index=0;
-  audio.pause();
+  audio.loop=false;audio.pause();dropLock();
   state.endCur?.();state.endCur=null;state.wake?.();state.wake=null;
   setActive(-1);ui("idle");$("progressBar").style.width="0%";
 }
+const AHEAD=4; // sections generated in advance, so playback survives a slow moment in the background
 async function playFrom(index){
   const unlock=unlockAudio(); // must run synchronously inside the tap
   const run=++state.runId;
   state.playing=true;state.paused=false;state.index=index;
-  ui("busy");
+  holdLock();ui("busy");
   const n=state.chunks.length;
+  const queue=new Map();
   const gen=i=>{
-    const c=state.chunks[i];
-    if(!c||!c.speech)return Promise.resolve(null);
-    return synth(c.speech).then(g=>URL.createObjectURL(floatToWavBlob(g.audio,g.sampling_rate||24000)));
+    const c=state.chunks[i],e={done:false,p:null};
+    const base=(!c||!c.speech)?Promise.resolve(null)
+      :synth(c.speech,()=>run!==state.runId).then(g=>g?URL.createObjectURL(floatToWavBlob(g.audio,g.sampling_rate||24000)):null);
+    e.p=base.finally(()=>{e.done=true;});e.p.catch(()=>{});
+    return e;
   };
+  const ensure=from=>{for(let k=from;k<Math.min(n,from+AHEAD+1);k++)if(!queue.has(k))queue.set(k,gen(k));};
   try{
     await loadKokoro();await unlock;
     if(run!==state.runId)return;
-    let next=gen(index);next.catch(()=>{});
     for(let i=index;i<n;i++){
       if(run!==state.runId)return;
       state.index=i;setActive(i);store.set("pw-idx",i);
       $("progressBar").style.width=((i+1)/n*100)+"%";
-      sayStatus(`Generating audio · section ${i+1} of ${n}`);
-      const url=await next;
+      ensure(i);
+      const e=queue.get(i);queue.delete(i);
+      if(!e.done){sayStatus(`Generating audio · section ${i+1} of ${n}`);startSilence();}
+      let url;
+      try{url=await e.p;}finally{stopSilence();}
       if(run!==state.runId){if(url)URL.revokeObjectURL(url);return;}
-      // Start generating the following chunk while this one plays, so there is no gap between sections.
-      next=i+1<n?gen(i+1):null;if(next)next.catch(()=>{});
       if(url){
         await waitIfPaused();
         if(run!==state.runId){URL.revokeObjectURL(url);return;}
@@ -429,16 +459,27 @@ async function playFrom(index){
       }
     }
     if(run===state.runId){
-      state.playing=false;state.index=0;store.set("pw-idx",0);
+      state.playing=false;state.index=0;store.set("pw-idx",0);dropLock();
       ui("idle");$("playBtn").textContent="↻ Play again";sayStatus("Chapter finished.","good");
       if($("autoNext").checked)await goNext(true);
     }
   }catch(e){
     if(run===state.runId){
-      state.playing=false;state.inClip=false;ui("idle");
+      state.playing=false;state.inClip=false;dropLock();ui("idle");
       sayStatus("Kokoro error: "+errMsg(e),"error");
     }
+  }finally{
+    for(const e of queue.values())e.p.then(u=>{if(u)URL.revokeObjectURL(u);},()=>{});
   }
+}
+// Skip one section back/forward (used by the lock-screen / notification buttons).
+function skip(delta){
+  if(!state.text||!state.chunks.length)return;
+  const last=state.chunks.length-1;
+  if(delta>0&&state.index>=last&&state.playing){goNext(true);return;}
+  const t=Math.min(Math.max(state.index+delta,0),last);
+  if(state.playing)stopPlayback();
+  playFrom(t);
 }
 
 /* ---------- Settings & library ---------- */
@@ -452,11 +493,12 @@ function applySettings(){
   }
   if(s.font>=14&&s.font<=30)state.font=s.font;
   $("autoNext").checked=!!s.auto;
+  $("keepAwake").checked=!!s.awake;
   $("reader").style.fontSize=state.font+"px";
   $("rateOut").textContent=Number($("rate").value).toFixed(2)+"×";
 }
 function saveSettings(){
-  const s={font:state.font,auto:$("autoNext").checked};
+  const s={font:state.font,auto:$("autoNext").checked,awake:$("keepAwake").checked};
   for(const k of SETTINGS)s[k]=$(k).value;
   store.set("pw-settings",s);
 }
@@ -529,17 +571,40 @@ $("saveBtn").onclick=()=>{
 audio.addEventListener("pause",()=>{
   if(state.playing&&state.inClip&&!state.paused&&!audio.ended){state.paused=true;$("pauseBtn").textContent="▶ Resume";sayStatus("Paused.");}
 });
-try{
-  if("mediaSession" in navigator){
-    navigator.mediaSession.setActionHandler("play",resume);
-    navigator.mediaSession.setActionHandler("pause",pauseNow);
+if("mediaSession" in navigator){
+  const on=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f);}catch{}};
+  on("play",()=>{if(state.paused)resume();else if(!state.playing&&state.text)playFrom(state.index);});
+  on("pause",pauseNow);
+  on("stop",()=>{stopPlayback();});
+  on("previoustrack",()=>skip(-1));
+  on("nexttrack",()=>skip(1));
+}
+/* ---------- Keep screen on ---------- */
+const wakeSupported="wakeLock" in navigator;
+let wakeSentinel=null;
+async function setWake(on,loud){
+  if(!wakeSupported)return;
+  try{
+    if(on){
+      if(wakeSentinel)return;
+      wakeSentinel=await navigator.wakeLock.request("screen");
+      wakeSentinel.addEventListener("release",()=>{wakeSentinel=null;});
+    }else if(wakeSentinel){await wakeSentinel.release();wakeSentinel=null;}
+  }catch(e){
+    wakeSentinel=null;
+    if(loud){$("keepAwake").checked=false;saveSettings();sayStatus("Could not keep the screen on: "+errMsg(e)+(e?.name==="NotAllowedError"?" (battery saver can block this)":""),"error");}
   }
-}catch{}
+}
+// The browser drops the lock whenever the app is hidden, so take it again when you come back.
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&$("keepAwake").checked&&!wakeSentinel)setWake(true,false);});
+$("keepAwake").addEventListener("change",()=>{setWake($("keepAwake").checked,true);saveSettings();});
+if(!wakeSupported){$("keepAwake").disabled=true;$("keepAwake").closest("label").append(" (not supported in this browser)");}
 window.addEventListener("beforeunload",()=>audio.pause());
 
 /* ---------- Init ---------- */
 applySettings();
 renderLibrary();
+if($("keepAwake").checked)setWake(true,false);
 ui("idle");
 // Restore the last chapter and reading position.
 {
