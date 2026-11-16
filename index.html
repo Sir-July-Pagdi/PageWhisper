@@ -32,6 +32,9 @@ input[type=range]{padding:0;min-height:36px;accent-color:var(--accent);backgroun
 label{display:block;color:var(--muted);font-size:11px;letter-spacing:.07em;margin:0 0 6px;font-weight:700}
 label.check{display:flex;align-items:center;gap:11px;letter-spacing:0;font-size:14px;font-weight:500;color:var(--text);margin:12px 0 0;min-height:44px;cursor:pointer}
 label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var(--accent)}
+.ic{width:1.15em;height:1.15em;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.2em;pointer-events:none}
+.toolbar button,.mpbtns button,.icon,.ncover{display:flex;align-items:center;justify-content:center}
+.toolbar .ic{width:20px;height:20px}.icon .ic{width:22px;height:22px}.mpbtns .ic{width:24px;height:24px}.chip .ic{width:26px;height:26px}
 .hint,.source{color:var(--muted);font-size:12px;line-height:1.5}.hint{margin-top:8px}
 .status{font-size:12px;color:var(--muted);min-height:18px;margin-top:8px;overflow-wrap:anywhere}.status.error{color:var(--red)}.status.good{color:var(--green)}
 .field{margin-bottom:12px}.row{display:flex;gap:8px;align-items:end}.grow{flex:1;min-width:0}.hidden{display:none!important}
@@ -63,7 +66,7 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 .player{flex:none;background:var(--panel);border-top:1px solid var(--line);padding:0 12px 8px}
 .progress{height:3px;background:var(--bar);margin:0 -12px}.progress>div{height:100%;width:0;background:var(--accent);transition:width .2s}
 .mpstatus{font-size:12px;color:var(--muted);text-align:center;padding:6px 4px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:28px}.mpstatus.error{color:var(--red)}.mpstatus.good{color:var(--green)}
-.mpbtns{display:grid;grid-template-columns:1fr 1.7fr 1fr 1fr;gap:8px}.mpbtns button{min-height:50px;font-size:19px}
+.mpbtns{display:grid;grid-template-columns:1fr 1.6fr 1fr 1fr 1.35fr;gap:8px}.mpbtns button{min-height:50px;font-size:19px}
 .tabbar{flex:none;display:grid;grid-template-columns:repeat(4,1fr);background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
 .tabbar button{border:0;background:none;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:var(--muted);padding:7px 0;min-height:56px}
 .tabbar button.active{color:var(--accent2)}.tabbar svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -79,7 +82,7 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 .library{display:flex;flex-direction:column;gap:8px}
 .book{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px;background:var(--input);border:1px solid var(--line);border-radius:12px}
 .bookname{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}.book button{font-size:12px;padding:6px 10px;min-height:38px}
-.novel{background:var(--input);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.novel{background:var(--input);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:row;gap:12px;align-items:flex-start}
 .novel .nt{font-size:14px;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.novel .ns{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .novel .na{display:flex;gap:6px;flex-wrap:wrap}.novel .na button,.novel .na a{font-size:12px;padding:0 11px;min-height:38px;display:inline-flex;align-items:center;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text);text-decoration:none;cursor:pointer}
 .novel .na button:first-child{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
@@ -97,38 +100,76 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 .fontgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fontgrid button{min-height:54px;text-align:left;padding:6px 10px;line-height:1.25}.fontgrid small{display:block;color:var(--muted);font-size:10px;font-family:system-ui,sans-serif;margin-top:1px}
 .swatches{display:flex;gap:10px;flex-wrap:wrap}.swatch{width:62px;height:54px;border-radius:14px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;padding:0;min-height:0}.swatch.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
 .dots{display:flex;gap:12px;flex-wrap:wrap}.dot{width:40px;height:40px;border-radius:50%;padding:0;min-height:0;border:2px solid var(--line)}.dot.on{box-shadow:0 0 0 3px var(--accent)}
-#lockBtn{display:none}.app.fs #lockBtn{display:block}.app.fs .toolbar{grid-template-columns:repeat(6,1fr)}
+#lockBtn,#brightBtn{display:none}.app.fs #lockBtn,.app.fs #brightBtn{display:flex}.app.fs .toolbar{grid-template-columns:repeat(7,1fr)}.app.fs .toolbar button{font-size:12px}
+.dimlayer{position:absolute;inset:0;z-index:90;display:none;background:#000;opacity:0;pointer-events:none;transition:opacity .15s}.app.fs .dimlayer{display:block}
 .locklayer{position:absolute;inset:0;z-index:70;display:none;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .app.locked .locklayer{display:block}
 .toolbar,.player,.reader-head .icon{transition:opacity .2s}.app.locked .toolbar,.app.locked .player,.app.locked .reader-head .icon{opacity:.3}
 .unlockbtn{position:absolute;right:16px;bottom:calc(118px + env(safe-area-inset-bottom));width:68px;height:68px;border-radius:50%;padding:0;min-height:0;display:flex;align-items:center;justify-content:center;font-size:24px;background:var(--panel);border:1px solid var(--line);opacity:.4;transition:opacity .3s;touch-action:none;-webkit-user-select:none;user-select:none}
 .locklayer.awake .unlockbtn,.unlockbtn.holding{opacity:1}
-.unlockbtn svg{position:absolute;inset:2px;width:64px;height:64px;transform:rotate(-90deg)}
-.unlockbtn circle{fill:none;stroke-width:4}.unlockbtn .track{stroke:var(--line)}
+.unlockbtn .ringsvg{position:absolute;inset:2px;width:64px;height:64px;transform:rotate(-90deg)}
+.unlockbtn circle{fill:none;stroke-width:4}.unlockbtn .ic{position:relative;width:28px;height:28px;stroke-width:1.9}.unlockbtn .track{stroke:var(--line)}
 .unlockbtn .ring{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:176;stroke-dashoffset:176}
 .unlockbtn.holding .ring{animation:unlockfill 1.1s linear forwards}
 @keyframes unlockfill{to{stroke-dashoffset:0}}
 .lockhint{position:absolute;left:50%;bottom:calc(200px + env(safe-area-inset-bottom));transform:translateX(-50%);max-width:min(88vw,420px);text-align:center;background:var(--toast);border:1px solid var(--line);border-radius:12px;padding:9px 14px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none}
 .locklayer.awake .lockhint{opacity:1}
 @media(prefers-reduced-motion:reduce){.unlockbtn,.lockhint{transition:none}}
+#mpSleepTxt{font-size:12px;margin-left:4px;font-variant-numeric:tabular-nums}#mpSleep{padding:0 4px;white-space:nowrap}
+#mpSleep.on{background:rgba(var(--accent-rgb),.22);border-color:var(--accent);color:var(--accent2)}
+.sl-active{text-align:center;margin:0 0 14px;padding:12px;background:var(--input);border:1px solid var(--line);border-radius:14px}
+.sl-big{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;margin-bottom:10px}
+#slChips .chip{min-height:50px;flex-direction:row;font-size:14px}
+.ncover{width:62px;height:88px;border-radius:8px;background:var(--panel2);flex:none;border:1px solid var(--line);color:var(--muted);cursor:pointer;padding:0;min-height:0;overflow:hidden}
+.ncover img{width:100%;height:100%;object-fit:cover;display:block}.ncover .ic{width:26px;height:26px}
+.nbody{min-width:0;flex:1;display:flex;flex-direction:column;gap:6px}
+.cv-preview{width:120px;height:168px;margin:0 auto 14px;border-radius:12px;overflow:hidden;background:var(--panel2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;text-align:center}
+.cv-preview img{width:100%;height:100%;object-fit:cover}.cv-preview .ic{width:34px;height:34px;margin-bottom:4px}
 @media(min-width:761px){.app{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
 @media(prefers-reduced-motion:reduce){.reader{scroll-behavior:auto}.seg,.progress>div,.toast{transition:none}}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M8 5.6v12.8a1 1 0 0 0 1.52.85l10.2-6.4a1 1 0 0 0 0-1.7L9.52 4.75A1 1 0 0 0 8 5.6z"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><rect x="6.3" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/><rect x="13.7" y="5" width="4" height="14" rx="1.2" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-prev" viewBox="0 0 24 24"><rect x="5" y="5" width="2.6" height="14" rx="1.1" fill="currentColor" stroke="none"/><path fill="currentColor" stroke="none" d="M19 6.2v11.6a.9.9 0 0 1-1.42.74l-8.1-5.8a.9.9 0 0 1 0-1.48l8.1-5.8A.9.9 0 0 1 19 6.2z"/></symbol>
+<symbol id="i-next" viewBox="0 0 24 24"><rect x="16.4" y="5" width="2.6" height="14" rx="1.1" fill="currentColor" stroke="none"/><path fill="currentColor" stroke="none" d="M5 6.2v11.6a.9.9 0 0 0 1.42.74l8.1-5.8a.9.9 0 0 0 0-1.48l-8.1-5.8A.9.9 0 0 0 5 6.2z"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2.2" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/><circle cx="12" cy="15.2" r="1.2" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.4A8 8 0 1 1 9.6 4a6.4 6.4 0 0 0 10.4 10.4z"/></symbol>
+<symbol id="i-fs" viewBox="0 0 24 24"><path d="M4 9V5.8A1.8 1.8 0 0 1 5.8 4H9M15 4h3.2A1.8 1.8 0 0 1 20 5.8V9M20 15v3.2a1.8 1.8 0 0 1-1.8 1.8H15M9 20H5.8A1.8 1.8 0 0 1 4 18.2V15"/></symbol>
+<symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.8l2.5 5.2 5.7.8-4.1 4 1 5.7-5.1-2.7-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/></symbol>
+<symbol id="i-star-fill" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3.8l2.5 5.2 5.7.8-4.1 4 1 5.7-5.1-2.7-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2zM12 6.5v13"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7"/></symbol>
+<symbol id="i-amb-off" viewBox="0 0 24 24"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/><path d="M16 9.5l4.5 5M20.5 9.5l-4.5 5"/></symbol>
+<symbol id="i-amb-rain" viewBox="0 0 24 24"><path d="M7 14a4 4 0 0 1-.4-7.98 5.5 5.5 0 0 1 10.6 1.1A3.4 3.4 0 0 1 17 14z"/><path d="M9 17.5l-.8 2M15 17.5l-.8 2"/></symbol>
+<symbol id="i-amb-heavy" viewBox="0 0 24 24"><path d="M7 13a4 4 0 0 1-.4-7.98 5.5 5.5 0 0 1 10.6 1.1A3.4 3.4 0 0 1 17 13z"/><path d="M7.5 16l-1.2 3.5M11 16l-1.2 3.5M14.5 16l-1.2 3.5M18 16l-1.2 3.5"/></symbol>
+<symbol id="i-amb-storm" viewBox="0 0 24 24"><path d="M7 13.5a4 4 0 0 1-.4-7.98 5.5 5.5 0 0 1 10.6 1.1A3.4 3.4 0 0 1 17 13.5z"/><path d="M12.8 15l-2.4 3.4h3.4l-2.2 3.6"/></symbol>
+<symbol id="i-amb-ocean" viewBox="0 0 24 24"><path d="M3 8.5c2 0 2.2-2 4.5-2S10 8.5 12 8.5s2.5-2 4.5-2S19 8.5 21 8.5M3 13.5c2 0 2.2-2 4.5-2s2.5 2 4.5 2 2.5-2 4.5-2 2.5 2 4.5 2M3 18.5c2 0 2.2-2 4.5-2s2.5 2 4.5 2 2.5-2 4.5-2 2.5 2 4.5 2"/></symbol>
+<symbol id="i-amb-insects" viewBox="0 0 24 24"><ellipse cx="12" cy="13.8" rx="3.7" ry="5.4"/><circle cx="12" cy="6.4" r="1.9"/><path d="M11 4.7L9.6 3.2M13 4.7l1.4-1.5M12 8.5v10.7M8.3 11.4H5M8.3 14.6H4.6M8.7 18l-3 2.2M15.7 11.4H19M15.7 14.6h3.8M15.3 18l3 2.2"/></symbol>
+<symbol id="i-amb-forest" viewBox="0 0 24 24"><path d="M12 3l4.6 6.5h-2.7L18 15.5H6l4.1-6H7.4z"/><path d="M12 15.5V21"/></symbol>
+<symbol id="i-amb-wind" viewBox="0 0 24 24"><path d="M3 8.5h10.5a2.6 2.6 0 1 0-2.5-3.3M3 12.5h14.5a2.6 2.6 0 1 1-2.5 3.3M3 16.5h6.5"/></symbol>
+<symbol id="i-amb-fire" viewBox="0 0 24 24"><path d="M12 3c.9 3.4 5.2 5.6 5.2 10.2a5.2 5.2 0 0 1-10.4 0c0-2.1 1-3.3 2.1-4.4.3 1.6 1 2.1 2 2.3C10.6 8.3 10.9 5.6 12 3z"/></symbol>
+<symbol id="i-amb-brown" viewBox="0 0 24 24"><path d="M3 12h2.6l1.5-4 2.4 9 3-13 2.5 11 1.5-3H21"/></symbol>
+</defs></svg>
 <div id="app" class="app">
 <header class="topbar"><img src="icon-192.png" alt="" width="30" height="30"><div class="brand">Page<span>Whisper</span></div><span class="vtag" id="verTag"></span></header>
 <main class="views">
 
 <section id="view-read" class="view active">
-<div class="reader-head"><div class="titlebox"><h1 class="chapter-title" id="chapterTitle">Your reading space</h1><div class="source" id="chapterSource">Load a chapter to begin</div></div><button id="saveBtn" class="icon" aria-label="Save chapter" disabled>☆</button></div>
+<div class="reader-head"><div class="titlebox"><h1 class="chapter-title" id="chapterTitle">Your reading space</h1><div class="source" id="chapterSource">Load a chapter to begin</div></div><button id="saveBtn" class="icon" aria-label="Save chapter" disabled><svg class="ic"><use id="saveUse" href="#i-star"/></svg></button></div>
 <div class="toolbar">
 <button id="aaBtn" aria-label="Reading style" aria-haspopup="dialog">Aa</button>
 <button id="prevBtn" aria-label="Previous chapter" disabled>‹ Ch</button>
 <button id="nextBtn" aria-label="Next chapter" disabled>Ch ›</button>
 <button id="autoBtn" aria-label="Auto-play next chapter" aria-pressed="false">Auto</button>
-<button id="lockBtn" aria-label="Lock screen touches" aria-pressed="false">🔒</button>
-<button id="fsBtn" aria-label="Fullscreen" aria-pressed="false">⛶</button>
+<button id="brightBtn" aria-label="Brightness" aria-haspopup="dialog"><svg class="ic"><use href="#i-sun"/></svg></button>
+<button id="lockBtn" aria-label="Lock screen touches" aria-pressed="false"><svg class="ic"><use href="#i-lock"/></svg></button>
+<button id="fsBtn" aria-label="Fullscreen" aria-pressed="false"><svg class="ic"><use id="fsUse" href="#i-fs"/></svg></button>
 </div>
 <div id="reader" class="reader"><div class="empty">Nothing loaded yet.<br>Fetch a chapter by link, paste its text, or open a saved one.<br><button id="goOpen" class="primary">Open a chapter</button></div></div>
 </section>
@@ -164,7 +205,8 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <h2>Novel library</h2>
 <div id="novels" class="library"></div>
 <div id="nvStatus" class="status" aria-live="polite"></div>
-<button id="addCurrent" style="width:100%;margin-top:8px" disabled>＋ Add current novel</button>
+<button id="addCurrent" style="width:100%;margin-top:8px" disabled><svg class="ic"><use href="#i-plus"/></svg> Add current novel</button>
+<button id="findCovers" style="width:100%;margin-top:8px">Find missing covers</button>
 <details class="diag"><summary>Add a novel by link</summary>
 <div class="field" style="margin-top:10px"><label for="nvTitle">NOVEL TITLE (OPTIONAL)</label><input id="nvTitle" placeholder="Novel name"></div>
 <div class="field"><label for="nvUrl">CHAPTER OR NOVEL LINK</label><input id="nvUrl" type="url" inputmode="url" autocapitalize="off" autocorrect="off" placeholder="https://novelsite.com/novel/name/12"></div>
@@ -202,16 +244,16 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <div class="card">
 <h2>Ambient sound</h2>
 <div class="chips" id="ambChips">
-<button class="chip on" data-amb="off"><span class="e">🔇</span>Off</button>
-<button class="chip" data-amb="rain"><span class="e">🌧️</span>Rain</button>
-<button class="chip" data-amb="heavy"><span class="e">⛈️</span>Heavy rain</button>
-<button class="chip" data-amb="storm"><span class="e">🌩️</span>Thunderstorm</button>
-<button class="chip" data-amb="ocean"><span class="e">🌊</span>Ocean waves</button>
-<button class="chip" data-amb="insects"><span class="e">🦗</span>Night insects</button>
-<button class="chip" data-amb="forest"><span class="e">🌲</span>Night forest</button>
-<button class="chip" data-amb="wind"><span class="e">🍃</span>Wind</button>
-<button class="chip" data-amb="fire"><span class="e">🔥</span>Campfire</button>
-<button class="chip" data-amb="brown"><span class="e">〰️</span>Brown noise</button>
+<button class="chip on" data-amb="off"><svg class="ic"><use href="#i-amb-off"/></svg>Off</button>
+<button class="chip" data-amb="rain"><svg class="ic"><use href="#i-amb-rain"/></svg>Rain</button>
+<button class="chip" data-amb="heavy"><svg class="ic"><use href="#i-amb-heavy"/></svg>Heavy rain</button>
+<button class="chip" data-amb="storm"><svg class="ic"><use href="#i-amb-storm"/></svg>Thunderstorm</button>
+<button class="chip" data-amb="ocean"><svg class="ic"><use href="#i-amb-ocean"/></svg>Ocean waves</button>
+<button class="chip" data-amb="insects"><svg class="ic"><use href="#i-amb-insects"/></svg>Night insects</button>
+<button class="chip" data-amb="forest"><svg class="ic"><use href="#i-amb-forest"/></svg>Night forest</button>
+<button class="chip" data-amb="wind"><svg class="ic"><use href="#i-amb-wind"/></svg>Wind</button>
+<button class="chip" data-amb="fire"><svg class="ic"><use href="#i-amb-fire"/></svg>Campfire</button>
+<button class="chip" data-amb="brown"><svg class="ic"><use href="#i-amb-brown"/></svg>Brown noise</button>
 </div>
 <div id="ambStatus" class="status" aria-live="polite"></div>
 <div class="field" style="margin-top:10px"><label for="ambVol">AMBIENT VOLUME</label><div class="range"><input id="ambVol" type="range" min="0" max="1" step=".05" value=".35"><output id="ambOut">35%</output></div></div>
@@ -223,6 +265,8 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <h2>Playback</h2>
 <label class="check" style="margin-top:0"><input type="checkbox" id="autoNext"> Auto-play the next chapter when this one finishes</label>
 <label class="check"><input type="checkbox" id="keepAwake"> Keep screen on while the app is open</label>
+<label class="check"><input type="checkbox" id="lockAwake" checked> Keep screen on while the screen is locked</label>
+<div id="awakeStatus" class="status" aria-live="polite"></div>
 <div class="hint">Audio keeps playing with the screen off or while you use other apps, with lock-screen controls. If Android stops it anyway, set this app's battery usage to Unrestricted.</div>
 </div>
 
@@ -244,7 +288,7 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <div class="player">
 <div class="progress"><div id="progressBar"></div></div>
 <div id="mpStatus" class="mpstatus" aria-live="polite">Load a chapter, then press play.</div>
-<div class="mpbtns"><button id="mpPrev" aria-label="Previous section" disabled>⏮</button><button id="mpPlay" class="primary" aria-label="Play or pause" disabled>▶</button><button id="mpNext" aria-label="Next section" disabled>⏭</button><button id="mpStop" aria-label="Stop" disabled>■</button></div>
+<div class="mpbtns"><button id="mpPrev" aria-label="Previous section" disabled><svg class="ic"><use href="#i-prev"/></svg></button><button id="mpPlay" class="primary" aria-label="Play or pause" disabled><svg class="ic"><use id="mpPlayUse" href="#i-play"/></svg></button><button id="mpNext" aria-label="Next section" disabled><svg class="ic"><use href="#i-next"/></svg></button><button id="mpStop" aria-label="Stop" disabled><svg class="ic"><use href="#i-stop"/></svg></button><button id="mpSleep" aria-label="Sleep timer"><svg class="ic"><use href="#i-moon"/></svg><span id="mpSleepTxt"></span></button></div>
 </div>
 
 <nav class="tabbar" aria-label="Sections">
@@ -257,10 +301,49 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <div id="lockLayer" class="locklayer" aria-hidden="true">
 <div id="lockHint" class="lockhint" role="status">Locked. Press and hold the lock button to unlock.</div>
 <button id="unlockBtn" class="unlockbtn" aria-label="Press and hold to unlock">
-<svg viewBox="0 0 64 64" aria-hidden="true"><circle class="track" cx="32" cy="32" r="28"/><circle class="ring" cx="32" cy="32" r="28"/></svg>
-<span>🔒</span>
+<svg class="ringsvg" viewBox="0 0 64 64" aria-hidden="true"><circle class="track" cx="32" cy="32" r="28"/><circle class="ring" cx="32" cy="32" r="28"/></svg>
+<svg class="ic"><use href="#i-lock"/></svg>
 </button>
 </div>
+
+<div id="brightWrap" class="sheetwrap" aria-hidden="true">
+<div id="brightBack" class="sheetback"></div>
+<div class="sheet" role="dialog" aria-label="Brightness">
+<div class="sheethead"><h2>Brightness</h2><button id="brDone" class="primary">Done</button></div>
+<div class="sheetbody">
+<div class="rs-row"><label for="brSlider">SCREEN BRIGHTNESS</label><div class="range"><input id="brSlider" type="range" min="10" max="100" step="1"><output id="brOut"></output></div></div>
+<div class="segbtns"><button data-bright="25">25%</button><button data-bright="50">50%</button><button data-bright="75">75%</button><button data-bright="100">100%</button></div>
+<div class="hint">This dims the screen below your phone's own brightness, which is handy for reading in the dark. A web app cannot make the screen brighter than the phone's setting, so use the phone's brightness control for that. It applies only in fullscreen, and the preview is a little lighter while this panel is open.</div>
+</div></div></div>
+
+<div id="coverWrap" class="sheetwrap" aria-hidden="true">
+<div id="coverBack" class="sheetback"></div>
+<div class="sheet" role="dialog" aria-label="Novel cover">
+<div class="sheethead"><h2 id="cvTitle">Cover</h2><button id="cvDone" class="primary">Done</button></div>
+<div class="sheetbody">
+<div class="cv-preview"><img id="cvImg" alt="" class="hidden"><div id="cvEmpty"><svg class="ic"><use href="#i-book"/></svg><div>No cover yet</div></div></div>
+<button id="cvFetch" class="primary" style="width:100%">Find cover automatically</button>
+<div class="row" style="margin-top:8px"><button id="cvPick" class="grow">Choose from device</button><button id="cvLink" class="grow">Use image link</button></div>
+<button id="cvRemove" style="width:100%;margin-top:8px">Remove cover</button>
+<div id="cvStatus" class="status" aria-live="polite"></div>
+<div class="hint">PageWhisper looks for the cover on the novel's page. Sites that block fetching can't be checked, so for those pick an image from your device. Covers are shrunk and kept on this device, and they appear only in your Library list.</div>
+</div></div></div>
+<input type="file" id="coverFile" accept="image/*" class="hidden">
+
+<div id="sleepWrap" class="sheetwrap" aria-hidden="true">
+<div id="sleepBack" class="sheetback"></div>
+<div class="sheet" role="dialog" aria-label="Sleep timer">
+<div class="sheethead"><h2>Sleep timer</h2><button id="slDone" class="primary">Done</button></div>
+<div class="sheetbody">
+<div id="slActive" class="sl-active hidden"><div class="sl-big" id="slLeft"></div><div class="segbtns"><button id="slPlus">+10 min</button><button id="slOff">Turn off</button></div></div>
+<div class="rs-row"><label>STOP AFTER</label><div class="chips" id="slChips">
+<button class="chip" data-min="5">5 min</button><button class="chip" data-min="10">10 min</button><button class="chip" data-min="15">15 min</button>
+<button class="chip" data-min="30">30 min</button><button class="chip" data-min="45">45 min</button><button class="chip" data-min="60">60 min</button>
+<button class="chip" data-min="90">90 min</button><button class="chip" data-min="chapter" style="grid-column:span 2">End of chapter</button>
+</div></div>
+<div class="rs-row"><label for="slCustom">CUSTOM (MINUTES)</label><div class="row"><div class="grow"><input id="slCustom" type="number" inputmode="numeric" min="1" max="600" placeholder="e.g. 20"></div><button id="slStart" class="primary">Start</button></div></div>
+<div class="hint">The volume fades out over the last 30 seconds, then playback pauses where you stopped, so you can carry on from the same sentence.</div>
+</div></div></div>
 
 <div id="sheetWrap" class="sheetwrap" aria-hidden="true">
 <div id="sheetBack" class="sheetback"></div>
@@ -282,6 +365,7 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 </div>
 </div>
 </div>
+<div id="dimLayer" class="dimlayer" aria-hidden="true"></div>
 </div>
 <audio id="audio" class="hidden" playsinline preload="auto"></audio>
 <audio id="ambient" class="hidden" loop playsinline preload="auto"></audio>
@@ -297,12 +381,14 @@ const KOKORO_SOURCES = [
   "https://unpkg.com/kokoro-js@1.2.1/dist/kokoro.web.js"
 ];
 const state = {
-  tts:null, loadingP:null, device:"", forceWasm:false, noWorker:false, reload:false, view:"read", advancing:false,
+  tts:null, loadingP:null, device:"", forceWasm:false, noWorker:false, reload:false, sleeping:false, view:"read", advancing:false,
   playing:false, paused:false, inClip:false, runId:0, endCur:null, wake:null, unlockP:null, chain:Promise.resolve(),
   title:"", text:"", url:"", chunks:[], index:0, activeEl:null,
   history:[], pos:-1
 };
 const audio = $("audio");
+let fadeF=1; // 1 = normal volume; below 1 while a sleep timer fades the sound out
+const setIcon=(id,name)=>$(id).setAttribute("href","#i-"+name);
 const clean = s => s.replace(/\r/g,"").replace(/[ \t]+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
 let toastT=null;
 function toast(msg,kind=""){const t=$("toast");t.textContent=msg;t.className="toast show "+kind;clearTimeout(toastT);toastT=setTimeout(()=>{t.className="toast";},4500);}
@@ -383,7 +469,7 @@ function setLoaded(title,text,url="",o={}){
   buildChunks();state.index=0;
   $("chapterTitle").textContent=state.title;$("chapterSource").textContent=url||"Imported / pasted text";
   $("reader").scrollTop=0;
-  $("saveBtn").disabled=false;$("saveBtn").textContent="☆";
+  $("saveBtn").disabled=false;setIcon("saveUse","star");
   $("addCurrent").disabled=!validHttp(url);trackNovel(state.title,url);
   ui("idle");updateNav();if(!o.silent)showView("read");
   $("progressBar").style.width="0%";
@@ -640,7 +726,7 @@ function ui(mode){
 }
 function updateMedia(){
   try{if("mediaSession" in navigator)navigator.mediaSession.playbackState=!state.playing?"none":(state.paused?"paused":"playing");}catch{}
-  $("mpPlay").textContent=(state.playing&&!state.paused)?"Ⅱ":"▶";
+  setIcon("mpPlayUse",(state.playing&&!state.paused)?"pause":"play");
   syncAmbient();
 }
 // While playing, hold a Web Lock: Chrome does not freeze or heavily throttle pages that hold one.
@@ -687,7 +773,7 @@ function pauseNow(){
 }
 function resume(){
   if(!state.playing||!state.paused)return;
-  state.paused=false;
+  state.paused=false;state.sleeping=false;applyFade(1);
   if(state.inClip&&!audio.ended)audio.play().catch(()=>{});
   state.wake?.();state.wake=null;sayStatus("Playing.");updateMedia();
 }
@@ -703,7 +789,7 @@ async function playFrom(index){
   const unlock=unlockAudio(); // must run synchronously inside the tap
   const run=++state.runId;setMinRun(run);dbg("play from section "+(index+1));
   state.playing=true;state.paused=false;state.index=index;
-  state.advancing=false;holdLock();ui("busy");
+  state.advancing=false;state.sleeping=false;applyFade(1);holdLock();ui("busy");
   const n=state.chunks.length;
   const queue=new Map();
   const gen=i=>{
@@ -736,9 +822,11 @@ async function playFrom(index){
     }
     if(run===state.runId){
       state.playing=false;state.index=0;store.set("pw-idx",0);dropLock();
-      state.advancing=!!$("autoNext").checked; // keeps the ambient sound going while the next chapter loads
+      const sleepEnd=sleep.mode==="chapter"; // "end of chapter" timer: do not carry on to the next one
+      state.advancing=!sleepEnd&&!!$("autoNext").checked; // keeps the ambient sound going while the next chapter loads
       ui("idle");sayStatus("Chapter finished.","good");
-      if(state.advancing){await goNext(true);if(!state.playing){state.advancing=false;syncAmbient();}}
+      if(sleepEnd)sleepChapterDone();
+      else if(state.advancing){await goNext(true);if(!state.playing){state.advancing=false;syncAmbient();}}
     }
   }catch(e){
     if(run===state.runId){
@@ -769,13 +857,13 @@ function applySettings(){
     el.value=s[k];
   }
   $("autoNext").checked=!!s.auto;syncAuto();
-  $("keepAwake").checked=!!s.awake;
+  $("keepAwake").checked=!!s.awake;$("lockAwake").checked=s.lockAwake!==false;
   $("ambOnly").checked=s.ambOnly!==false;amb.key=AMB_KEYS.includes(s.amb)?s.amb:"off";
   $("rateOut").textContent=Number($("rate").value).toFixed(2)+"×";
   $("ambOut").textContent=Math.round($("ambVol").value*100)+"%";
 }
 function saveSettings(){
-  const s={auto:$("autoNext").checked,awake:$("keepAwake").checked,ambOnly:$("ambOnly").checked,amb:amb.key};
+  const s={auto:$("autoNext").checked,awake:$("keepAwake").checked,lockAwake:$("lockAwake").checked,ambOnly:$("ambOnly").checked,amb:amb.key};
   for(const k of SETTINGS)s[k]=$(k).value;
   store.set("pw-settings",s);
 }
@@ -834,7 +922,7 @@ $("saveBtn").onclick=()=>{
   const a=getLibrary();const item={title:state.title,text:state.text,url:state.url,next:$("nextUrl").value};
   const i=a.findIndex(x=>x.url===item.url&&x.title===item.title);
   if(i>=0)a[i]=item;else a.unshift(item);
-  if(store.set("pw-library",a)){renderLibrary();$("saveBtn").textContent="★";sayStatus("Chapter saved on this device.","good");}
+  if(store.set("pw-library",a)){renderLibrary();setIcon("saveUse","star-fill");sayStatus("Chapter saved on this device.","good");}
   else sayStatus("Could not save: browser storage may be full.","error");
 };
 // Lock-screen / headphone controls, and OS-initiated pauses.
@@ -854,25 +942,72 @@ if("mediaSession" in navigator){
   on("nexttrack",()=>skip(1));
 }
 /* ---------- Keep screen on ---------- */
+// Wanted when the Settings toggle is on, or while the touch lock is on (unless that is switched off).
+// The browser's Screen Wake Lock is used, and it is asked for again whenever the browser drops it.
+// If the browser refuses, a tiny silent looping video is played instead (the long-standing "NoSleep" trick).
+const WAKE_VIDEO="data:video/webm;base64,GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwEAAAAAAAIoEU2bdLpNu4tTq4QVSalmU6yBoU27i1OrhBZUrmtTrIHYTbuMU6uEElTDZ1OsggEeTbuMU6uEHFO7a1OsggIS7AEAAAAAAABZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVSalmsirXsYMPQkBNgI1MYXZmNjAuMTYuMTAwV0GNTGF2ZjYwLjE2LjEwMESJiECfQAAAAAAAFlSua8GuAQAAAAAAADjXgQFzxYhsm4fge4V0f5yBACK1nIN1bmSIgQCGhVZfVlA4g4EBI+ODhB3NZQDgibCBILqBIJqBAhJUw2f8c3OgY8CAZ8iaRaOHRU5DT0RFUkSHjUxhdmY2MC4xNi4xMDBzc9ZjwItjxYhsm4fge4V0f2fIoUWjh0VOQ09ERVJEh5RMYXZjNjAuMzEuMTAyIGxpYnZweGfIoUWjiERVUkFUSU9ORIeTMDA6MDA6MDIuMDAwMDAwMDAwAB9DtnXu54EAo6SBAACAMAIAnQEqIAAgAABHCIWFiIWEiAICAAeQ88nA/v+rUICjlYEB9ACxAQAHEOwAGAAYWC/0AAhwAKOVgQPoALEBAAcQ7AAYABhYL/QACHAAo5WBBdwAsQEABxDsABgAGFgv9AAIcAAcU7trkbuPs4EAt4r3gQHxggGf8IED";
 const wakeSupported="wakeLock" in navigator;
-let wakeSentinel=null;
-async function setWake(on,loud){
-  if(!wakeSupported)return;
-  try{
-    if(on){
-      if(wakeSentinel)return;
-      wakeSentinel=await navigator.wakeLock.request("screen");
-      wakeSentinel.addEventListener("release",()=>{wakeSentinel=null;dbg("screen lock released");});
-    }else if(wakeSentinel){await wakeSentinel.release();wakeSentinel=null;}
-  }catch(e){
-    wakeSentinel=null;
-    if(loud){$("keepAwake").checked=false;saveSettings();sayStatus("Could not keep the screen on: "+errMsg(e)+(e?.name==="NotAllowedError"?" (battery saver can block this)":""),"error");}
-  }
+let wakeSentinel=null,wakePending=false,wakeVideo=null,wakeMethod="",wakeError="",wakeWin=0,wakeCount=0;
+const wakeWanted=()=>$("keepAwake").checked||(locked&&$("lockAwake").checked);
+function paintWake(){
+  const want=wakeWanted(),el=$("awakeStatus");
+  let t,bad=false;
+  if(!want)t="off.";
+  else if(wakeMethod==="screen wake lock")t="active.";
+  else if(wakeMethod==="video fallback")t="active (using the fallback method).";
+  else if(wakeError){t="not active ("+(wakeError==="NotAllowedError"?"the browser or battery saver refused it":wakeError)+"). It will try again when you return to the app.";bad=true;}
+  else t="starting…";
+  el.textContent="Screen stays on: "+t;el.className="status"+(bad?" error":"");
+  if(locked)$("lockHint").textContent=lockHintText(lockMsg); // keep the lock screen hint in step
 }
-// The browser drops the lock whenever the app is hidden, so take it again when you come back.
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&$("keepAwake").checked&&!wakeSentinel)setWake(true,false);});
-$("keepAwake").addEventListener("change",()=>{setWake($("keepAwake").checked,true);saveSettings();});
-if(!wakeSupported){$("keepAwake").disabled=true;$("keepAwake").closest("label").append(" (not supported in this browser)");}
+function startWakeVideo(){
+  if(!wakeVideo){
+    const v=document.createElement("video");
+    v.muted=true;v.loop=true;v.setAttribute("muted","");v.setAttribute("playsinline","");v.setAttribute("aria-hidden","true");v.tabIndex=-1;
+    v.style.cssText="position:absolute;left:0;bottom:0;width:2px;height:2px;opacity:.02;pointer-events:none;z-index:-1";
+    v.src=WAKE_VIDEO;
+    appEl.append(v); // inside the fullscreen element, otherwise the browser would not count it as visible
+    wakeVideo=v;
+  }
+  wakeVideo.play().then(()=>{wakeMethod="video fallback";paintWake();dbg("keep-awake: video fallback playing");}).catch(e=>dbg("keep-awake video blocked: "+errMsg(e)));
+}
+function stopWakeVideo(){if(wakeVideo&&!wakeVideo.paused)wakeVideo.pause();}
+async function releaseWake(){
+  stopWakeVideo();
+  const s=wakeSentinel;wakeSentinel=null;wakeMethod="";wakeError="";
+  if(s){try{await s.release();}catch{}}
+}
+async function syncWake(){
+  if(!wakeWanted()){await releaseWake();paintWake();return;}
+  if(wakeSentinel&&!wakeSentinel.released){wakeMethod="screen wake lock";paintWake();return;}
+  if(wakePending)return;
+  if(document.visibilityState!=="visible"){paintWake();return;} // only allowed while visible; retried when you come back
+  wakePending=true;
+  try{
+    if(!wakeSupported){const e=new Error("not supported");e.name="NotSupportedError";throw e;}
+    const s=await navigator.wakeLock.request("screen");
+    wakeSentinel=s;wakeMethod="screen wake lock";wakeError="";stopWakeVideo();
+    s.addEventListener("release",()=>{
+      dbg("keep-awake: released by the browser");
+      if(wakeSentinel===s){wakeSentinel=null;wakeMethod="";}
+      paintWake();
+      // ask again, but not in a tight loop if the browser keeps refusing
+      const now=Date.now();if(now-wakeWin>10000){wakeWin=now;wakeCount=0;}
+      if(++wakeCount<=5&&wakeWanted())setTimeout(syncWake,400);
+    });
+    dbg("keep-awake: screen wake lock acquired");
+  }catch(e){
+    wakeSentinel=null;wakeMethod="";wakeError=(e&&e.name)||"error";
+    dbg("keep-awake: wake lock failed ("+wakeError+"), trying the video fallback");
+    startWakeVideo();
+  }
+  wakePending=false;paintWake();
+}
+for(const ev of ["visibilitychange","focus","pageshow","fullscreenchange"])document.addEventListener(ev,()=>setTimeout(syncWake,150));
+window.addEventListener("focus",()=>setTimeout(syncWake,150));
+setInterval(()=>{if(wakeWanted()&&!(wakeSentinel&&!wakeSentinel.released)&&wakeMethod!=="video fallback")syncWake();},20000);
+$("keepAwake").addEventListener("change",()=>{saveSettings();syncWake();});
+$("lockAwake").addEventListener("change",()=>{saveSettings();syncWake();});
 window.addEventListener("beforeunload",()=>audio.pause());
 
 /* ---------- Views, fullscreen and transport controls ---------- */
@@ -895,9 +1030,10 @@ let nativeFs=false;
 function setFs(on){
   if(!on&&locked)setLock(false);
   appEl.classList.toggle("fs",on);
-  $("fsBtn").textContent=on?"✕":"⛶";$("fsBtn").setAttribute("aria-pressed",String(!!on));
+  setIcon("fsUse",on?"close":"fs");$("fsBtn").setAttribute("aria-pressed",String(!!on));
   if(on)showView("read");
   requestAnimationFrame(()=>{if(state.playing&&state.chunks.length)setActive(state.index,true);});
+  syncWake();
 }
 async function enterFs(){
   setFs(true);
@@ -953,7 +1089,9 @@ function addNovel(title,url,chapter=""){
   const entry={id:i>=0?a[i].id:Date.now().toString(36),title:(title||"").trim()||(i>=0?a[i].title:titleFromUrl(url)),url,key,chapter:chapter||(i>=0?a[i].chapter:""),updated:Date.now()};
   if(i>=0)a[i]=entry;else a.unshift(entry);
   if(!store.set(NV_KEY,a)){nvSay("Could not save: browser storage may be full.","error");return false;}
-  renderNovels();nvSay(i>=0?"Updated this novel in your library.":"Added to your library.","good");return true;
+  renderNovels();nvSay(i>=0?"Updated this novel in your library.":"Added to your library.","good");
+  if(i<0)fetchCoverFor(entry.id,{silent:true}); // look for its cover in the background
+  return true;
 }
 // Loading any chapter of a saved novel moves its bookmark to that chapter.
 function trackNovel(title,url){
@@ -962,6 +1100,8 @@ function trackNovel(title,url){
   if(i<0)return;
   a[i].url=url;a[i].chapter=title;a[i].updated=Date.now();
   store.set(NV_KEY,a);renderNovels();
+  // a saved novel without a cover gets one automatic attempt per week
+  const n=a[i];if(!getCovers()[n.id]&&(!n.coverTry||Date.now()-n.coverTry>COV_RETRY_MS))fetchCoverFor(n.id,{silent:true});
 }
 function updateNovelUrl(id,url){
   url=(url||"").trim();
@@ -972,22 +1112,27 @@ function updateNovelUrl(id,url){
   store.set(NV_KEY,a);renderNovels();nvSay("Link updated.","good");
 }
 function renderNovels(){
-  const a=getNovels().sort((x,y)=>(y.updated||0)-(x.updated||0)),el=$("novels");
+  const a=getNovels().sort((x,y)=>(y.updated||0)-(x.updated||0)),el=$("novels"),covers=getCovers();
   el.replaceChildren();
   if(!a.length){el.innerHTML='<div class="hint">No novels yet. Load a chapter from a link and tap “Add current novel”, or add one by link below.</div>';return;}
   for(const n of a){
     const row=document.createElement("div");row.className="novel";
+    const cb=document.createElement("button");cb.className="ncover";cb.setAttribute("aria-label","Cover for "+n.title+". Tap to change it.");
+    if(covers[n.id]){const im=document.createElement("img");im.src=covers[n.id];im.alt="";cb.append(im);}
+    else cb.innerHTML='<svg class="ic"><use href="#i-book"/></svg>';
+    cb.onclick=()=>openCover(n.id);
+    const body=document.createElement("div");body.className="nbody";
     const t=document.createElement("div");t.className="nt";t.textContent=n.title;t.title=n.title;
     const s=document.createElement("div");s.className="ns";s.textContent=hostOf(n.url)+(n.chapter?" · "+n.chapter:"");
     const act=document.createElement("div");act.className="na";
-    const cont=document.createElement("button");cont.textContent="▶ Continue";
+    const cont=document.createElement("button");cont.textContent="Continue";
     cont.onclick=()=>{$("url").value=n.url;window.scrollTo({top:0,behavior:"smooth"});fetchChapter(n.url);};
     const open=document.createElement("a");open.textContent="Open in browser";open.href=n.url;open.target="_blank";open.rel="noopener noreferrer";
     const edit=document.createElement("button");edit.textContent="Edit link";
     edit.onclick=()=>{const v=prompt("Link for “"+n.title+"”",n.url);if(v!=null)updateNovelUrl(n.id,v);};
     const del=document.createElement("button");del.textContent="Remove";
-    del.onclick=()=>{store.set(NV_KEY,getNovels().filter(x=>x.id!==n.id));renderNovels();};
-    act.append(cont,open,edit,del);row.append(t,s,act);el.append(row);
+    del.onclick=()=>{const c=getCovers();delete c[n.id];store.set(COV_KEY,c);store.set(NV_KEY,getNovels().filter(x=>x.id!==n.id));renderNovels();};
+    act.append(cont,open,edit,del);body.append(t,s,act);row.append(cb,body);el.append(row);
   }
 }
 $("addCurrent").onclick=()=>{
@@ -1133,11 +1278,11 @@ function ensureAmbient(key){
   }).catch(e=>{delete amb.gen[key];ambSay("Could not create this sound: "+errMsg(e));});
 }
 const narrating=()=>(state.playing&&!state.paused)||state.advancing;
-const wantAmbient=()=>amb.key!=="off"&&(!$("ambOnly").checked||narrating()||Date.now()<amb.previewUntil);
+const wantAmbient=()=>amb.key!=="off"&&!state.sleeping&&(!$("ambOnly").checked||narrating()||Date.now()<amb.previewUntil);
 function syncAmbient(){
   const el=$("ambient");
   if(amb.key==="off"||!wantAmbient()){if(!el.paused)el.pause();return;}
-  el.volume=Number($("ambVol").value);
+  el.volume=Number($("ambVol").value)*fadeF;
   const key=amb.key;
   if(!amb.url[key]){ensureAmbient(key).then(()=>{if(amb.key===key)syncAmbient();});return;}
   const changed=el.src!==amb.url[key];
@@ -1146,14 +1291,14 @@ function syncAmbient(){
 }
 function markChips(){document.querySelectorAll("#ambChips .chip").forEach(c=>c.classList.toggle("on",c.dataset.amb===amb.key));}
 function setAmbient(key){
-  amb.key=key;markChips();saveSettings();
+  state.sleeping=false;amb.key=key;markChips();saveSettings();
   if(key!=="off"&&!narrating()){ // short preview so you can hear what you picked
     amb.previewUntil=Date.now()+7000;clearTimeout(amb.pt);amb.pt=setTimeout(syncAmbient,7100);
   }
   syncAmbient();
 }
 document.querySelectorAll("#ambChips .chip").forEach(c=>{c.onclick=()=>setAmbient(c.dataset.amb);});
-$("ambVol").addEventListener("input",()=>{$("ambOut").textContent=Math.round($("ambVol").value*100)+"%";$("ambient").volume=Number($("ambVol").value);});
+$("ambVol").addEventListener("input",()=>{$("ambOut").textContent=Math.round($("ambVol").value*100)+"%";$("ambient").volume=Number($("ambVol").value)*fadeF;});
 $("ambOnly").addEventListener("change",()=>{saveSettings();syncAmbient();});
 // A saved sound that should play without narration needs one tap anywhere first (browser autoplay rules).
 document.addEventListener("pointerdown",()=>syncAmbient(),{once:true});
@@ -1275,8 +1420,9 @@ $("rsHyph").addEventListener("change",()=>{reading.hyph=$("rsHyph").checked;appl
 document.querySelectorAll("[data-align]").forEach(b=>{b.onclick=()=>{reading.align=b.dataset.align;applyReading();saveReading();syncReadingUI();};});
 document.querySelectorAll("[data-weight]").forEach(b=>{b.onclick=()=>{reading.weight=Number(b.dataset.weight);applyReading();saveReading();syncReadingUI();};});
 document.querySelectorAll("[data-hlstyle]").forEach(b=>{b.onclick=()=>{reading.hlStyle=b.dataset.hlstyle;applyReading();saveReading();syncReadingUI();};});
-function openSheet(){syncReadingUI();$("sheetWrap").classList.add("open");$("sheetWrap").setAttribute("aria-hidden","false");}
-function closeSheet(){$("sheetWrap").classList.remove("open");$("sheetWrap").setAttribute("aria-hidden","true");}
+function closeSheet(){document.querySelectorAll(".sheetwrap").forEach(w=>{w.classList.remove("open");w.setAttribute("aria-hidden","true");});applyBright();}
+function openWrap(id){closeSheet();const w=$(id);w.classList.add("open");w.setAttribute("aria-hidden","false");applyBright();}
+function openSheet(){syncReadingUI();openWrap("sheetWrap");}
 $("aaBtn").onclick=()=>$("sheetWrap").classList.contains("open")?closeSheet():openSheet();
 $("rsDone").onclick=closeSheet;$("sheetBack").onclick=closeSheet;
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet();});
@@ -1285,14 +1431,38 @@ $("openReading").onclick=()=>{showView("read");openSheet();};
 buildReadingUI();applyReading();syncReadingUI();
 {const f=FONTS.find(x=>x.id===reading.font);if(f&&f.fs)loadFont(f);} // fetch (or read from cache) the chosen web font in the background
 
+/* ---------- Brightness (fullscreen) ---------- */
+// A web page cannot change the phone's real brightness, so this is a black layer that dims the screen
+// below the system level. (The Android app will use the real window brightness instead.)
+let bright=Math.min(100,Math.max(10,Number(store.get("pw-bright",100))||100));
+function applyBright(){
+  const op=Math.min(.9,(100-bright)/100),previewing=$("brightWrap").classList.contains("open");
+  $("dimLayer").style.opacity=String(previewing?Math.min(op,.55):op); // lighter while the panel is open so it stays readable
+  $("brSlider").value=bright;$("brOut").textContent=bright+"%";
+  document.querySelectorAll("[data-bright]").forEach(x=>x.classList.toggle("on",Number(x.dataset.bright)===bright));
+  $("brightBtn").classList.toggle("on",bright<100);
+}
+function setBright(v){bright=Math.min(100,Math.max(10,Math.round(v)));store.set("pw-bright",bright);applyBright();}
+$("brightBtn").onclick=()=>$("brightWrap").classList.contains("open")?closeSheet():openWrap("brightWrap");
+$("brSlider").addEventListener("input",()=>setBright(Number($("brSlider").value)));
+document.querySelectorAll("[data-bright]").forEach(x=>{x.onclick=()=>setBright(Number(x.dataset.bright));});
+$("brDone").onclick=closeSheet;$("brightBack").onclick=closeSheet;
+
 /* ---------- Touch lock (fullscreen only) ---------- */
 // Locking blocks every touch until the unlock button is pressed and held. Narration, the notification
 // controls, the volume keys and Bluetooth buttons keep working. The page behind the lock is made inert,
 // so TalkBack and keyboards cannot reach it either.
 const HOLD_MS=1100;
 let locked=false,hintTimer=null,holdTimer=null;
+let lockMsg="";
+function lockHintText(base){ // says what the keep-awake is doing right now; stays quiet while it is still starting
+  if(!base||!wakeWanted())return base;
+  if(wakeMethod)return base+" The screen stays on.";
+  if(wakeError)return base+" Keep-awake is blocked, so the screen may turn off.";
+  return base;
+}
 function wakeLockLayer(msg){
-  const l=$("lockLayer");if(msg)$("lockHint").textContent=msg;
+  const l=$("lockLayer");if(msg)lockMsg=msg;$("lockHint").textContent=lockHintText(lockMsg);
   l.classList.add("awake");clearTimeout(hintTimer);hintTimer=setTimeout(()=>l.classList.remove("awake"),3500);
 }
 function setLock(on){
@@ -1307,6 +1477,7 @@ function setLock(on){
   else $("lockLayer").classList.remove("awake");
   try{navigator.vibrate?.(on?25:[15,40,15]);}catch{}
   dbg(on?"touch lock on":"touch lock off");
+  syncWake();
 }
 $("lockBtn").onclick=()=>{if(appEl.classList.contains("fs"))setLock(true);};
 $("lockLayer").addEventListener("pointerdown",()=>wakeLockLayer("Locked. Press and hold the lock button to unlock."));
@@ -1321,8 +1492,189 @@ for(const ev of ["pointerup","pointercancel"])unlockBtn.addEventListener(ev,()=>
 unlockBtn.addEventListener("contextmenu",e=>e.preventDefault());
 $("lockLayer").addEventListener("contextmenu",e=>e.preventDefault());
 
+/* ---------- Novel covers (shown in the Library list only) ---------- */
+const COV_KEY="pw-covers",COV_RETRY_MS=7*24*3600*1000;
+const cover={id:null,busy:false};
+const getCovers=()=>{const c=store.get(COV_KEY,{});return c&&typeof c==="object"&&!Array.isArray(c)?c:{};};
+const cvSay=(m,k="")=>{$("cvStatus").textContent=m;$("cvStatus").className="status "+k;};
+function saveCover(id,data){
+  const c=getCovers();if(data)c[id]=data;else delete c[id];
+  const ok=store.set(COV_KEY,c);
+  if(!ok)cvSay("Could not save: browser storage may be full.","error");
+  renderNovels();if(cover.id===id)paintCoverSheet();
+  return ok;
+}
+function markCoverTry(id){const a=getNovels(),i=a.findIndex(n=>n.id===id);if(i>=0){a[i].coverTry=Date.now();store.set(NV_KEY,a);}}
+const BAD_IMG=/(logo|favicon|icon|avatar|sprite|placeholder|loading|blank|pixel|banner|emoji|\.svg|\.gif)/i;
+function novelPageUrl(u){ // the novel's own page: the chapter link without its chapter number
+  try{const x=new URL(u),seg=x.pathname.split("/").filter(Boolean);if(seg.length>1&&/\d/.test(seg[seg.length-1]))seg.pop();return x.origin+"/"+seg.join("/");}catch{return u;}
+}
+function coverFromHtml(html,base){
+  const doc=new DOMParser().parseFromString(html,"text/html"),out=[];
+  const push=u=>{try{u=new URL((u||"").trim(),base).href;}catch{return;}if(/^https?:/.test(u)&&!out.includes(u)&&!BAD_IMG.test(u))out.push(u);};
+  for(const s of ["meta[property='og:image:secure_url']","meta[property='og:image']","meta[name='og:image']","meta[name='twitter:image']","meta[property='twitter:image']","link[rel='image_src']","meta[itemprop='image']"]){
+    const el=doc.querySelector(s);if(el)push(el.getAttribute("content")||el.getAttribute("href"));
+  }
+  for(const img of doc.querySelectorAll("img[itemprop='image'],.book-cover img,.novel-cover img,.cover img,img.cover,[class*='cover'] img,[class*='poster'] img,.summary_image img,.book img")){
+    push(img.getAttribute("data-src")||img.getAttribute("data-lazy-src")||img.getAttribute("data-original")||img.getAttribute("src"));
+    if(out.length>=6)break;
+  }
+  return out.slice(0,6);
+}
+function coverFromMarkdown(md){
+  const urls=[...md.matchAll(/!\[[^\]]*\]\((https?:\/\/[^)\s]+)/g)].map(m=>m[1]).filter(u=>!BAD_IMG.test(u));
+  return [...new Set(urls)].sort((a,b)=>/cover/i.test(b)-/cover/i.test(a)).slice(0,6);
+}
+async function findCoverUrls(pageUrl){
+  let out=[];
+  try{out=coverFromHtml(await fetchText(pageUrl,{mode:"cors",credentials:"omit"},15000),pageUrl);}catch{}
+  if(!out.length)try{out=coverFromHtml(await fetchText("https://api.allorigins.win/raw?url="+encodeURIComponent(pageUrl),{},20000),pageUrl);}catch{}
+  if(!out.length)try{out=coverFromMarkdown(await fetchText("https://r.jina.ai/"+pageUrl,{headers:{"Accept":"text/plain"}},25000));}catch{}
+  return out;
+}
+async function fetchImageBlob(url){ // direct first; an image proxy as the fallback for hosts that block cross-site reads
+  let last;
+  for(const u of [url,"https://wsrv.nl/?url="+encodeURIComponent(url)+"&w=480&output=jpg&q=85"]){
+    try{
+      const c=new AbortController(),t=setTimeout(()=>c.abort(),15000);
+      const r=await fetch(u,{signal:c.signal,referrerPolicy:"no-referrer"});clearTimeout(t);
+      if(!r.ok)throw Error("HTTP "+r.status);
+      const b=await r.blob();if(!/^image\//.test(b.type))throw Error("not an image");
+      return b;
+    }catch(e){last=e;}
+  }
+  throw last;
+}
+async function toCoverData(blob){ // shrink to a small JPEG so many covers fit in local storage
+  const bmp=await createImageBitmap(blob);
+  if(bmp.width<60||bmp.height<60){bmp.close?.();throw Error("image too small");}
+  const s=Math.min(240/bmp.width,340/bmp.height,1),w=Math.max(1,Math.round(bmp.width*s)),h=Math.max(1,Math.round(bmp.height*s));
+  const c=document.createElement("canvas");c.width=w;c.height=h;
+  const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,w,h);g.drawImage(bmp,0,0,w,h);bmp.close?.();
+  return {data:c.toDataURL("image/jpeg",.82),w,h};
+}
+async function fetchCoverFor(id,{silent=false}={}){
+  const n=getNovels().find(x=>x.id===id);if(!n)return false;
+  const say=silent?()=>{}:cvSay;
+  say("Looking for a cover…");
+  for(const pg of [...new Set([novelPageUrl(n.url),n.url])]){
+    let landscape=null;
+    for(const u of await findCoverUrls(pg)){
+      try{
+        const info=await toCoverData(await fetchImageBlob(u));
+        if(info.h>=info.w*1.1){saveCover(id,info.data);say("Cover found.","good");dbg("cover found for "+n.title);return true;}
+        landscape=landscape||info; // a wide image is probably a site banner: keep it only as a last resort
+      }catch{}
+    }
+    if(landscape){saveCover(id,landscape.data);say("Cover found (a wide image, so you may prefer to choose your own).","good");return true;}
+  }
+  markCoverTry(id);
+  say("No cover found automatically. Choose an image from your device instead.","error");
+  return false;
+}
+function paintCoverSheet(){
+  const n=getNovels().find(x=>x.id===cover.id),cov=n?getCovers()[n.id]:null;
+  $("cvTitle").textContent=n?n.title:"Cover";
+  $("cvImg").classList.toggle("hidden",!cov);if(cov)$("cvImg").src=cov;
+  $("cvEmpty").classList.toggle("hidden",!!cov);$("cvRemove").disabled=!cov;
+}
+function openCover(id){cover.id=id;cvSay("");paintCoverSheet();openWrap("coverWrap");}
+async function coverBusy(fn){
+  if(cover.busy)return;cover.busy=true;
+  for(const b of ["cvFetch","cvPick","cvLink","cvRemove"])$(b).disabled=true;
+  try{await fn();}catch(e){cvSay("Could not use that image: "+errMsg(e),"error");}
+  cover.busy=false;for(const b of ["cvFetch","cvPick","cvLink"])$(b).disabled=false;paintCoverSheet();
+}
+$("cvFetch").onclick=()=>coverBusy(()=>fetchCoverFor(cover.id));
+$("cvPick").onclick=()=>$("coverFile").click();
+$("coverFile").onchange=e=>{
+  const f=e.target.files?.[0];e.target.value="";if(!f)return;
+  coverBusy(async()=>{const info=await toCoverData(f);if(saveCover(cover.id,info.data))cvSay("Cover saved.","good");});
+};
+$("cvLink").onclick=()=>{
+  const u=prompt("Link to the cover image","https://");if(!u||!/^https?:\/\//.test(u.trim()))return;
+  coverBusy(async()=>{const info=await toCoverData(await fetchImageBlob(u.trim()));if(saveCover(cover.id,info.data))cvSay("Cover saved.","good");});
+};
+$("cvRemove").onclick=()=>{saveCover(cover.id,null);cvSay("Cover removed.");};
+$("cvDone").onclick=closeSheet;$("coverBack").onclick=closeSheet;
+$("findCovers").onclick=async()=>{
+  const miss=getNovels().filter(n=>!getCovers()[n.id]);
+  if(!miss.length){nvSay("Every novel already has a cover.","good");return;}
+  $("findCovers").disabled=true;let ok=0;
+  for(let i=0;i<miss.length;i++){nvSay(`Looking for covers… ${i+1} of ${miss.length}`);if(await fetchCoverFor(miss[i].id,{silent:true}))ok++;}
+  nvSay(`Found ${ok} of ${miss.length}.`+(ok<miss.length?" Tap a cover to choose one yourself.":""),ok?"good":"error");
+  $("findCovers").disabled=false;
+};
+
+/* ---------- Sleep timer ---------- */
+const SLEEP_FADE_MS=30000;
+const sleep={mode:"off",endAt:0,total:0,tick:null}; // mode: off | time | chapter
+function applyFade(f){fadeF=f;audio.volume=f;$("ambient").volume=Number($("ambVol").value)*f;}
+const fmtClock=ms=>{const s=Math.max(0,Math.ceil(ms/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60),r=s%60;return h?`${h}:${String(m).padStart(2,"0")}:${String(r).padStart(2,"0")}`:`${m}:${String(r).padStart(2,"0")}`;};
+const fmtShort=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return s>=60?Math.ceil(s/60)+"m":s+"s";};
+function updateSleepUI(){
+  const b=$("mpSleep"),r=sleep.endAt-Date.now(),off=sleep.mode==="off";
+  b.classList.toggle("on",!off);
+  $("mpSleepTxt").textContent=off?"":(sleep.mode==="chapter"?"End":fmtShort(r));
+  b.setAttribute("aria-label",off?"Sleep timer":"Sleep timer, "+(sleep.mode==="chapter"?"stops at the end of the chapter":fmtClock(r)+" left"));
+  $("slActive").classList.toggle("hidden",off);
+  $("slLeft").textContent=sleep.mode==="chapter"?"End of chapter":fmtClock(r)+" left";
+  $("slPlus").classList.toggle("hidden",sleep.mode!=="time");
+  document.querySelectorAll("#slChips .chip").forEach(c=>c.classList.toggle("on",sleep.mode==="chapter"?c.dataset.min==="chapter":sleep.mode==="time"&&Number(c.dataset.min)*60000===sleep.total));
+}
+function startSleep(minutes){
+  minutes=Math.min(600,Math.max(1,Math.round(minutes)));
+  applyFade(1);state.sleeping=false;
+  sleep.mode="time";sleep.total=minutes*60000;sleep.endAt=Date.now()+sleep.total;
+  clearInterval(sleep.tick);sleep.tick=setInterval(sleepTick,1000);
+  store.set("pw-sleep-last",minutes);updateSleepUI();dbg(`sleep timer set: ${minutes} min`);
+  return minutes;
+}
+function startSleepChapter(){
+  applyFade(1);state.sleeping=false;clearInterval(sleep.tick);sleep.tick=null;
+  sleep.mode="chapter";updateSleepUI();dbg("sleep timer: end of chapter");
+}
+function cancelSleep(){clearInterval(sleep.tick);sleep.tick=null;sleep.mode="off";applyFade(1);updateSleepUI();dbg("sleep timer off");}
+// The countdown uses the clock, not tick counting, so it stays accurate even if the page is throttled in the background.
+function sleepTick(){
+  if(sleep.mode!=="time")return;
+  const r=sleep.endAt-Date.now();
+  if(r<=0){sleepExpire();return;}
+  const fadeMs=Math.min(SLEEP_FADE_MS,sleep.total/4);
+  if(r<fadeMs){if(state.playing&&!state.paused)applyFade(Math.max(.03,r/fadeMs));}
+  else if(fadeF<1)applyFade(1);
+  updateSleepUI();
+}
+function sleepExpire(){
+  clearInterval(sleep.tick);sleep.tick=null;sleep.mode="off";
+  state.sleeping=true;
+  if(state.playing&&!state.paused)pauseNow(); // keeps your place
+  syncAmbient();updateSleepUI();
+  toast("Sleep timer ended. Playback paused where you stopped.");dbg("sleep timer expired: paused");
+}
+function sleepChapterDone(){sleep.mode="off";state.sleeping=true;syncAmbient();updateSleepUI();toast("Sleep timer: chapter finished.");dbg("sleep timer: chapter ended");}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")sleepTick();});
+$("mpSleep").onclick=()=>{
+  if($("sleepWrap").classList.contains("open")){closeSheet();return;}
+  $("slCustom").value=store.get("pw-sleep-last","")||"";updateSleepUI();openWrap("sleepWrap");
+};
+document.querySelectorAll("#slChips .chip").forEach(c=>{c.onclick=()=>{
+  if(c.dataset.min==="chapter"){startSleepChapter();toast("Sleep timer: stops at the end of this chapter.");}
+  else toast(`Sleep timer: ${startSleep(Number(c.dataset.min))} min.`);
+  closeSheet();
+};});
+$("slStart").onclick=()=>{
+  const m=Number($("slCustom").value);
+  if(!(m>=1)){toast("Enter the number of minutes, for example 20.","error");return;}
+  toast(`Sleep timer: ${startSleep(m)} min.`);closeSheet();
+};
+$("slPlus").onclick=()=>{if(sleep.mode!=="time")return;sleep.endAt+=600000;sleep.total+=600000;updateSleepUI();toast("Added 10 minutes.");};
+$("slOff").onclick=()=>{cancelSleep();toast("Sleep timer off.");closeSheet();};
+$("slDone").onclick=closeSheet;$("sleepBack").onclick=closeSheet;
+updateSleepUI();
+
 /* ---------- Version + "get the latest" ---------- */
-const APP_VERSION="0.9.0",APP_BUILD="2026-11-16";
+const APP_VERSION="0.11.0",APP_BUILD="2026-11-16";
 $("verTag").textContent="v"+APP_VERSION;$("verText").textContent="v"+APP_VERSION+" · build "+APP_BUILD;
 $("updBtn").onclick=async()=>{
   const say=(m,k="")=>{$("updStatus").textContent=m;$("updStatus").className="status "+k;};
@@ -1341,7 +1693,7 @@ applySettings();
 renderLibrary();
 renderNovels();
 markChips();
-if($("keepAwake").checked)setWake(true,false);
+syncWake();applyBright();
 ui("idle");
 // Restore the last chapter and reading position.
 {

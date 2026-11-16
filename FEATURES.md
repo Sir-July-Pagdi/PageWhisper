@@ -28,7 +28,11 @@ Once a feature feels right, it is ported to the native Android app using the spe
 | **Reading style** (fonts, spacing, alignment, themes) | **Done** | Planned |
 | Browser fetch for bot-protected sites | Not possible on web | Planned for v1 (WebView as a tool) |
 | JSON backup and restore | Not started | Planned (shared schema) |
-| Sleep timer | Not started | Idea |
+| **Sleep timer** (timed or end of chapter, with fade-out) | **Done** | Planned |
+| **Novel covers** (Library list only) | **Done** | Planned |
+| **Brightness in fullscreen** | **Done** (software dimming) | Planned (real window brightness) |
+| **Keep screen on while locked** | **Done** | Planned |
+| **Flat SVG icons, no emoji** | **Done** | Planned (vector drawables) |
 | Pronunciation fixes per novel (names) | Not started | Idea |
 
 ---
@@ -167,3 +171,104 @@ Stops accidental touches while reading or listening in the fullscreen view (pock
 - Locking and unlocking never interrupts narration.
 - Ending fullscreen by a back gesture while locked leaves the app locked.
 - After unlocking, every control works and the exit button leaves fullscreen.
+
+
+---
+
+## Design rule: icons
+
+- No emoji anywhere. Every icon is a flat, single-color vector: 24 x 24 grid, 1.8 stroke, round caps and joins,
+  `currentColor` (filled shapes only for play, pause, stop, skip and the saved star).
+- Names used in the app: play, pause, prev, next, stop, lock, moon, sun, fs, close, star, star-fill, plus, book,
+  and the ambient set (off, rain, heavy, storm, ocean, insects, forest, wind, fire, brown).
+- **Android:** one vector drawable per name (Material Symbols outlined style is a close match).
+
+---
+
+## Spec: Sleep timer
+
+A moon button in the player bar opens the timer panel. The button shows the time left, or "End".
+
+- **Presets:** 5, 10, 15, 30, 45, 60, 90 minutes, a custom value (1 to 600 minutes), and **End of chapter**.
+- **Active timer:** the panel shows the countdown with **+10 min** and **Turn off**. The last chosen custom value is remembered.
+- **Fade:** over the last `min(30 s, total / 4)` the volume (narration and ambient together) falls from 100% to 3%.
+- **When it ends:** playback is **paused where you stopped** (not reset), ambient sound stops, and a message appears.
+  Pressing play restores full volume and carries on.
+- **End of chapter:** playback stops when the chapter finishes, and auto-next does not start the next chapter.
+- It counts real clock time (an end timestamp), so it stays accurate if the page is throttled in the background.
+- Pausing or stopping does not cancel the timer; it simply runs out.
+
+| Android mapping | |
+|---|---|
+| Timer | end timestamp on `SystemClock.elapsedRealtime()`, checked from the playback service |
+| Fade | ramp the player volume (`Player.volume`) and the ambient volume |
+| Expiry | `player.pause()`; the notification and lock-screen controls stay available |
+
+---
+
+## Spec: Novel covers (Library only)
+
+Covers appear **only** in the Library's list of saved novels, never in the reader, the player or notifications.
+
+- **Where it looks:** the novel's own page (the chapter link without its chapter number), then the saved link.
+  For each page: the page itself, then a public proxy, then the reader service.
+- **Candidates:** `og:image`, `twitter:image`, `image_src`, then images inside cover-like elements
+  (`.cover`, `.book-cover`, `[class*=poster]`, `itemprop=image`...). Logos, icons, banners, avatars, sprites, `.svg`
+  and `.gif` are skipped.
+- **Choosing:** the first image that is portrait (height at least 1.1 times its width); a wide image is used only if nothing else is found.
+- **Storing:** shrunk to at most 240 x 340, JPEG quality 0.82 (about 5 to 25 KB), kept in `pw-covers` keyed by novel id.
+  If the image host blocks cross-site reads, an image proxy (`wsrv.nl`) is tried.
+- **When:** automatically when a novel is added; again at most once a week for novels that still have none;
+  **Find missing covers** in the Library; or **Find cover automatically** in the cover panel.
+- **Manual:** tap a cover (or the book placeholder) to open the cover panel: find automatically, choose from the device,
+  use an image link, or remove. Sites that block fetching are handled by choosing an image.
+- Removing a novel removes its cover.
+
+| Android mapping | |
+|---|---|
+| Fetching | OkHttp + Jsoup, same candidate rules, no CORS limits so the proxy is not needed |
+| Storing | image files in app storage (not base64), keyed by novel id |
+| Display | Coil `AsyncImage` in the Library list only |
+| Picking | `ActivityResultContracts.PickVisualMedia` |
+
+---
+
+## Spec: Brightness (fullscreen)
+
+A sun button appears in the fullscreen toolbar (before the lock button) and opens a brightness panel.
+
+- **Range:** 10% to 100%, presets 25, 50, 75 and 100. Saved across restarts.
+- **Web:** a web page cannot change the phone's real brightness, so a black layer dims the screen. Opacity is
+  `min(0.9, 1 - brightness)`, so the lowest setting never goes fully black. It only exists in fullscreen, lets touches through,
+  and stays on top of the touch lock. While the panel is open the preview is capped at 0.55 so the panel stays readable.
+- It cannot make the screen brighter than the phone's own setting.
+- **Android:** set the real window brightness (`window.attributes.screenBrightness`, 0.1 to 1.0). This can be brighter
+  than the system level, needs no permission, and is restored to "system default" (-1) when fullscreen ends.
+
+---
+
+## Spec: Keep screen on
+
+The screen is kept on when **either** applies:
+
+1. "Keep screen on while the app is open" is on (Settings), or
+2. the touch lock is on and "Keep screen on while the screen is locked" is on (Settings, **on by default**).
+
+- **Web method:** the browser's Screen Wake Lock. It is requested again whenever the browser drops it (after the app
+  returns from the background, after a fullscreen change, or if it is released for any other reason), with at most 5
+  quick retries per 10 seconds and a re-check every 20 seconds.
+- **Fallback:** if the browser refuses or does not support it, a tiny silent looping video plays inside the app
+  (the long-used "NoSleep" method).
+- **Status:** Settings shows whether it is active, using the fallback, or refused (for example by battery saver).
+  The lock screen hint says "The screen stays on." only when it really is.
+- Unlocking, switching the setting off, or leaving the condition releases it immediately.
+- **Android:** `FLAG_KEEP_SCREEN_ON` on the window while the condition holds. It is reliable, so there is no fallback.
+
+### Acceptance checks
+
+- Locking the screen starts keep-awake without touching the Settings toggle; unlocking releases it.
+- If the browser drops the wake lock, the app gets it again within about a second.
+- If the browser refuses it, the fallback runs and the status says so.
+- A browser that keeps dropping it does not cause a request loop.
+- In fullscreen, the brightness button is visible and dimming works; outside fullscreen there is no dimming.
+- Dimming also applies while locked, and survives a reload.
