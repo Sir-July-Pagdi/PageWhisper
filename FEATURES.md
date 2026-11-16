@@ -18,6 +18,7 @@ Once a feature feels right, it is ported to the native Android app using the spe
 | Kokoro voices (28) and speed | Done | Planned (sherpa-onnx) |
 | Sentence highlight, tap a sentence to jump | Done | Planned |
 | Fullscreen reader | Done | Planned (immersive mode) |
+| **Touch lock in fullscreen** (hold to unlock) | **Done** | Planned |
 | Previous/next chapter, next link detection, auto-next | Done | Planned |
 | Novel library with moving bookmarks | Done | Planned |
 | Saved chapters | Done | Planned |
@@ -112,3 +113,57 @@ Storage: one `DataStore` entry per key above. Backup JSON uses the same key name
 - Themes recolor the whole app, and the system status bar color matches.
 - Reopening the app keeps every setting; Reset restores the table above.
 - The highlighted sentence stays readable in all four themes and all three highlight styles.
+
+
+---
+
+## Spec: Touch lock (fullscreen only)
+
+Stops accidental touches while reading or listening in the fullscreen view (pocket, palm, kids).
+
+### Behavior
+
+- A **lock button** appears in the fullscreen toolbar (between Auto and Exit). It is not shown outside fullscreen.
+- **Locked:** every touch is swallowed. The reader, toolbar, player bar and the Reading style panel cannot be used,
+  scrolled or tapped. The text still follows the narration automatically.
+- The controls behind the lock are dimmed so it is obvious they are off.
+- **Unlock:** a round lock button at the bottom right. **Press and hold for 1.1 seconds**; a ring fills while holding.
+  Releasing early cancels. A normal tap never unlocks.
+- The unlock button is faint after 3.5 s without touches. Any touch brightens it and shows the hint
+  "Locked. Press and hold the lock button to unlock."
+- A short vibration confirms locking, and a double pulse confirms unlocking (where the device supports it).
+- **Still works while locked:** narration, notification and lock-screen controls, Bluetooth and headset buttons,
+  volume keys, ambient sound.
+- **Exiting fullscreen is blocked while locked.** If the system ends fullscreen anyway (for example a back gesture), the
+  app stays in the fullscreen view and stays locked; unlock first, then use the exit button.
+- Not remembered across restarts: the app always opens unlocked.
+- Accessibility: the content behind the lock is hidden from screen readers and the keyboard too (`inert`).
+
+### Constants
+
+| Name | Value |
+|---|---|
+| Hold time to unlock | 1100 ms |
+| Hint / button wake time | 3500 ms |
+| Dimmed controls opacity | 0.3 |
+| Idle unlock button opacity | 0.4 |
+
+### Android mapping
+
+| Behavior | Compose / Android |
+|---|---|
+| Swallow touches | full-screen overlay using `pointerInput` that consumes every `PointerEvent` |
+| Hold to unlock | `detectTapGestures(onPress = ...)` with a 1.1 s timer; `CircularProgressIndicator` ring |
+| Block back button | `BackHandler(enabled = locked) { }` (stronger than on the web) |
+| Hide content from TalkBack | `Modifier.clearAndSetSemantics { }` on the content, or `semantics { invisibleToUser() }` |
+| Haptics | `LocalHapticFeedback` or `VibrationEffect` |
+| Keep playing | foreground service and MediaSession are unaffected |
+| Optional later | `FLAG_KEEP_SCREEN_ON` while locked; auto-lock after N seconds in fullscreen |
+
+### Acceptance checks
+
+- Tapping the player buttons, text, toolbar and tabs while locked does nothing.
+- A 0.5 s hold does not unlock; a full hold does.
+- Locking and unlocking never interrupts narration.
+- Ending fullscreen by a back gesture while locked leaves the app locked.
+- After unlocking, every control works and the exit button leaves fullscreen.
