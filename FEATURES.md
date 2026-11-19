@@ -27,13 +27,13 @@ Once a feature feels right, it is ported to the native Android app using the spe
 | Background / screen-off playback | Best effort | Planned (foreground service) |
 | **Reading style** (fonts, spacing, alignment, themes) | **Done** | Planned |
 | Browser fetch for bot-protected sites | Not possible on web | Planned for v1 (WebView as a tool) |
-| JSON backup and restore | Not started | Planned (shared schema) |
+| **Backup and restore** (one JSON file) | **Done** | Planned |
 | **Sleep timer** (timed or end of chapter, with fade-out) | **Done** | Planned |
 | **Novel covers** (Library list only) | **Done** | Planned |
 | **Brightness in fullscreen** | **Done** (software dimming) | Planned (real window brightness) |
 | **Keep screen on while locked** | **Done** | Planned |
 | **Flat SVG icons, no emoji** | **Done** | Planned (vector drawables) |
-| Pronunciation fixes per novel (names) | Not started | Idea |
+| **Pronunciation fixes** (all novels or one novel) | **Done** | Planned |
 
 ---
 
@@ -272,3 +272,112 @@ The screen is kept on when **either** applies:
 - A browser that keeps dropping it does not cause a request loop.
 - In fullscreen, the brightness button is visible and dimming works; outside fullscreen there is no dimming.
 - Dimming also applies while locked, and survives a reload.
+
+
+---
+
+## Spec: Pronunciation rules
+
+Rewrite the **spoken** text only. The text on screen never changes.
+
+### Rule
+
+| Field | Meaning | Limits |
+|---|---|---|
+| `from` | the word as written | 1 to 60 characters, trimmed |
+| `to` | how it should be said (can be empty = say nothing) | 0 to 120 characters |
+| `whole` | whole word only (default true) | boolean |
+| `matchCase` | respect upper/lower case (default false) | boolean |
+
+Stored as `{ "global": [rule...], "novels": { "<novelKey>": [rule...] } }`. At most 300 rules per list and 200 novels.
+Rules with the same `from` (ignoring case), `whole` and `matchCase` in one list are the same rule: adding again replaces it.
+
+### Applying (identical on both platforms)
+
+1. Rules for the current novel come first, then the global rules. Inside each list, **longer `from` first**.
+2. For each rule, in order, replace every match in the text with `to` (literal text, no special characters).
+3. `whole` = the match must not touch a letter, digit or underscore on either side (Unicode letters and digits count).
+   Without `whole` the match may be inside a word.
+4. Matching ignores case unless `matchCase`.
+5. If case is ignored, the matched text starts with a capital letter and `to` starts with a lowercase letter,
+   the first letter of `to` is capitalised ("Dao" with rule dao -> dow gives "Dow").
+6. The result then goes through the normal speech clean-up (markup characters removed).
+7. Rules are applied to each sentence group before it is spoken. Sections already prepared are not redone, so a change is
+   heard from the next unprepared section; stopping and playing again hears it immediately.
+
+`novelKey` is the same key the Library uses: host without `www.` plus the path without its last segment if that segment contains a digit.
+Text pasted with no link has no novel, so only global rules apply to it. If a link is in the address box when text is pasted,
+the text belongs to that link's novel.
+
+### Screens
+
+- Settings card **Pronunciation** and a speaker button in the reader header both open the rules panel.
+  The reader button starts on "This novel"; Settings starts on "All novels".
+- The panel has: scope switch, written-as, say-it-as, whole word, match case, **Listen** (speaks the "say it as" text with the
+  current voice, without disturbing the chapter position), **Add rule**, and the list (Listen and delete per rule).
+- Test vectors: `shared-tests.json` -> `pronunciation`, `sanitizePron`. Both apps must produce the same output.
+
+| Android mapping | |
+|---|---|
+| Rules | data class + `Regex` with `RegexOption.IGNORE_CASE` and Unicode lookarounds `(?<![\p{L}\p{N}_])` |
+| Listen | a short separate `AudioTrack` stream; pause the narration first |
+| Where | in the chunk builder, just before the speech clean-up |
+
+---
+
+## Spec: Backup and restore
+
+One JSON file holds everything and moves between the web app and the Android app.
+
+### File (`schema` 1)
+
+```json
+{
+  "app": "PageWhisper", "schema": 1, "appVersion": "0.12.0", "platform": "web", "exportedAt": "2026-11-17T10:00:00Z",
+  "reading": { "font": "serif", "size": 19, "line": 1.8, "para": 1.05, "pad": 4, "ls": 0, "align": "left",
+               "weight": 400, "hyph": false, "theme": "dark", "hl": "violet", "hlStyle": "fill" },
+  "settings": { "voice": "af_heart", "engine": "auto", "rate": 1, "chunk": "280", "ambVol": 0.35,
+                "auto": false, "awake": false, "lockAwake": true, "ambOnly": true, "amb": "off" },
+  "brightness": 100,
+  "sleepLastMinutes": 30,
+  "novels": [ { "id": "k3j9x1", "title": "Blue Moon", "url": "https://...", "chapter": "Chapter 12",
+                "updated": 1763350000000, "cover": "data:image/jpeg;base64,..." } ],
+  "savedChapters": [ { "title": "...", "text": "...", "url": "https://...", "next": "https://..." } ],
+  "pronunciations": { "global": [ { "from": "Longxuan", "to": "Long shwen", "whole": true, "matchCase": false } ], "novels": { } }
+}
+```
+
+- Every section is optional. `cover` is a small JPEG data URL (or null). Android may store covers as files but exports them in this form.
+- `engine` is a web setting and is ignored by Android; Android-only settings are not written by the web app.
+- Dates in `updated` are milliseconds since 1970.
+
+### Export
+
+- **Back up everything** downloads `pagewhisper-backup-YYYY-MM-DD.json`. Where the browser can share files, **Share the backup file** also appears.
+- The last backup time is shown. (Android: Storage Access Framework `CreateDocument`.)
+
+### Import (nothing in the file is trusted)
+
+1. Refuse files over 60 MB, files that are not JSON, files whose `app` is not `PageWhisper`, and files with a `schema` above the app's.
+2. Clean everything: novels need a valid `http(s)` link (and get a fresh safe id if theirs is odd or repeated); at most 2000 novels
+   and 2000 saved chapters; saved chapters need text; links must be `http(s)`; covers must be JPEG, PNG or WebP data URLs up to
+   400,000 characters (anything else, including SVG, is dropped but the novel is kept); settings and reading style are
+   checked against their allowed values and ranges; brightness 10 to 100; sleep minutes 1 to 600.
+3. Show a summary (counts, app version, date) and ask **Merge** (default) or **Replace everything**.
+
+**Merge:** novels are matched by `novelKey(url)`; the one with the larger `updated` supplies title, link and bookmark;
+a cover is taken from the newer one, or from the backup when the local novel has none. Nothing is deleted.
+Saved chapters are added when no chapter with the same link and title exists. Pronunciation rules are combined (a local rule wins
+over a backup rule with the same key). Settings, reading style, brightness and the sleep time are left alone.
+
+**Replace:** every section is replaced by the backup's (a missing section is cleared); the app then restarts.
+If storage runs out part-way, the previous data is put back.
+
+Test vectors: `shared-tests.json` -> `backupMerge`. Both apps must produce the same merged result.
+
+### Acceptance checks
+
+- Export, wipe the browser data, restore with Replace: library, covers, saved chapters, rules, theme, voice and brightness all return.
+- Merge never duplicates a novel and keeps a newer local bookmark.
+- A hostile file (script in a title, `javascript:` links, SVG or oversized covers, out-of-range settings) is cleaned, never executed.
+- Titles from a backup are always shown as plain text.

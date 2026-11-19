@@ -144,6 +144,7 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <symbol id="i-star-fill" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3.8l2.5 5.2 5.7.8-4.1 4 1 5.7-5.1-2.7-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/></symbol>
 <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
 <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2zM12 6.5v13"/></symbol>
+<symbol id="i-speak" viewBox="0 0 24 24"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18.2 6.6a8 8 0 0 1 0 10.8"/></symbol>
 <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7"/></symbol>
 <symbol id="i-amb-off" viewBox="0 0 24 24"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/><path d="M16 9.5l4.5 5M20.5 9.5l-4.5 5"/></symbol>
 <symbol id="i-amb-rain" viewBox="0 0 24 24"><path d="M7 14a4 4 0 0 1-.4-7.98 5.5 5.5 0 0 1 10.6 1.1A3.4 3.4 0 0 1 17 14z"/><path d="M9 17.5l-.8 2M15 17.5l-.8 2"/></symbol>
@@ -161,7 +162,7 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <main class="views">
 
 <section id="view-read" class="view active">
-<div class="reader-head"><div class="titlebox"><h1 class="chapter-title" id="chapterTitle">Your reading space</h1><div class="source" id="chapterSource">Load a chapter to begin</div></div><button id="saveBtn" class="icon" aria-label="Save chapter" disabled><svg class="ic"><use id="saveUse" href="#i-star"/></svg></button></div>
+<div class="reader-head"><div class="titlebox"><h1 class="chapter-title" id="chapterTitle">Your reading space</h1><div class="source" id="chapterSource">Load a chapter to begin</div></div><button id="pronBtn" class="icon" aria-label="Pronunciation fixes"><svg class="ic"><use href="#i-speak"/></svg></button><button id="saveBtn" class="icon" aria-label="Save chapter" disabled><svg class="ic"><use id="saveUse" href="#i-star"/></svg></button></div>
 <div class="toolbar">
 <button id="aaBtn" aria-label="Reading style" aria-haspopup="dialog">Aa</button>
 <button id="prevBtn" aria-label="Previous chapter" disabled>‹ Ch</button>
@@ -271,6 +272,23 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 </div>
 
 <div class="card">
+<h2>Pronunciation</h2>
+<div class="hint" style="margin:0 0 10px">Teach the voice how to say names and made-up words, for example <b>Longxuan</b> as <b>Long shwen</b>. Rules can apply to every novel or just one. They change what is spoken, never the text on screen.</div>
+<button id="openPron" class="primary" style="width:100%">Edit pronunciation rules</button>
+<div id="pronCount" class="hint"></div>
+</div>
+
+<div class="card">
+<h2>Backup &amp; restore</h2>
+<div class="hint" style="margin:0 0 10px">Your library, covers, saved chapters, pronunciation rules and settings live only in this browser. Back them up now and then, and always before clearing the site's data.</div>
+<button id="bkExport" class="primary" style="width:100%">Back up everything</button>
+<button id="bkShare" class="hidden" style="width:100%;margin-top:8px">Share the backup file</button>
+<button id="bkImport" style="width:100%;margin-top:8px">Restore from a backup file</button>
+<input type="file" id="bkFile" accept=".json,application/json" class="hidden">
+<div id="bkStatus" class="status" aria-live="polite"></div>
+</div>
+
+<div class="card">
 <h2>About</h2>
 <div class="hint" style="margin:0">PageWhisper Lab <b id="verText"></b></div>
 <button id="updBtn" style="width:100%;margin-top:10px">Get the latest version</button>
@@ -305,6 +323,35 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <svg class="ic"><use href="#i-lock"/></svg>
 </button>
 </div>
+
+<div id="pronWrap" class="sheetwrap" aria-hidden="true">
+<div id="pronBack" class="sheetback"></div>
+<div class="sheet" role="dialog" aria-label="Pronunciation fixes">
+<div class="sheethead"><h2>Pronunciation</h2><button id="prDone" class="primary">Done</button></div>
+<div class="sheetbody">
+<div class="segbtns" id="prScope"><button data-scope="global">All novels</button><button data-scope="novel" id="prScopeNovel">This novel</button></div>
+<div class="hint" id="prScopeHint"></div>
+<div class="rs-row" style="margin-top:12px"><label for="prFrom">WRITTEN AS</label><input id="prFrom" placeholder="Longxuan" autocapitalize="off" autocorrect="off" maxlength="60"></div>
+<div class="rs-row"><label for="prTo">SAY IT AS</label><input id="prTo" placeholder="Long shwen" autocapitalize="off" autocorrect="off" maxlength="120"></div>
+<label class="check"><input type="checkbox" id="prWhole" checked> Whole word only</label>
+<label class="check"><input type="checkbox" id="prCase"> Match upper and lower case</label>
+<div class="row" style="margin:12px 0 6px"><button id="prTest" class="grow"><svg class="ic"><use href="#i-speak"/></svg> Listen</button><button id="prAdd" class="primary grow">Add rule</button></div>
+<div id="prStatus" class="status" aria-live="polite"></div>
+<div id="prList" class="library" style="margin-top:10px"></div>
+<div class="hint">Type the word the way it should sound, using ordinary spelling. Rules apply to sections that are not prepared yet, so press stop and play again to hear a change straight away. Longer written forms are tried first, and rules for this novel come before the ones for all novels.</div>
+</div></div></div>
+<audio id="prevAudio" class="hidden" playsinline></audio>
+
+<div id="restoreWrap" class="sheetwrap" aria-hidden="true">
+<div id="restoreBack" class="sheetback"></div>
+<div class="sheet" role="dialog" aria-label="Restore a backup">
+<div class="sheethead"><h2>Restore a backup</h2><button id="rbCancel">Cancel</button></div>
+<div class="sheetbody">
+<div id="rbSummary" class="sl-active" style="text-align:left;font-size:14px"></div>
+<div class="rs-row"><label>HOW TO RESTORE</label><div class="segbtns"><button data-rmode="merge">Merge</button><button data-rmode="replace">Replace everything</button></div><div class="hint" id="rbModeHint"></div></div>
+<button id="rbApply" class="primary" style="width:100%">Restore</button>
+<div id="rbStatus" class="status" aria-live="polite"></div>
+</div></div></div>
 
 <div id="brightWrap" class="sheetwrap" aria-hidden="true">
 <div id="brightBack" class="sheetback"></div>
@@ -430,6 +477,7 @@ function speechText(s){
   return /[\p{L}\p{N}]/u.test(s)?s:"";
 }
 function buildChunks(){
+  const pkey=state.url?novelKey(state.url):"";
   const max=Number($("chunk").value),root=$("reader");
   root.replaceChildren();state.chunks=[];state.activeEl=null;
   for(const para of state.text.split(/\n+/).map(s=>s.trim()).filter(Boolean)){
@@ -437,7 +485,7 @@ function buildChunks(){
     for(const piece of splitForSpeech(para,max)){
       const span=document.createElement("span");
       span.className="seg";span.dataset.i=state.chunks.length;span.textContent=piece+" ";
-      state.chunks.push({text:piece,speech:speechText(piece),el:span});
+      state.chunks.push({text:piece,speech:speechText(applyPron(piece,pkey)),el:span});
       p.append(span);
     }
     root.append(p);
@@ -1673,8 +1721,282 @@ $("slOff").onclick=()=>{cancelSleep();toast("Sleep timer off.");closeSheet();};
 $("slDone").onclick=closeSheet;$("sleepBack").onclick=closeSheet;
 updateSleepUI();
 
+/* ---------- Pronunciation rules ---------- */
+// Rules rewrite the text that is SPOKEN (the text on screen never changes). Shared spec: see FEATURES.md.
+const PRON_KEY="pw-pron",PRON_MAX=300,PRON_FROM_MAX=60,PRON_TO_MAX=120;
+function sanitizeRuleList(list){
+  const out=[],seen=new Set();
+  for(const r of Array.isArray(list)?list:[]){
+    if(!r||typeof r.from!=="string"||typeof r.to!=="string")continue;
+    const from=r.from.trim().slice(0,PRON_FROM_MAX),to=r.to.slice(0,PRON_TO_MAX);
+    if(!from)continue;
+    const whole=r.whole!==false,matchCase=r.matchCase===true,id=from.toLowerCase()+"|"+whole+"|"+matchCase;
+    if(seen.has(id))continue;seen.add(id);
+    out.push({from,to,whole,matchCase});
+    if(out.length>=PRON_MAX)break;
+  }
+  return out;
+}
+function sanitizePron(p){
+  const out={global:sanitizeRuleList(p&&p.global),novels:{}};
+  if(p&&p.novels&&typeof p.novels==="object"&&!Array.isArray(p.novels)){
+    for(const k of Object.keys(p.novels).slice(0,200)){const l=sanitizeRuleList(p.novels[k]);if(l.length&&k)out.novels[k]=l;}
+  }
+  return out;
+}
+let pron=sanitizePron(store.get(PRON_KEY,null));
+const pronCache=new Map();
+const escapeRe=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+function compileRules(list){
+  return [...list].sort((a,b)=>b.from.length-a.from.length).map(r=>{
+    const body=escapeRe(r.from),src=r.whole?`(?<![\\p{L}\\p{N}_])${body}(?![\\p{L}\\p{N}_])`:body;
+    return {re:new RegExp(src,"gu"+(r.matchCase?"":"i")),to:r.to,matchCase:r.matchCase};
+  });
+}
+function rulesFor(key){
+  const k=key||"";
+  if(!pronCache.has(k))pronCache.set(k,[...(k&&pron.novels[k]?compileRules(pron.novels[k]):[]),...compileRules(pron.global)]); // this novel first
+  return pronCache.get(k);
+}
+function applyPron(text,key,rules){
+  for(const r of (rules||rulesFor(key))){
+    text=text.replace(r.re,m=>{
+      // a capitalised match keeps a capital in the replacement ("Longxuan" -> "Long shwen", "longxuan" -> "long shwen")
+      if(!r.matchCase&&/^\p{Lu}/u.test(m)&&/^\p{Ll}/u.test(r.to))return r.to.charAt(0).toUpperCase()+r.to.slice(1);
+      return r.to;
+    });
+  }
+  return text;
+}
+function refreshSpeech(){const key=state.url?novelKey(state.url):"";for(const c of state.chunks)c.speech=speechText(applyPron(c.text,key));}
+function savePron(){
+  pron=sanitizePron(pron);pronCache.clear();
+  const ok=store.set(PRON_KEY,pron);
+  refreshSpeech();renderPron();
+  return ok;
+}
+const prSay=(m,k="")=>{$("prStatus").textContent=m;$("prStatus").className="status "+k;};
+let prScope="global";
+const currentNovelKey=()=>state.url?novelKey(state.url):"";
+const prScopeKey=()=>prScope==="novel"?currentNovelKey():"";
+const prList=()=>prScope==="novel"?(pron.novels[currentNovelKey()]||[]):pron.global;
+function renderPron(){
+  const nk=currentNovelKey();
+  $("prScopeNovel").disabled=!nk;
+  if(!nk&&prScope==="novel")prScope="global";
+  document.querySelectorAll("#prScope button").forEach(b=>b.classList.toggle("on",b.dataset.scope===prScope));
+  $("prScopeHint").textContent=prScope==="novel"?"Only for "+(getNovels().find(n=>n.key===nk)?.title||nk)+".":(nk?"Applies to every novel.":"Applies to every novel. Load a chapter from a link to make rules for one novel only.");
+  const el=$("prList");el.replaceChildren();
+  const list=prList();
+  if(!list.length){el.innerHTML='<div class="hint">No rules here yet.</div>';}
+  list.forEach((r,i)=>{
+    const row=document.createElement("div");row.className="book";
+    const name=document.createElement("div");name.className="bookname";
+    const b=document.createElement("b");b.textContent=r.from;
+    name.append(b,document.createTextNode(" → "+(r.to||"(silent)")+(r.whole?"":" · inside words")+(r.matchCase?" · match case":"")));
+    const ls=document.createElement("button");ls.setAttribute("aria-label","Listen to "+r.from);ls.innerHTML='<svg class="ic"><use href="#i-speak"/></svg>';
+    ls.onclick=()=>pronPreview(r.to||r.from);
+    const del=document.createElement("button");del.setAttribute("aria-label","Delete rule for "+r.from);del.innerHTML='<svg class="ic"><use href="#i-close"/></svg>';
+    del.onclick=()=>{const k=prScopeKey(),l=prScope==="novel"?pron.novels[k]:pron.global;l.splice(i,1);if(prScope==="novel"&&!l.length)delete pron.novels[k];savePron();};
+    row.append(name,ls,del);el.append(row);
+  });
+  const total=pron.global.length+Object.values(pron.novels).reduce((s,l)=>s+l.length,0);
+  $("pronCount").textContent=total?`${total} rule${total===1?"":"s"} saved.`:"";
+}
+async function pronPreview(text){
+  text=(text||"").trim();
+  if(!text){prSay("Type how it should sound first.","error");return;}
+  prSay("Preparing the voice… the first time can take a while.");
+  try{
+    if(state.playing&&!state.paused)pauseNow();
+    const g=await synth(speechText(text),()=>false,1e9);
+    if(!g)throw Error("no audio was made");
+    const url=URL.createObjectURL(floatToWavBlob(g.audio,g.sampling_rate||24000)),a=$("prevAudio");
+    a.onended=()=>URL.revokeObjectURL(url);a.src=url;await a.play();prSay("");
+  }catch(e){prSay("Could not play it: "+errMsg(e),"error");}
+}
+function openPron(scope){prScope=scope==="novel"&&currentNovelKey()?"novel":"global";prSay("");renderPron();openWrap("pronWrap");}
+$("openPron").onclick=()=>openPron("global");
+$("pronBtn").onclick=()=>openPron("novel");
+document.querySelectorAll("#prScope button").forEach(b=>{b.onclick=()=>{prScope=b.dataset.scope;renderPron();};});
+$("prTest").onclick=()=>pronPreview($("prTo").value||$("prFrom").value);
+$("prAdd").onclick=()=>{
+  const from=$("prFrom").value.trim(),to=$("prTo").value;
+  if(!from){prSay("Type the word as it is written first.","error");return;}
+  const scopeKey=prScopeKey();
+  if(prScope==="novel"&&!scopeKey){prSay("Load a chapter from a link to make a rule for one novel.","error");return;}
+  const rule={from,to,whole:$("prWhole").checked,matchCase:$("prCase").checked};
+  const list=prScope==="novel"?(pron.novels[scopeKey]=pron.novels[scopeKey]||[]):pron.global;
+  const id=r=>r.from.toLowerCase()+"|"+r.whole+"|"+r.matchCase,at=list.findIndex(r=>id(r)===id(rule));
+  if(at>=0)list[at]=rule;else list.unshift(rule);
+  if(!savePron())prSay("Could not save: browser storage may be full.","error");
+  else{prSay(at>=0?"Rule updated.":"Rule added.","good");$("prFrom").value="";$("prTo").value="";}
+};
+$("prDone").onclick=closeSheet;$("pronBack").onclick=closeSheet;
+renderPron();
+
+/* ---------- Backup & restore ---------- */
+// One JSON file holds everything. The same format is used by the Android app. Shared spec: see FEATURES.md.
+const BACKUP_SCHEMA=1,BACKUP_MAX_BYTES=60*1024*1024,COVER_MAX_CHARS=400000;
+const VOICE_IDS=[...document.querySelectorAll("#voice option")].map(o=>o.value);
+function sanitizeSettings(s){
+  s=s&&typeof s==="object"?s:{};const out={};
+  if(VOICE_IDS.includes(s.voice))out.voice=s.voice;
+  if(["auto","webgpu","wasm"].includes(s.engine))out.engine=s.engine;
+  if(Number.isFinite(Number(s.rate)))out.rate=Math.min(1.4,Math.max(.7,Number(s.rate)));
+  if(["160","280","380"].includes(String(s.chunk)))out.chunk=String(s.chunk);
+  if(Number.isFinite(Number(s.ambVol)))out.ambVol=Math.min(1,Math.max(0,Number(s.ambVol)));
+  for(const k of ["auto","awake","lockAwake","ambOnly"])if(typeof s[k]==="boolean")out[k]=s[k];
+  if(AMB_KEYS.includes(s.amb))out.amb=s.amb;
+  return out;
+}
+const validCover=c=>typeof c==="string"&&c.length<=COVER_MAX_CHARS&&/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(c);
+const httpUrl=u=>{try{return /^https?:$/.test(new URL(u).protocol);}catch{return false;}};
+function buildBackup(){
+  const covers=getCovers();
+  return {
+    app:"PageWhisper",schema:BACKUP_SCHEMA,appVersion:APP_VERSION,platform:"web",exportedAt:new Date().toISOString(),
+    reading:{...reading},
+    settings:sanitizeSettings(store.get("pw-settings",{})),
+    brightness:Math.min(100,Math.max(10,Math.round(Number(store.get("pw-bright",100))||100))),
+    sleepLastMinutes:Number(store.get("pw-sleep-last",0))||null,
+    novels:getNovels().map(n=>({id:n.id,title:n.title,url:n.url,chapter:n.chapter||"",updated:n.updated||0,cover:covers[n.id]||null})),
+    savedChapters:getLibrary().map(c=>({title:c.title,text:c.text,url:c.url||"",next:c.next||""})),
+    pronunciations:sanitizePron(pron)
+  };
+}
+// Checks a backup and returns a cleaned copy; nothing in it is trusted.
+function validateBackup(text){
+  let o;
+  try{o=JSON.parse(text);}catch{return {ok:false,error:"That file is not a valid backup (it could not be read as JSON)."};}
+  if(!o||typeof o!=="object"||o.app!=="PageWhisper")return {ok:false,error:"That file is not a PageWhisper backup."};
+  if(!(Number(o.schema)>=1))return {ok:false,error:"That backup has no version number."};
+  if(Number(o.schema)>BACKUP_SCHEMA)return {ok:false,error:"That backup was made by a newer version of PageWhisper. Update the app first."};
+  const clean={novels:[],savedChapters:[],pronunciations:sanitizePron(o.pronunciations)};
+  const ids=new Set();
+  for(const n of (Array.isArray(o.novels)?o.novels:[]).slice(0,2000)){
+    if(!n||typeof n.title!=="string"||!httpUrl(n.url))continue;
+    let id=typeof n.id==="string"&&/^[A-Za-z0-9_-]{1,40}$/.test(n.id)?n.id:Math.random().toString(36).slice(2,10);
+    while(ids.has(id))id=Math.random().toString(36).slice(2,10);ids.add(id);
+    clean.novels.push({id,title:n.title.trim().slice(0,200)||titleFromUrl(n.url),url:n.url,key:novelKey(n.url),chapter:typeof n.chapter==="string"?n.chapter.slice(0,200):"",updated:Number.isFinite(Number(n.updated))?Number(n.updated):0,cover:validCover(n.cover)?n.cover:null});
+  }
+  for(const c of (Array.isArray(o.savedChapters)?o.savedChapters:[]).slice(0,2000)){
+    if(!c||typeof c.text!=="string"||!c.text.trim())continue;
+    clean.savedChapters.push({title:typeof c.title==="string"&&c.title.trim()?c.title.trim().slice(0,200):"Untitled chapter",text:c.text,url:httpUrl(c.url)?c.url:"",next:httpUrl(c.next)?c.next:""});
+  }
+  if(o.reading&&typeof o.reading==="object")clean.reading=sanitizeReading({...READING_DEFAULTS,...o.reading});
+  if(o.settings&&typeof o.settings==="object")clean.settings=sanitizeSettings(o.settings);
+  if(Number.isFinite(Number(o.brightness)))clean.brightness=Math.min(100,Math.max(10,Math.round(Number(o.brightness))));
+  if(Number.isFinite(Number(o.sleepLastMinutes))&&Number(o.sleepLastMinutes)>=1)clean.sleepLast=Math.min(600,Math.round(Number(o.sleepLastMinutes)));
+  const summary={novels:clean.novels.length,covers:clean.novels.filter(n=>n.cover).length,chapters:clean.savedChapters.length,
+    rules:clean.pronunciations.global.length+Object.values(clean.pronunciations.novels).reduce((s,l)=>s+l.length,0),
+    settings:!!(clean.settings||clean.reading),from:"PageWhisper backup"+(typeof o.appVersion==="string"&&o.appVersion?" v"+o.appVersion.slice(0,12):"")+(typeof o.platform==="string"&&o.platform?" ("+o.platform.slice(0,12)+")":""),
+    when:typeof o.exportedAt==="string"?o.exportedAt.slice(0,10):""};
+  return {ok:true,clean,summary};
+}
+// Pure merge: local = {novels,covers,chapters,pron}. Newer novels win; nothing is deleted. Used by both apps.
+function mergeData(local,clean){
+  const novels=local.novels.map(n=>({...n})),covers={...local.covers},used=new Set(novels.map(n=>n.id));
+  for(const b of clean.novels){
+    const i=novels.findIndex(n=>n.key===b.key);
+    if(i<0){
+      let id=b.id;while(used.has(id))id=Math.random().toString(36).slice(2,10);used.add(id);
+      novels.push({id,title:b.title,url:b.url,key:b.key,chapter:b.chapter,updated:b.updated});
+      if(b.cover)covers[id]=b.cover;
+    }else{
+      const l=novels[i];
+      if(b.updated>(l.updated||0)){novels[i]={...l,title:b.title,url:b.url,chapter:b.chapter,updated:b.updated};if(b.cover)covers[l.id]=b.cover;}
+      else if(b.cover&&!covers[l.id])covers[l.id]=b.cover;
+    }
+  }
+  const have=new Set(local.chapters.map(c=>c.url+"|"+c.title)),chapters=[...local.chapters];
+  for(const c of clean.savedChapters)if(!have.has(c.url+"|"+c.title)){chapters.push(c);have.add(c.url+"|"+c.title);}
+  const mergeRules=(a,b)=>{const seen=new Set(a.map(r=>r.from.toLowerCase()+"|"+r.whole+"|"+r.matchCase)),out=[...a];for(const r of b){const k=r.from.toLowerCase()+"|"+r.whole+"|"+r.matchCase;if(!seen.has(k)){seen.add(k);out.push(r);}}return out;};
+  const pronOut={global:mergeRules(local.pron.global,clean.pronunciations.global),novels:{...local.pron.novels}};
+  for(const k of Object.keys(clean.pronunciations.novels))pronOut.novels[k]=mergeRules(pronOut.novels[k]||[],clean.pronunciations.novels[k]);
+  return {novels,covers,chapters,pron:sanitizePron(pronOut)};
+}
+// Writes several keys, and puts the old values back if the browser runs out of space part-way.
+function writeStores(entries){
+  const prev={};
+  try{
+    for(const [k,v] of Object.entries(entries)){prev[k]=localStorage.getItem(k);if(v===null||v===undefined)localStorage.removeItem(k);else localStorage.setItem(k,JSON.stringify(v));}
+    return true;
+  }catch{
+    for(const [k,v] of Object.entries(prev)){try{if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);}catch{}}
+    return false;
+  }
+}
+function applyReplace(clean){
+  const covers={};
+  const novels=clean.novels.map(n=>{if(n.cover)covers[n.id]=n.cover;return {id:n.id,title:n.title,url:n.url,key:n.key,chapter:n.chapter,updated:n.updated};});
+  return writeStores({[NV_KEY]:novels,[COV_KEY]:covers,"pw-library":clean.savedChapters,[PRON_KEY]:clean.pronunciations,
+    "pw-reading":clean.reading??null,"pw-settings":clean.settings??null,"pw-bright":clean.brightness??null,"pw-sleep-last":clean.sleepLast??null,"pw-last":null,"pw-idx":null});
+}
+function applyMerge(clean){
+  const m=mergeData({novels:getNovels(),covers:getCovers(),chapters:getLibrary(),pron},clean);
+  const ok=writeStores({[NV_KEY]:m.novels,[COV_KEY]:m.covers,"pw-library":m.chapters,[PRON_KEY]:m.pron});
+  if(ok){pron=m.pron;pronCache.clear();refreshSpeech();renderNovels();renderLibrary();renderPron();}
+  return ok;
+}
+const bkSay=(m,k="")=>{$("bkStatus").textContent=m;$("bkStatus").className="status "+k;};
+function paintLastBackup(){
+  const t=Number(store.get("pw-last-backup",0));
+  if(t)bkSay("Last backup: "+new Date(t).toLocaleString([],{dateStyle:"medium",timeStyle:"short"})+".");
+}
+function backupFile(){
+  const json=JSON.stringify(buildBackup()),name=`pagewhisper-backup-${new Date().toISOString().slice(0,10)}.json`;
+  return {json,name,blob:new Blob([json],{type:"application/json"})};
+}
+$("bkExport").onclick=()=>{
+  try{
+    const f=backupFile(),a=document.createElement("a");
+    a.href=URL.createObjectURL(f.blob);a.download=f.name;document.body.append(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),15000);
+    store.set("pw-last-backup",Date.now());
+    bkSay(`Saved ${f.name} (${(f.blob.size/1024).toFixed(f.blob.size>1048576?0:1)} KB). Look in your Downloads folder.`,"good");
+  }catch(e){bkSay("Could not make the backup: "+errMsg(e),"error");}
+};
+if(navigator.canShare&&navigator.canShare({files:[new File(["{}"],"x.json",{type:"application/json"})]}))$("bkShare").classList.remove("hidden");
+$("bkShare").onclick=async()=>{
+  try{
+    const f=backupFile();await navigator.share({files:[new File([f.json],f.name,{type:"application/json"})],title:"PageWhisper backup"});
+    store.set("pw-last-backup",Date.now());bkSay("Backup shared.","good");
+  }catch(e){if(e?.name!=="AbortError")bkSay("Could not share it: "+errMsg(e),"error");}
+};
+let pendingRestore=null,restoreMode="merge";
+function paintRestoreMode(){
+  document.querySelectorAll("[data-rmode]").forEach(b=>b.classList.toggle("on",b.dataset.rmode===restoreMode));
+  $("rbModeHint").textContent=restoreMode==="merge"
+    ?"Adds what is missing and keeps what you have. For a novel in both, the newer bookmark wins. Your settings are left alone."
+    :"Removes what is in this browser now and puts the backup in its place, including settings and reading style. The app restarts.";
+  $("rbApply").textContent=restoreMode==="merge"?"Merge into my library":"Replace everything";
+}
+$("bkImport").onclick=()=>$("bkFile").click();
+$("bkFile").onchange=async e=>{
+  const f=e.target.files?.[0];e.target.value="";if(!f)return;
+  if(f.size>BACKUP_MAX_BYTES){bkSay("That file is too large to be a backup.","error");return;}
+  const v=validateBackup(await f.text());
+  if(!v.ok){bkSay(v.error,"error");return;}
+  pendingRestore=v.clean;restoreMode="merge";const s=v.summary;
+  $("rbSummary").textContent=`${s.from}${s.when?", saved "+s.when:""}\n${s.novels} novel${s.novels===1?"":"s"} (${s.covers} with covers) · ${s.chapters} saved chapter${s.chapters===1?"":"s"} · ${s.rules} pronunciation rule${s.rules===1?"":"s"}${s.settings?" · settings":""}`;
+  $("rbSummary").style.whiteSpace="pre-line";$("rbStatus").textContent="";paintRestoreMode();openWrap("restoreWrap");
+};
+document.querySelectorAll("[data-rmode]").forEach(b=>{b.onclick=()=>{restoreMode=b.dataset.rmode;paintRestoreMode();};});
+$("rbApply").onclick=()=>{
+  if(!pendingRestore)return;
+  if(restoreMode==="replace"&&!confirm("Replace everything in this browser with the backup? This cannot be undone."))return;
+  const ok=restoreMode==="merge"?applyMerge(pendingRestore):applyReplace(pendingRestore);
+  if(!ok){$("rbStatus").textContent="Not enough storage space in this browser. Nothing was changed.";$("rbStatus").className="status error";return;}
+  pendingRestore=null;closeSheet();
+  if(restoreMode==="replace"){bkSay("Backup restored. Restarting…","good");setTimeout(()=>location.reload(),700);}
+  else bkSay("Backup merged into your library.","good");
+};
+$("rbCancel").onclick=()=>{pendingRestore=null;closeSheet();};$("restoreBack").onclick=()=>{pendingRestore=null;closeSheet();};
+paintLastBackup();
+
 /* ---------- Version + "get the latest" ---------- */
-const APP_VERSION="0.11.0",APP_BUILD="2026-11-16";
+const APP_VERSION="0.12.0",APP_BUILD="2026-11-16";
 $("verTag").textContent="v"+APP_VERSION;$("verText").textContent="v"+APP_VERSION+" · build "+APP_BUILD;
 $("updBtn").onclick=async()=>{
   const say=(m,k="")=>{$("updStatus").textContent=m;$("updStatus").className="status "+k;};
