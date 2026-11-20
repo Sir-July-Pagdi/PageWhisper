@@ -30,6 +30,7 @@ Once a feature feels right, it is ported to the native Android app using the spe
 | **Backup and restore** (one JSON file) | **Done** | Planned |
 | **Sleep timer** (timed or end of chapter, with fade-out) | **Done** | Planned |
 | **Novel covers** (Library list only) | **Done** | Planned |
+| **Chapter lists** (full table of contents per novel) | **Done** | Planned |
 | **Brightness in fullscreen** | **Done** (software dimming) | Planned (real window brightness) |
 | **Keep screen on while locked** | **Done** | Planned |
 | **Flat SVG icons, no emoji** | **Done** | Planned (vector drawables) |
@@ -381,3 +382,74 @@ Test vectors: `shared-tests.json` -> `backupMerge`. Both apps must produce the s
 - Merge never duplicates a novel and keeps a newer local bookmark.
 - A hostile file (script in a title, `javascript:` links, SVG or oversized covers, out-of-range settings) is cleaned, never executed.
 - Titles from a backup are always shown as plain text.
+
+
+---
+
+## Spec: Chapter lists (table of contents)
+
+Every novel in the Library can have a complete chapter list. It powers the **Chapters** sheet and makes Previous / Next
+follow the real chapter order instead of guessing a link.
+
+### Getting the list
+
+- **Update chapter list** (per novel, in its Chapters sheet) and **Update all chapter lists** (Library) read the list from the
+  novel's own page: the saved link without its chapter number (`novelPageUrl`).
+- Each page is read directly, then through a public proxy (web only), then through the reader service. The first that shows chapters is used.
+- **Extra pages:** links found inside pagination areas (`.pagination`, `.pager`, `[class*=pagination]`, `[class*=paging]`,
+  `rel=next`) are followed if they stay on the same site and under the novel's path (or are `page` links). If the first page gives fewer than 5 chapters, a
+  link whose text is "chapter list", "all chapters", "table of contents", "view all" or "full list" is followed too.
+  Limits: 40 pages and 6,000 chapters per novel.
+- **Choosing chapter links** (`pickChapters`, checked by `shared-tests.json`):
+  1. Take links on the same site (a leading `www.` is ignored).
+  2. Keep those under the novel's path whose text or address names a chapter (`Chapter 12`, `ch-12`, `/12`), but never the list page
+     itself (`chapter-list`, `chapters`, `all-chapters`, `table-of-contents`, `toc`).
+  3. If fewer than 3 are found, accept any same-site link whose text names a chapter and whose address contains `chapter` or a digit.
+  4. Remove repeats (ignoring `#` parts and a trailing `/`). The title is the link text (spaces tidied, at most 120 characters), or `Chapter N`.
+- **Chapter number** (`chapterNumber`): "Chapter 12", "Ch. 12", "Episode 12" or "Ep 12" in the title wins; otherwise the last number in the last
+  part of the address; otherwise none.
+- **Order:** if at least 80% have numbers, oldest first by number (stable); otherwise the order on the page.
+
+### Build by number (for sites that block fetching or hide the list behind scripts)
+
+The user enters the highest chapter number N. The app builds chapters 1 to N by replacing the last number in the saved chapter link
+(`urlForNumber`), titled `Chapter k`. It asks before replacing a list read from the site. The limit is 6,000.
+
+### Storage
+
+Per novel: `{ base, updated, source: "fetched" | "built", pages, items: [[number|null, title, relativeLink]...] }`.
+Links under `base` are stored relative to it, others with a `!` prefix. If storage runs out, the oldest other lists are dropped first.
+Lists are **not** part of a backup (they are quick to fetch again); a Replace restore clears them.
+
+### Chapters sheet
+
+- Header shows the novel and "N chapters · read from the site / built by number · date".
+- **Update chapter list**, **Build by number**, a number box with **Go**, **Current** (back to the current chapter), and a
+  switch for **Oldest first / Newest first** (a new order starts from its top).
+- Rows: the current chapter is outlined; earlier chapters are dimmed as read. Tapping a row opens that chapter in the reader;
+  a small button opens it in the browser.
+- Only a window of 250 rows is drawn, around the current chapter, with **Show earlier / Show more** (250 at a time).
+- After an update the message says how many are new.
+- Library rows show "N chapters".
+
+### Reader
+
+- **Next / Previous** use the list when the current chapter is in it (matched by address, or by number). Otherwise Next uses the
+  link found on the page, then a guess (add 1 to the number), and Previous uses your viewing history.
+- The "next chapter" box is filled from the list when possible. Auto-next uses the same rule.
+
+| Android mapping | |
+|---|---|
+| Parsing | Jsoup, same selectors and rules; Markdown links from the reader service |
+| Storage | one JSON file per novel (not one big file); same compact form is fine, backup excludes it |
+| Sheet | `LazyColumn` (real virtualisation, so no window needed), `ModalBottomSheet` |
+| Updating | a coroutine with progress; **Update all** in a foreground-safe worker |
+
+### Acceptance checks
+
+- A novel with a paginated list yields every chapter once, oldest first; sidebar "latest" links and "Reviews" do not become chapters.
+- A blocked site gives a clear message and Build by number produces the full range from the link pattern.
+- The reader-service fallback produces the same list in order.
+- A 1,200-chapter list opens instantly and loads more rows quickly.
+- Next goes to the list's next chapter; Previous goes to the list's previous one; the bookmark follows.
+- Removing a novel removes its list; lists survive a reload.

@@ -125,6 +125,9 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 .nbody{min-width:0;flex:1;display:flex;flex-direction:column;gap:6px}
 .cv-preview{width:120px;height:168px;margin:0 auto 14px;border-radius:12px;overflow:hidden;background:var(--panel2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;text-align:center}
 .cv-preview img{width:100%;height:100%;object-fit:cover}.cv-preview .ic{width:34px;height:34px;margin-bottom:4px}
+#tocWrap .sheet{max-height:88%}#tocList .book{cursor:pointer;content-visibility:auto;contain-intrinsic-size:auto 54px}
+#tocList .book.read{opacity:.55}#tocList .book.current{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+#tocList .book:focus-visible{outline:2px solid var(--accent2)}#tocList .more{min-height:44px}
 @media(min-width:761px){.app{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
 @media(prefers-reduced-motion:reduce){.reader{scroll-behavior:auto}.seg,.progress>div,.toast{transition:none}}
 </style>
@@ -144,6 +147,8 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <symbol id="i-star-fill" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3.8l2.5 5.2 5.7.8-4.1 4 1 5.7-5.1-2.7-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/></symbol>
 <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
 <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2zM12 6.5v13"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
+<symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
 <symbol id="i-speak" viewBox="0 0 24 24"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18.2 6.6a8 8 0 0 1 0 10.8"/></symbol>
 <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7"/></symbol>
 <symbol id="i-amb-off" viewBox="0 0 24 24"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z"/><path d="M16 9.5l4.5 5M20.5 9.5l-4.5 5"/></symbol>
@@ -208,6 +213,7 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <div id="nvStatus" class="status" aria-live="polite"></div>
 <button id="addCurrent" style="width:100%;margin-top:8px" disabled><svg class="ic"><use href="#i-plus"/></svg> Add current novel</button>
 <button id="findCovers" style="width:100%;margin-top:8px">Find missing covers</button>
+<button id="tocAll" style="width:100%;margin-top:8px">Update all chapter lists</button>
 <details class="diag"><summary>Add a novel by link</summary>
 <div class="field" style="margin-top:10px"><label for="nvTitle">NOVEL TITLE (OPTIONAL)</label><input id="nvTitle" placeholder="Novel name"></div>
 <div class="field"><label for="nvUrl">CHAPTER OR NOVEL LINK</label><input id="nvUrl" type="url" inputmode="url" autocapitalize="off" autocorrect="off" placeholder="https://novelsite.com/novel/name/12"></div>
@@ -363,6 +369,20 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <div class="hint">This dims the screen below your phone's own brightness, which is handy for reading in the dark. A web app cannot make the screen brighter than the phone's setting, so use the phone's brightness control for that. It applies only in fullscreen, and the preview is a little lighter while this panel is open.</div>
 </div></div></div>
 
+<div id="tocWrap" class="sheetwrap" aria-hidden="true">
+<div id="tocBack" class="sheetback"></div>
+<div class="sheet" role="dialog" aria-label="Chapters">
+<div class="sheethead"><h2 id="tocTitle">Chapters</h2><button id="tocDone" class="primary">Done</button></div>
+<div class="sheetbody">
+<div id="tocInfo" class="hint" style="margin:0 0 10px"></div>
+<div class="row" style="margin-bottom:8px"><button id="tocFetch" class="primary grow">Update chapter list</button><button id="tocBuild">Build by number</button></div>
+<div id="tocStatus" class="status" aria-live="polite"></div>
+<div class="row" style="margin:10px 0"><div class="grow"><input id="tocJump" type="number" inputmode="numeric" min="1" placeholder="Jump to chapter number"></div><button id="tocGo">Go</button><button id="tocCur">Current</button></div>
+<div class="segbtns" id="tocSort" style="margin-bottom:10px"><button data-order="asc">Oldest first</button><button data-order="desc">Newest first</button></div>
+<div id="tocList" class="library"></div>
+<div class="hint">The list is read from the novel's own page, including its extra pages. Sites that hide the list behind scripts or block fetching can't be read, so use <b>Build by number</b> there: it makes the list from the chapter link pattern. Chapter lists are kept on this device and are not part of a backup; they can always be fetched again.</div>
+</div></div></div>
+
 <div id="coverWrap" class="sheetwrap" aria-hidden="true">
 <div id="coverBack" class="sheetback"></div>
 <div class="sheet" role="dialog" aria-label="Novel cover">
@@ -500,7 +520,7 @@ function setActive(i,scroll=true){
 }
 
 /* ---------- Loading a chapter ---------- */
-function updateNav(){$("prevBtn").disabled=state.pos<=0;$("nextBtn").disabled=!state.text;}
+function updateNav(){$("prevBtn").disabled=state.pos<=0&&!tocNeighbor(state.url,-1);$("nextBtn").disabled=!state.text;}
 function setLoaded(title,text,url="",o={}){
   text=clean(text||"");
   if(!text){fetchStatus("No readable chapter text was found.","error");return;}
@@ -635,7 +655,7 @@ async function fetchChapter(url,{autoplay=false}={}){
       return;
     }
     const guessed=!result.next;
-    const next=result.next||guessNext(url);
+    const next=tocNeighbor(url,1)||result.next||guessNext(url); // the chapter list is more reliable than a guess
     setLoaded(result.title,result.body,url,{next});
     fetchStatus("Chapter extracted successfully."+(next?(guessed?" Next URL was guessed, so double-check it.":" Next chapter link found."):""),"good");
     if(autoplay)playFrom(0);
@@ -645,7 +665,7 @@ async function fetchChapter(url,{autoplay=false}={}){
 }
 async function goNext(autoplay=false){
   if(state.pos<state.history.length-1){openHistory(state.pos+1,autoplay);return;}
-  const u=$("nextUrl").value.trim();
+  const u=tocNeighbor(state.url,1)||$("nextUrl").value.trim();
   if(!u){fetchStatus("Paste the next chapter URL first.","error");return;}
   await fetchChapter(u,{autoplay});
 }
@@ -940,7 +960,7 @@ function loadPasted(t,note){
   const u=$("url").value.trim();let url="";
   try{if(/^https?:$/.test(new URL(u).protocol))url=u;}catch{}
   const first=clip.split("\n")[0]||"";
-  setLoaded($("manualTitle").value.trim()||(first.length<=80?first:"Pasted chapter"),clip,url,url?{next:guessNext(url)}:{});
+  setLoaded($("manualTitle").value.trim()||(first.length<=80?first:"Pasted chapter"),clip,url,url?{next:tocNeighbor(url,1)||guessNext(url)}:{});
   if(note)fetchStatus(note,"good");
 }
 $("loadText").onclick=()=>loadPasted($("manualText").value);
@@ -1103,7 +1123,7 @@ $("mpPlay").onclick=togglePlay;
 $("mpPrev").onclick=()=>skip(-1);
 $("mpNext").onclick=()=>skip(1);
 $("mpStop").onclick=()=>{stopPlayback();sayStatus("Playback stopped.");};
-$("prevBtn").onclick=()=>{if(state.pos>0)openHistory(state.pos-1,state.playing);else toast("This is the first chapter in your history.");};
+$("prevBtn").onclick=()=>{const t=tocNeighbor(state.url,-1);if(t){fetchChapter(t,{autoplay:state.playing});return;}if(state.pos>0)openHistory(state.pos-1,state.playing);else toast("This is the first chapter in your history.");};
 $("nextBtn").onclick=()=>goNext(state.playing);
 function syncAuto(){const on=$("autoNext").checked;$("autoBtn").classList.toggle("on",on);$("autoBtn").setAttribute("aria-pressed",String(on));}
 $("autoBtn").onclick=()=>{$("autoNext").checked=!$("autoNext").checked;syncAuto();saveSettings();toast("Auto-play next chapter: "+($("autoNext").checked?"on":"off"));};
@@ -1171,7 +1191,7 @@ function renderNovels(){
     cb.onclick=()=>openCover(n.id);
     const body=document.createElement("div");body.className="nbody";
     const t=document.createElement("div");t.className="nt";t.textContent=n.title;t.title=n.title;
-    const s=document.createElement("div");s.className="ns";s.textContent=hostOf(n.url)+(n.chapter?" · "+n.chapter:"");
+    const s=document.createElement("div");s.className="ns";s.textContent=hostOf(n.url)+(n.chapter?" · "+n.chapter:"")+(tocCount(n.id)?" · "+tocCount(n.id).toLocaleString()+" chapters":"");
     const act=document.createElement("div");act.className="na";
     const cont=document.createElement("button");cont.textContent="Continue";
     cont.onclick=()=>{$("url").value=n.url;window.scrollTo({top:0,behavior:"smooth"});fetchChapter(n.url);};
@@ -1179,8 +1199,9 @@ function renderNovels(){
     const edit=document.createElement("button");edit.textContent="Edit link";
     edit.onclick=()=>{const v=prompt("Link for “"+n.title+"”",n.url);if(v!=null)updateNovelUrl(n.id,v);};
     const del=document.createElement("button");del.textContent="Remove";
-    del.onclick=()=>{const c=getCovers();delete c[n.id];store.set(COV_KEY,c);store.set(NV_KEY,getNovels().filter(x=>x.id!==n.id));renderNovels();};
-    act.append(cont,open,edit,del);body.append(t,s,act);row.append(cb,body);el.append(row);
+    del.onclick=()=>{const c=getCovers();delete c[n.id];store.set(COV_KEY,c);const tc=getTocs();delete tc[n.id];tocCache.delete(n.id);store.set(TOC_KEY,tc);store.set(NV_KEY,getNovels().filter(x=>x.id!==n.id));renderNovels();};
+    const chs=document.createElement("button");chs.textContent="Chapters";chs.onclick=()=>openToc(n.id);
+    act.append(cont,chs,open,edit,del);body.append(t,s,act);row.append(cb,body);el.append(row);
   }
 }
 $("addCurrent").onclick=()=>{
@@ -1931,7 +1952,7 @@ function applyReplace(clean){
   const covers={};
   const novels=clean.novels.map(n=>{if(n.cover)covers[n.id]=n.cover;return {id:n.id,title:n.title,url:n.url,key:n.key,chapter:n.chapter,updated:n.updated};});
   return writeStores({[NV_KEY]:novels,[COV_KEY]:covers,"pw-library":clean.savedChapters,[PRON_KEY]:clean.pronunciations,
-    "pw-reading":clean.reading??null,"pw-settings":clean.settings??null,"pw-bright":clean.brightness??null,"pw-sleep-last":clean.sleepLast??null,"pw-last":null,"pw-idx":null});
+    "pw-toc":null,"pw-reading":clean.reading??null,"pw-settings":clean.settings??null,"pw-bright":clean.brightness??null,"pw-sleep-last":clean.sleepLast??null,"pw-last":null,"pw-idx":null});
 }
 function applyMerge(clean){
   const m=mergeData({novels:getNovels(),covers:getCovers(),chapters:getLibrary(),pron},clean);
@@ -1995,8 +2016,219 @@ $("rbApply").onclick=()=>{
 $("rbCancel").onclick=()=>{pendingRestore=null;closeSheet();};$("restoreBack").onclick=()=>{pendingRestore=null;closeSheet();};
 paintLastBackup();
 
+/* ---------- Chapter lists (table of contents) ---------- */
+// A novel's chapter list is read from its own page (and its extra pages), kept on this device, and used for
+// the chapters sheet and for Previous / Next. Spec: FEATURES.md "Spec: Chapter lists".
+const TOC_KEY="pw-toc",TOC_MAX_ITEMS=6000,TOC_MAX_PAGES=40,PROXY="https://api.allorigins.win/raw?url=";
+const CH_TEXT=/(?:chapter|ch\.?|episode|ep\.?)\s*#?\s*\d/i;
+const tocCache=new Map(); // novel id -> expanded chapter list
+const getTocs=()=>{const t=store.get(TOC_KEY,{});return t&&typeof t==="object"&&!Array.isArray(t)?t:{};};
+const tocCount=id=>{const t=getTocs()[id];return t&&Array.isArray(t.items)?t.items.length:0;};
+const normUrl=u=>{try{const x=new URL(u);x.hash="";return x.href.replace(/\/$/,"");}catch{return u;}};
+// Chapter number: "Chapter 12" in the text wins; otherwise the last number in the last part of the link.
+function chapterNumber(url,text){
+  const t=(text||"").match(/(?:chapter|ch\.?|episode|ep\.?)\s*#?\s*(\d+(?:\.\d+)?)/i);
+  if(t)return Number(t[1]);
+  try{const seg=new URL(url).pathname.split("/").filter(Boolean).pop()||"";const m=seg.match(/(\d+)(?!.*\d)/);if(m)return Number(m[1]);}catch{}
+  return null;
+}
+function urlForNumber(url,n){
+  try{const u=new URL(url),m=u.pathname.match(/^(.*?)(\d+)(\D*)$/);if(!m)return "";u.pathname=m[1]+n+m[3];u.search="";u.hash="";return u.href;}catch{return "";}
+}
+function sortChapters(items){
+  const withNum=items.filter(i=>i.num!==null).length;
+  if(items.length&&withNum/items.length>=.8)return [...items].sort((a,b)=>(a.num===null?1e9:a.num)-(b.num===null?1e9:b.num)); // oldest first; stable
+  return [...items];
+}
+// links = [{href,text}]; key = the novel's key (host/path). Returns the chapters, oldest first.
+function pickChapters(links,key){
+  const slash=key.indexOf("/"),host=slash<0?key:key.slice(0,slash),novelPath="/"+(slash<0?"":key.slice(slash+1));
+  const parsed=[];
+  for(const l of links){
+    let u;try{u=new URL(l.href);}catch{continue;}
+    if(!/^https?:$/.test(u.protocol)||hostOf(l.href)!==host)continue;
+    parsed.push({href:u.href.split("#")[0],path:u.pathname,text:(l.text||"").replace(/\s+/g," ").trim()});
+  }
+  const listPage=l=>/\/(chapter-?list|chapters?|all-chapters|table-of-contents|toc)\/?$/i.test(l.path); // the list itself, not a chapter
+  const looks=l=>CH_TEXT.test(l.text)||/chapter|[-_/]ch[-_]?\d|\/\d+\/?$/i.test(l.path);
+  let pool=parsed.filter(l=>!listPage(l)&&l.path.startsWith(novelPath+"/")&&l.path.length>novelPath.length+1&&(looks(l)||chapterNumber(l.href,l.text)!==null));
+  if(pool.length<3)pool=parsed.filter(l=>!listPage(l)&&CH_TEXT.test(l.text)&&/chapter|\d/i.test(l.path)); // other link layouts
+  const seen=new Set(),items=[];
+  for(const l of pool){
+    const k=normUrl(l.href);if(seen.has(k))continue;seen.add(k);
+    const num=chapterNumber(l.href,l.text);
+    items.push({num,title:(l.text||(num!==null?"Chapter "+num:"Chapter")).slice(0,120),url:l.href});
+  }
+  return sortChapters(items);
+}
+function linksFromHtml(html,base){
+  const doc=new DOMParser().parseFromString(html,"text/html");
+  const abs=h=>{try{const u=new URL(h,base);return /^https?:$/.test(u.protocol)?u.href:"";}catch{return "";}};
+  const toLinks=els=>[...els].map(a=>({href:abs(a.getAttribute("href")||""),text:a.textContent})).filter(l=>l.href);
+  const box=doc.querySelector("#chapter-list,.chapter-list,.list-chapter,#list-chapter,.chapters,.wp-manga-chapter,ul.chapter-list,[class*=chapter-list],[class*=chapterlist],[id*=chapter-list]");
+  const inBox=box?box.querySelectorAll("a[href]"):[];
+  const chapterLinks=inBox.length>=3?toLinks(inBox):toLinks(doc.querySelectorAll("a[href]"));
+  const pageLinks=[...doc.querySelectorAll(".pagination a[href],.pager a[href],[class*=pagination] a[href],[class*=paging] a[href],[aria-label*=agination] a[href],a[rel~=next][href],link[rel=next][href]")].map(a=>abs(a.getAttribute("href")||"")).filter(Boolean);
+  const allLinks=[...doc.querySelectorAll("a[href]")].filter(a=>/(chapter list|all chapters|table of contents|view all|full list)/i.test((a.textContent||"").trim())).map(a=>abs(a.getAttribute("href")||"")).filter(Boolean);
+  return {chapterLinks,pageLinks,allLinks};
+}
+function linksFromMarkdown(md){
+  const out=[],re=/(?<!!)\[([^\]]{0,160})\]\((https?:\/\/[^)\s]+)[^)]*\)/g;let m;
+  while((m=re.exec(md)))out.push({href:m[2],text:m[1]});
+  return {chapterLinks:out,pageLinks:out.filter(l=>/[?&]page=\d+|\/page\/\d+/.test(l.href)).map(l=>l.href),allLinks:out.filter(l=>/(chapter list|all chapters|table of contents|view all)/i.test(l.text)).map(l=>l.href)};
+}
+// One page: the page itself, then a public proxy, then the reader service; the first that shows chapters wins.
+async function tocPage(url,key){
+  let best=null;
+  const tries=[()=>fetchText(url,{mode:"cors",credentials:"omit"},15000).then(t=>linksFromHtml(t,url)),
+               ()=>fetchText(PROXY+encodeURIComponent(url),{},20000).then(t=>linksFromHtml(t,url)),
+               ()=>fetchText("https://r.jina.ai/"+url,{headers:{"Accept":"text/plain"}},25000).then(linksFromMarkdown)];
+  for(const t of tries){
+    try{const res=await t();if(pickChapters(res.chapterLinks,key).length)return res;best=best||res;}catch{}
+  }
+  if(best)return best;
+  throw Error("page not available");
+}
+async function fetchToc(n,say){
+  const base=novelPageUrl(n.url),key=n.key,home=hostOf(base),novelPath="/"+key.split("/").slice(1).join("/");
+  const queue=[base],seen=new Set([normUrl(base)]),found=new Map();
+  let pages=0;
+  while(queue.length&&pages<TOC_MAX_PAGES&&found.size<TOC_MAX_ITEMS){
+    const pg=queue.shift();pages++;
+    say(`Reading page ${pages}… ${found.size} chapters so far`);
+    let res;try{res=await tocPage(pg,key);}catch{if(pages===1)break;continue;}
+    for(const it of pickChapters(res.chapterLinks,key))if(!found.has(normUrl(it.url)))found.set(normUrl(it.url),it);
+    for(const l of [...(pages===1&&found.size<5?res.allLinks:[]),...res.pageLinks]){
+      const k=normUrl(l);let ok=false;
+      try{const u=new URL(l);ok=hostOf(l)===home&&(u.pathname.startsWith(novelPath)||/page/i.test(u.search+u.pathname));}catch{}
+      if(ok&&!seen.has(k)){seen.add(k);queue.push(l);}
+    }
+  }
+  return {items:sortChapters([...found.values()]),pages};
+}
+const tocPack=(base,items,source,pages)=>({base,updated:Date.now(),source,pages,items:items.map(i=>[i.num,i.title,i.url.startsWith(base+"/")?i.url.slice(base.length):"!"+i.url])});
+const tocUnpack=t=>t.items.map(([num,title,rel])=>({num,title,url:rel.startsWith("!")?rel.slice(1):t.base+rel}));
+function tocItems(id){
+  if(!tocCache.has(id)){const t=getTocs()[id];tocCache.set(id,t&&Array.isArray(t.items)?tocUnpack(t):[]);}
+  return tocCache.get(id);
+}
+function saveToc(id,toc){
+  const all=getTocs();all[id]=toc;
+  let ok=store.set(TOC_KEY,all);
+  if(!ok){ // out of space: drop the oldest other lists, one at a time
+    for(const [k] of Object.entries(all).filter(([k])=>k!==id).sort((a,b)=>(a[1].updated||0)-(b[1].updated||0))){
+      delete all[k];tocCache.delete(k);ok=store.set(TOC_KEY,all);if(ok)break;
+    }
+  }
+  if(ok)tocCache.set(id,tocUnpack(toc));
+  return ok;
+}
+function tocIndexOf(items,url){
+  const k=normUrl(url);let i=items.findIndex(x=>normUrl(x.url)===k);
+  if(i>=0)return i;
+  const num=chapterNumber(url,"");return num===null?-1:items.findIndex(x=>x.num===num);
+}
+// The chapter before (-1) or after (+1) this one in its novel's chapter list, or "".
+function tocNeighbor(url,delta){
+  if(!url)return "";
+  const k=novelKey(url),n=getNovels().find(x=>x.key===k);if(!n)return "";
+  const items=tocItems(n.id),i=tocIndexOf(items,url);
+  return i>=0&&items[i+delta]?items[i+delta].url:"";
+}
+
+const toc={id:null,order:"asc",from:0,to:0,busy:false};
+const tocSay=(m,k="")=>{$("tocStatus").textContent=m;$("tocStatus").className="status "+k;};
+const tocNovel=()=>getNovels().find(n=>n.id===toc.id);
+function viewItems(){const it=tocItems(toc.id);return toc.order==="asc"?it:[...it].reverse();}
+function centerOnCurrent(){
+  const n=tocNovel(),view=viewItems();if(!n)return;
+  const cur=tocIndexOf(view,n.url);
+  toc.from=Math.max(0,(cur>=0?cur:0)-30);toc.to=Math.min(view.length,toc.from+250);
+}
+function renderToc(){
+  const n=tocNovel();if(!n)return;
+  const items=tocItems(n.id),view=viewItems(),list=$("tocList"),t=getTocs()[n.id];
+  list.replaceChildren();
+  $("tocTitle").textContent=n.title;
+  $("tocInfo").textContent=items.length?`${items.length.toLocaleString()} chapters · ${t.source==="built"?"built by number":"read from the site"} on ${new Date(t.updated).toLocaleDateString()}`:"No chapter list yet. Tap Update chapter list.";
+  document.querySelectorAll("#tocSort button").forEach(b=>b.classList.toggle("on",b.dataset.order===toc.order));
+  $("tocJump").disabled=!items.length;$("tocGo").disabled=!items.length;$("tocCur").disabled=!items.length;
+  if(!items.length)return;
+  const cur=tocIndexOf(items,n.url),curNum=cur>=0?items[cur].num:chapterNumber(n.url,""),curUrl=cur>=0?normUrl(items[cur].url):"";
+  const more=(label,fn)=>{const b=document.createElement("button");b.className="more";b.textContent=label;b.onclick=fn;return b;};
+  if(toc.from>0)list.append(more(`Show earlier (${toc.from})`,()=>{toc.from=Math.max(0,toc.from-250);renderToc();}));
+  for(let i=toc.from;i<toc.to;i++){
+    const it=view[i],row=document.createElement("div");
+    row.className="book"+(normUrl(it.url)===curUrl?" current":"")+(curNum!==null&&it.num!==null&&it.num<curNum?" read":"");
+    row.tabIndex=0;row.setAttribute("role","button");
+    const nm=document.createElement("div");nm.className="bookname";nm.textContent=it.title;nm.title=it.title;
+    const ext=document.createElement("button");ext.setAttribute("aria-label","Open "+it.title+" in the browser");ext.innerHTML='<svg class="ic"><use href="#i-external"/></svg>';
+    ext.onclick=e=>{e.stopPropagation();window.open(it.url,"_blank","noopener");};
+    row.onclick=()=>openFromToc(it);row.onkeydown=e=>{if(e.key==="Enter")openFromToc(it);};
+    row.append(nm,ext);list.append(row);
+  }
+  if(toc.to<view.length)list.append(more(`Show more (${view.length-toc.to})`,()=>{toc.to=Math.min(view.length,toc.to+250);renderToc();}));
+}
+function openFromToc(it){closeSheet();$("url").value=it.url;fetchChapter(it.url);}
+function openToc(id){
+  toc.id=id;tocSay("");centerOnCurrent();renderToc();openWrap("tocWrap");
+  setTimeout(()=>{const c=document.querySelector("#tocList .book.current");if(c)c.scrollIntoView({block:"center"});},60);
+}
+async function doFetchToc(n,say){
+  const before=tocItems(n.id).length;
+  const r=await fetchToc(n,say);
+  if(!r.items.length)return {ok:false,msg:"Could not find a chapter list on this site. It may block fetching or load chapters with scripts. Use Build by number instead."};
+  if(!saveToc(n.id,tocPack(novelPageUrl(n.url).replace(/\/$/,""),r.items,"fetched",r.pages)))return {ok:false,msg:"Not enough storage space for this list."};
+  const added=r.items.length-before;
+  return {ok:true,msg:`Found ${r.items.length.toLocaleString()} chapters`+(before?` (${added>0?added+" new":"no new chapters"})`:"")+".",count:r.items.length};
+}
+$("tocFetch").onclick=async()=>{
+  if(toc.busy)return;const n=tocNovel();if(!n)return;
+  toc.busy=true;for(const b of ["tocFetch","tocBuild"])$(b).disabled=true;tocSay("Looking for the chapter list…");
+  try{
+    const r=await doFetchToc(n,m=>tocSay(m));tocSay(r.msg,r.ok?"good":"error");
+    if(r.ok){centerOnCurrent();renderToc();renderNovels();}
+  }catch(e){tocSay("Could not read the list: "+errMsg(e),"error");}
+  toc.busy=false;for(const b of ["tocFetch","tocBuild"])$(b).disabled=false;
+};
+$("tocBuild").onclick=()=>{
+  const n=tocNovel();if(!n)return;
+  if(!urlForNumber(n.url,1)){tocSay("This novel's link has no chapter number to build from.","error");return;}
+  const items=tocItems(n.id),known=items.reduce((m,i)=>Math.max(m,i.num||0),0),curNum=chapterNumber(n.url,"")||0;
+  const v=prompt("What is the highest chapter number of “"+n.title+"”?",String(Math.max(known,curNum+100)));
+  const N=Math.round(Number(v));if(!v||!(N>=1))return;
+  if(N>TOC_MAX_ITEMS){tocSay(`The limit is ${TOC_MAX_ITEMS.toLocaleString()} chapters.`,"error");return;}
+  if(items.length&&!confirm("Replace the list read from the site with a numbered one?"))return;
+  const its=[];for(let k=1;k<=N;k++)its.push({num:k,title:"Chapter "+k,url:urlForNumber(n.url,k)});
+  if(!saveToc(n.id,tocPack(novelPageUrl(n.url).replace(/\/$/,""),its,"built",0))){tocSay("Not enough storage space for this list.","error");return;}
+  tocSay(`Built a list of ${N.toLocaleString()} chapters.`,"good");centerOnCurrent();renderToc();renderNovels();
+};
+$("tocGo").onclick=()=>{
+  const num=Number($("tocJump").value),view=viewItems();
+  const i=view.findIndex(x=>x.num===num);
+  if(!(num>=0)||i<0){tocSay(`No chapter ${$("tocJump").value||"?"} in this list.`,"error");return;}
+  tocSay("");toc.from=Math.max(0,i-30);toc.to=Math.min(view.length,toc.from+250);renderToc();
+  const rows=[...document.querySelectorAll("#tocList .book")];const row=rows[i-toc.from];
+  if(row){row.scrollIntoView({block:"center"});row.classList.add("current");}
+};
+document.querySelectorAll("#tocSort button").forEach(b=>{b.onclick=()=>{ // a new order starts from its top
+  toc.order=b.dataset.order;toc.from=0;toc.to=Math.min(viewItems().length,250);renderToc();document.querySelector("#tocWrap .sheetbody").scrollTop=0;
+};});
+$("tocCur").onclick=()=>{centerOnCurrent();renderToc();setTimeout(()=>{const c=document.querySelector("#tocList .book.current");if(c)c.scrollIntoView({block:"center"});},40);};
+$("tocDone").onclick=closeSheet;$("tocBack").onclick=closeSheet;
+$("tocAll").onclick=async()=>{
+  const list=getNovels();if(!list.length){nvSay("Add a novel first.","error");return;}
+  $("tocAll").disabled=true;let ok=0;
+  for(let i=0;i<list.length;i++){
+    nvSay(`Updating chapter lists… ${i+1} of ${list.length} (${list[i].title})`);
+    try{const r=await doFetchToc(list[i],()=>{});if(r.ok)ok++;}catch{}
+  }
+  renderNovels();nvSay(`Updated ${ok} of ${list.length} chapter lists.`+(ok<list.length?" Open a novel's Chapters to build one by number.":""),ok?"good":"error");
+  $("tocAll").disabled=false;
+};
+
 /* ---------- Version + "get the latest" ---------- */
-const APP_VERSION="0.12.0",APP_BUILD="2026-11-16";
+const APP_VERSION="0.13.0",APP_BUILD="2026-11-16";
 $("verTag").textContent="v"+APP_VERSION;$("verText").textContent="v"+APP_VERSION+" · build "+APP_BUILD;
 $("updBtn").onclick=async()=>{
   const say=(m,k="")=>{$("updStatus").textContent=m;$("updStatus").className="status "+k;};

@@ -629,5 +629,281 @@
     }
    }
   }
+ ],
+ "chapterNumber": [
+  {
+   "url": "https://x.com/novel/foo/chapter-12",
+   "text": "",
+   "expected": 12
+  },
+  {
+   "url": "https://x.com/novel/foo/12",
+   "text": "",
+   "expected": 12
+  },
+  {
+   "url": "https://x.com/novel/foo/84712",
+   "text": "Chapter 5: Start",
+   "expected": 5
+  },
+  {
+   "url": "https://x.com/novel/foo/intro",
+   "text": "Prologue",
+   "expected": null
+  },
+  {
+   "url": "https://x.com/novel/foo/chapter-1-2",
+   "text": "",
+   "expected": 2
+  },
+  {
+   "url": "https://x.com/novel/foo/ch_7.html",
+   "text": "",
+   "expected": 7
+  },
+  {
+   "url": "https://x.com/novel/foo/x",
+   "text": "Ep. 3.5 bonus",
+   "expected": 3.5
+  },
+  {
+   "url": "not a url",
+   "text": "Chapter 9",
+   "expected": 9
+  },
+  {
+   "url": "not a url",
+   "text": "",
+   "expected": null
+  }
+ ],
+ "urlForNumber": [
+  {
+   "url": "https://x.com/novel/foo/chapter-12",
+   "n": 3,
+   "expected": "https://x.com/novel/foo/chapter-3"
+  },
+  {
+   "url": "https://x.com/novel/foo/12?x=1#a",
+   "n": 40,
+   "expected": "https://x.com/novel/foo/40"
+  },
+  {
+   "url": "https://x.com/novel/foo",
+   "n": 1,
+   "expected": ""
+  },
+  {
+   "url": "https://x.com/novel/foo/ch-9.html",
+   "n": 10,
+   "expected": "https://x.com/novel/foo/ch-10.html"
+  }
+ ],
+ "pickChapters": [
+  {
+   "name": "descending list with noise, duplicates, other hosts and list pages",
+   "key": "novels.test/novel/blue-moon",
+   "links": [
+    {
+     "href": "https://novels.test/novel/blue-moon/chapter-3",
+     "text": "Chapter 3: The Gate"
+    },
+    {
+     "href": "https://novels.test/novel/blue-moon/chapter-1",
+     "text": "Chapter 1: Start"
+    },
+    {
+     "href": "https://novels.test/novel/blue-moon/chapter-2",
+     "text": "  Chapter 2:   Rain "
+    },
+    {
+     "href": "https://novels.test/novel/blue-moon/chapter-2#comments",
+     "text": "Chapter 2 (comments)"
+    },
+    {
+     "href": "https://novels.test/novel/blue-moon/reviews",
+     "text": "Reviews"
+    },
+    {
+     "href": "https://novels.test/novel/blue-moon/chapter-list",
+     "text": "Chapter List"
+    },
+    {
+     "href": "https://novels.test/novel/blue-moon/chapters",
+     "text": "Chapters"
+    },
+    {
+     "href": "https://www.novels.test/novel/blue-moon/chapter-4",
+     "text": "Chapter 4"
+    },
+    {
+     "href": "https://other.test/novel/blue-moon/chapter-9",
+     "text": "Chapter 9"
+    },
+    {
+     "href": "https://novels.test/novel/other-book/chapter-1",
+     "text": "Chapter 1"
+    },
+    {
+     "href": "javascript:void(0)",
+     "text": "Next"
+    }
+   ],
+   "expected": [
+    {
+     "num": 1,
+     "title": "Chapter 1: Start",
+     "url": "https://novels.test/novel/blue-moon/chapter-1"
+    },
+    {
+     "num": 2,
+     "title": "Chapter 2: Rain",
+     "url": "https://novels.test/novel/blue-moon/chapter-2"
+    },
+    {
+     "num": 3,
+     "title": "Chapter 3: The Gate",
+     "url": "https://novels.test/novel/blue-moon/chapter-3"
+    },
+    {
+     "num": 4,
+     "title": "Chapter 4",
+     "url": "https://www.novels.test/novel/blue-moon/chapter-4"
+    }
+   ]
+  },
+  {
+   "name": "numeric-only chapter links",
+   "key": "empirenovel.com/novel/turns-out",
+   "links": [
+    {
+     "href": "https://empirenovel.com/novel/turns-out/572",
+     "text": "The Third"
+    },
+    {
+     "href": "https://empirenovel.com/novel/turns-out/570",
+     "text": "Chapter 570: A"
+    },
+    {
+     "href": "https://empirenovel.com/novel/turns-out/571",
+     "text": ""
+    }
+   ],
+   "expected": [
+    {
+     "num": 570,
+     "title": "Chapter 570: A",
+     "url": "https://empirenovel.com/novel/turns-out/570"
+    },
+    {
+     "num": 571,
+     "title": "Chapter 571",
+     "url": "https://empirenovel.com/novel/turns-out/571"
+    },
+    {
+     "num": 572,
+     "title": "The Third",
+     "url": "https://empirenovel.com/novel/turns-out/572"
+    }
+   ]
+  },
+  {
+   "name": "chapters outside the novel path",
+   "key": "x.test/novel/foo",
+   "links": [
+    {
+     "href": "https://x.test/chapter/foo-chapter-3",
+     "text": "Chapter 3"
+    },
+    {
+     "href": "https://x.test/chapter/foo-chapter-1",
+     "text": "Chapter 1"
+    },
+    {
+     "href": "https://x.test/chapter/foo-chapter-2",
+     "text": "Chapter 2"
+    },
+    {
+     "href": "https://x.test/about",
+     "text": "About"
+    }
+   ],
+   "expected": [
+    {
+     "num": 1,
+     "title": "Chapter 1",
+     "url": "https://x.test/chapter/foo-chapter-1"
+    },
+    {
+     "num": 2,
+     "title": "Chapter 2",
+     "url": "https://x.test/chapter/foo-chapter-2"
+    },
+    {
+     "num": 3,
+     "title": "Chapter 3",
+     "url": "https://x.test/chapter/foo-chapter-3"
+    }
+   ]
+  },
+  {
+   "name": "no chapter links at all",
+   "key": "x.test/novel/foo",
+   "links": [
+    {
+     "href": "https://x.test/novel/foo/about",
+     "text": "About"
+    },
+    {
+     "href": "https://x.test/novel/foo/contact",
+     "text": "Contact"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "mostly unnumbered keeps page order",
+   "key": "x.test/novel/foo",
+   "links": [
+    {
+     "href": "https://x.test/novel/foo/chapter-1",
+     "text": "Chapter 1"
+    },
+    {
+     "href": "https://x.test/novel/foo/chapter-two",
+     "text": "Chapter Two"
+    },
+    {
+     "href": "https://x.test/novel/foo/chapter-three",
+     "text": "Chapter Three"
+    },
+    {
+     "href": "https://x.test/novel/foo/chapter-four",
+     "text": "Chapter Four"
+    }
+   ],
+   "expected": [
+    {
+     "num": 1,
+     "title": "Chapter 1",
+     "url": "https://x.test/novel/foo/chapter-1"
+    },
+    {
+     "num": null,
+     "title": "Chapter Two",
+     "url": "https://x.test/novel/foo/chapter-two"
+    },
+    {
+     "num": null,
+     "title": "Chapter Three",
+     "url": "https://x.test/novel/foo/chapter-three"
+    },
+    {
+     "num": null,
+     "title": "Chapter Four",
+     "url": "https://x.test/novel/foo/chapter-four"
+    }
+   ]
+  }
  ]
 }
