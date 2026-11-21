@@ -852,59 +852,105 @@ function stopPlayback(){
   state.endCur?.();state.endCur=null;state.wake?.();state.wake=null;
   setActive(-1);ui("idle");$("progressBar").style.width="0%";
 }
-const AHEAD=6; // sections generated in advance, so playback survives a slow moment in the background
+// Duration-based hysteresis: synthesize only when less than LOW seconds remain,
+// and never enqueue beyond HIGH seconds (one inference job at a time).
+const BUFFER_LOW=15, BUFFER_HIGH=45;
 async function playFrom(index){
-  const unlock=unlockAudio(); // must run synchronously inside the tap
+  const unlock=unlockAudio();
   const run=++state.runId;setMinRun(run);dbg("play from section "+(index+1));
   state.playing=true;state.paused=false;state.index=index;
   state.advancing=false;state.sleeping=false;applyFade(1);holdLock();ui("busy");
   const n=state.chunks.length;
   const queue=new Map();
-  const gen=i=>{
-    const c=state.chunks[i],e={done:false,p:null};
-    const base=(!c||!c.speech)?Promise.resolve(null)
-      :synth(c.speech,()=>run!==state.runId,run).then(g=>g?URL.createObjectURL(floatToWavBlob(g.audio,g.sampling_rate||24000)):null);
-    e.p=base.finally(()=>{e.done=true;});e.p.catch(()=>{});
-    return e;
+  let next=index, generating=false, finished=false, buffered=0;
+  // A pending synthesis counts as a full buffer slot: no speculative worker backlog.
+  const valid=()=>run===state.runId&&!finished;
+  const durationOf=g=>g.audio.length/(g.sampling_rate||24000);
+  const release=e=>{if(e?.url){URL.revokeObjectURL(e.url);e.url=null;}};
+  const make=async i=>{
+    const c=state.chunks[i];
+    if(!c?.speech)return {url:null,duration:0};
+    const g=await synth(c.speech,()=>!valid(),run);
+    if(!g||!valid())return {url:null,duration:0};
+    return {url:URL.createObjectURL(floatToWavBlob(g.audio,g.sampling_rate||24000)),duration:durationOf(g)};
   };
-  const ensure=from=>{for(let k=from;k<Math.min(n,from+AHEAD+1);k++)if(!queue.has(k))queue.set(k,gen(k));};
+  const pump=()=>{
+    if(!valid()||state.paused||generating||next>=n||buffered>=BUFFER_HIGH)return;
+    // Generate at most one section beyond the currently playing section.
+    // For the initial section, start immediately regardless of estimated duration.
+    if(next>state.index+1)return;
+    if(next>state.index&&buffered>=BUFFER_LOW)return;
+    const i=next++;generating=true;
+    const entry={promise:null,result:null};queue.set(i,entry);
+    entry.promise=make(i).then(result=>{
+      entry.result=result;
+      if(!valid()){release(result);return result;}
+      buffered+=result.duration;
+      return result;
+    }).finally(()=>{generating=false;if(valid())pump();});
+    entry.promise.catch(()=>{});
+  };
+  // Playback position changes without a timer: timeupdate drives low-water refill.
+  const onTime=()=>{
+    if(!valid())return;
+    const remaining=Number.isFinite(audio.duration)?Math.max(0,audio.duration-audio.currentTime):0;
+    const ready=[...queue.values()].reduce((sum,e)=>sum+(e.result?.duration||0),0);
+    buffered=ready+remaining;
+    pump();
+  };
+  audio.addEventListener("timeupdate",onTime);
   try{
     await loadKokoro();await unlock;
-    if(run!==state.runId)return;
+    if(!valid())return;
     for(let i=index;i<n;i++){
-      if(run!==state.runId)return;
+      if(!valid())return;
       state.index=i;setActive(i);store.set("pw-idx",i);
       $("progressBar").style.width=((i+1)/n*100)+"%";
-      ensure(i);
-      const e=queue.get(i);queue.delete(i);
-      if(!e.done){sayStatus(`Generating audio · section ${i+1} of ${n}`);startSilence();}
-      let url;
-      try{url=await e.p;}finally{stopSilence();}
-      if(run!==state.runId){if(url)URL.revokeObjectURL(url);return;}
-      if(url){
+      // Recompute ready audio without the previous clip, then request on demand.
+      buffered=[...queue.values()].reduce((sum,e)=>sum+(e.result?.duration||0),0);
+      pump();
+      let entry=queue.get(i);
+      // The single-inference limit can leave this section unscheduled until a prior job completes.
+      while(!entry&&valid()){
+        if(generating){const pendingJob=[...queue.values()].find(e=>!e.result);if(pendingJob)await pendingJob.promise;}
+        else pump();
+        entry=queue.get(i);
+      }
+      if(!valid())return;
+      if(!entry.result){sayStatus(`Generating audio · section ${i+1} of ${n}`);startSilence();}
+      let result;
+      try{result=await entry.promise;}finally{stopSilence();}
+      if(!valid()){release(result);return;}
+      queue.delete(i);
+      buffered=Math.max(0,buffered-result.duration);
+      if(result.url){
         await waitIfPaused();
-        if(run!==state.runId){URL.revokeObjectURL(url);return;}
+        if(!valid()){release(result);return;}
         sayStatus(`Playing · section ${i+1} of ${n}`);
-        try{await playUrl(url);}finally{state.inClip=false;URL.revokeObjectURL(url);}
+        // Refill after the clip begins; do not block playback on inference.
+        try{const playback=playUrl(result.url);pump();await playback;}
+        finally{state.inClip=false;release(result);}
       }
     }
-    if(run===state.runId){
+    if(valid()){
       state.playing=false;state.index=0;store.set("pw-idx",0);dropLock();
-      const sleepEnd=sleep.mode==="chapter"; // "end of chapter" timer: do not carry on to the next one
-      state.advancing=!sleepEnd&&!!$("autoNext").checked; // keeps the ambient sound going while the next chapter loads
+      const sleepEnd=sleep.mode==="chapter";
+      state.advancing=!sleepEnd&&!!$("autoNext").checked;
       ui("idle");sayStatus("Chapter finished.","good");
       if(sleepEnd)sleepChapterDone();
       else if(state.advancing){await goNext(true);if(!state.playing){state.advancing=false;syncAmbient();}}
     }
   }catch(e){
-    if(run===state.runId){
+    if(valid()){
       state.playing=false;state.inClip=false;state.advancing=false;dropLock();ui("idle");
       sayStatus("Kokoro error: "+errMsg(e),"error");
     }
   }finally{
-    for(const e of queue.values())e.p.then(u=>{if(u)URL.revokeObjectURL(u);},()=>{});
+    finished=true;audio.removeEventListener("timeupdate",onTime);
+    for(const entry of queue.values())entry.promise.then(release,()=>{});
   }
 }
+
 // Skip one section back/forward (used by the lock-screen / notification buttons).
 function skip(delta){
   if(!state.text||!state.chunks.length)return;
