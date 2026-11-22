@@ -7,9 +7,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="PageWhisper">
-<link rel="manifest" href="manifest.json?v=0.13.1">
-<link rel="icon" type="image/png" href="icon-192.png?v=0.13.1">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=0.13.1">
+<link rel="manifest" href="manifest.json?v=0.13.3">
+<link rel="icon" type="image/png" href="icon-192.png?v=0.13.3">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=0.13.3">
 <title>PageWhisper — Kokoro Novel Reader</title>
 <script>try{var r=JSON.parse(localStorage.getItem("pw-reading")||"{}");if(r.theme)document.documentElement.dataset.theme=r.theme;if(r.hlStyle)document.documentElement.dataset.hlstyle=r.hlStyle;}catch(e){}</script>
 <style>
@@ -163,7 +163,7 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <symbol id="i-amb-brown" viewBox="0 0 24 24"><path d="M3 12h2.6l1.5-4 2.4 9 3-13 2.5 11 1.5-3H21"/></symbol>
 </defs></svg>
 <div id="app" class="app">
-<header class="topbar"><img src="icon-192.png?v=0.13.1" alt="" width="30" height="30"><div class="brand">Page<span>Whisper</span></div><span class="vtag" id="verTag"></span></header>
+<header class="topbar"><img src="icon-192.png?v=0.13.3" alt="" width="30" height="30"><div class="brand">Page<span>Whisper</span></div><span class="vtag" id="verTag"></span></header>
 <main class="views">
 
 <section id="view-read" class="view active">
@@ -232,6 +232,11 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <div class="card">
 <h2>Reading style</h2>
 <div class="swatches" id="rsThemes2" style="margin-bottom:12px"></div>
+<div class="field"><label>ACCENT COLOR</label>
+<div class="dots" id="accentColors" role="group" aria-label="Accent color"></div>
+<div class="field" style="margin-top:12px"><label for="accentTone">ACCENT SHADE — LIGHTER / DARKER</label><div class="range"><input id="accentTone" type="range" min="-35" max="35" step="1" value="0" aria-label="Accent shade, darker to lighter"><output id="accentToneOut">Default</output></div><div class="hint">Left: darker · Center: original · Right: lighter</div></div>
+<div class="hint" style="margin-top:8px">Auto uses purple for Dark, AMOLED and Light, and deep orange for Sepia. Choose a color to override it across themes.</div>
+</div>
 <button id="openReading" class="primary" style="width:100%">Fonts, spacing, alignment &amp; more</button>
 <div class="hint">Opens the style panel over the reader so you can see changes as you make them. You can also reach it from the <b>Aa</b> button in the Read tab.</div>
 </div>
@@ -543,7 +548,7 @@ function setLoaded(title,text,url="",o={}){
   $("progressBar").style.width="0%";
   sayStatus(`${text.split(/\s+/).length.toLocaleString()} words ready. Press Play to initialize Kokoro.`,"good");
   store.set("pw-last",{title:state.title,text,url,next:$("nextUrl").value});store.set("pw-idx",0);
-  try{if("mediaSession" in navigator)navigator.mediaSession.metadata=new MediaMetadata({title:state.title,artist:"PageWhisper",album:"Novel reader",artwork:[{src:"icon-512.png?v=0.13.1",sizes:"512x512",type:"image/png"},{src:"icon-192.png?v=0.13.1",sizes:"192x192",type:"image/png"}]});}catch{}
+  try{if("mediaSession" in navigator)navigator.mediaSession.metadata=new MediaMetadata({title:state.title,artist:"PageWhisper",album:"Novel reader",artwork:[{src:"icon-512.png?v=0.13.3",sizes:"512x512",type:"image/png"},{src:"icon-192.png?v=0.13.3",sizes:"192x192",type:"image/png"}]});}catch{}
 }
 function openHistory(p,autoplay=false){
   const h=state.history[p];if(!h)return;
@@ -1439,7 +1444,16 @@ const FONTS=[
 ];
 const THEMES=[{id:"dark",name:"Dark",bg:"#0e0e16",fg:"#ecebf5"},{id:"amoled",name:"AMOLED",bg:"#000000",fg:"#e8e8f0"},{id:"sepia",name:"Sepia",bg:"#f4ecd8",fg:"#4a3b27"},{id:"light",name:"Light",bg:"#fafafa",fg:"#1d1d27"}];
 const HLS=[{id:"violet",rgb:"139,92,246"},{id:"gold",rgb:"234,179,8"},{id:"green",rgb:"34,197,94"},{id:"blue",rgb:"59,130,246"},{id:"pink",rgb:"236,72,153"},{id:"orange",rgb:"249,115,22"}];
-const READING_DEFAULTS={font:"serif",size:19,line:1.8,para:1.05,pad:4,ls:0,align:"left",weight:400,hyph:false,theme:"dark",hl:"violet",hlStyle:"fill"};
+const ACCENTS=[
+  {id:"auto",name:"Theme default",dark:["#8b5cf6","139,92,246","#c4b5fd"],light:["#6d3fe0","109,63,224","#5a2fc4"],sepia:["#9a5b2e","154,91,46","#7a4a1b"]},
+  {id:"purple",name:"Purple",dark:["#8b5cf6","139,92,246","#c4b5fd"],light:["#6d3fe0","109,63,224","#5a2fc4"],sepia:["#7740a0","119,64,160","#66318d"]},
+  {id:"blue",name:"Blue",dark:["#3b82f6","59,130,246","#93c5fd"],light:["#2563eb","37,99,235","#1d4ed8"],sepia:["#315f9b","49,95,155","#244c80"]},
+  {id:"teal",name:"Teal",dark:["#14b8a6","20,184,166","#5eead4"],light:["#0f766e","15,118,110","#115e59"],sepia:["#276c64","39,108,100","#20574f"]},
+  {id:"green",name:"Green",dark:["#22c55e","34,197,94","#86efac"],light:["#15803d","21,128,61","#166534"],sepia:["#4f7839","79,120,57","#3d602d"]},
+  {id:"rose",name:"Rose",dark:["#f43f5e","244,63,94","#fda4af"],light:["#be123c","190,18,60","#9f1239"],sepia:["#a13d50","161,61,80","#843044"]},
+  {id:"orange",name:"Orange",dark:["#f97316","249,115,22","#fdba74"],light:["#c2410c","194,65,12","#9a3412"],sepia:["#9a5b2e","154,91,46","#7a4a1b"]}
+];
+const READING_DEFAULTS={font:"serif",size:19,line:1.8,para:1.05,pad:4,ls:0,align:"left",weight:400,hyph:false,theme:"dark",accent:"auto",accentTone:0,hl:"violet",hlStyle:"fill"};
 const clamp=(v,a,b,d)=>Number.isFinite(Number(v))?Math.min(b,Math.max(a,Number(v))):d;
 function sanitizeReading(r){
   const d=READING_DEFAULTS;
@@ -1450,6 +1464,8 @@ function sanitizeReading(r){
     align:["left","justify","center"].includes(r.align)?r.align:d.align,
     weight:Number(r.weight)===700?700:400,hyph:!!r.hyph,
     theme:THEMES.some(t=>t.id===r.theme)?r.theme:d.theme,
+    accent:ACCENTS.some(a=>a.id===r.accent)?r.accent:d.accent,
+    accentTone:Math.round(clamp(r.accentTone,-35,35,d.accentTone)),
     hl:HLS.some(x=>x.id===r.hl)?r.hl:d.hl,
     hlStyle:["fill","underline","outline"].includes(r.hlStyle)?r.hlStyle:d.hlStyle
   };
@@ -1461,6 +1477,22 @@ let reading=(()=>{
   return sanitizeReading(r);
 })();
 const saveReading=()=>store.set("pw-reading",reading);
+// Adjust lightness in HSL while keeping the chosen accent hue and saturation.
+function shadeAccent(hex,delta){
+  const n=parseInt(hex.slice(1),16),rgb=[(n>>16)&255,(n>>8)&255,n&255].map(v=>v/255);
+  const max=Math.max(...rgb),min=Math.min(...rgb),diff=max-min;
+  let h=0,s=0,l=(max+min)/2;
+  if(diff){
+    s=diff/(1-Math.abs(2*l-1));
+    switch(max){case rgb[0]:h=((rgb[1]-rgb[2])/diff)%6;break;case rgb[1]:h=(rgb[2]-rgb[0])/diff+2;break;default:h=(rgb[0]-rgb[1])/diff+4;}
+    h=(h*60+360)%360;
+  }
+  l=Math.max(.12,Math.min(.88,l+delta/100));
+  const c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2;
+  let channels=h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
+  const values=channels.map(v=>Math.round((v+m)*255));
+  return {hex:'#'+values.map(v=>v.toString(16).padStart(2,'0')).join(''),rgb:values.join(',')};
+}
 function applyReading(){
   const r=reading,root=document.documentElement,f=FONTS.find(x=>x.id===r.font)||FONTS[0];
   const set=(k,v)=>root.style.setProperty(k,v);
@@ -1469,6 +1501,10 @@ function applyReading(){
   set("--r-hyph",r.hyph?"auto":"manual");set("--r-ls",r.ls+"em");
   set("--hl-rgb",(HLS.find(x=>x.id===r.hl)||HLS[0]).rgb);
   root.dataset.theme=r.theme;root.dataset.hlstyle=r.hlStyle;
+  const accent=ACCENTS.find(a=>a.id===r.accent)||ACCENTS[0];
+  const colors=accent[r.theme==="sepia"?"sepia":r.theme==="light"?"light":"dark"];
+  const main=shadeAccent(colors[0],r.accentTone),secondary=shadeAccent(colors[2],r.accentTone);
+  set("--accent",main.hex);set("--accent-rgb",main.rgb);set("--accent2",secondary.hex);
   document.querySelector('meta[name=theme-color]')?.setAttribute("content",(THEMES.find(t=>t.id===r.theme)||THEMES[0]).bg);
 }
 // Web fonts load on demand from the Fontsource CDN; the service worker then keeps them for offline use.
@@ -1518,6 +1554,15 @@ function buildReadingUI(){
       b.onclick=()=>{reading.theme=t.id;applyReading();saveReading();syncReadingUI();};tg.append(b);
     }
   }
+  const accents=$("accentColors");accents.replaceChildren();
+  for(const a of ACCENTS){
+    const b=document.createElement("button");
+    b.type="button";b.className="dot";b.dataset.accent=a.id;
+    b.title=a.name;b.setAttribute("aria-label",a.name+" accent color");
+    b.style.background=a.id==="auto"?"conic-gradient(#8b5cf6 0 75%,#9a5b2e 75% 100%)":a.dark[0];
+    b.onclick=()=>{reading.accent=a.id;applyReading();saveReading();syncReadingUI();};
+    accents.append(b);
+  }
   const dg=$("rsDots");dg.replaceChildren();
   for(const x of HLS){
     const b=document.createElement("button");b.className="dot";b.dataset.hl=x.id;b.setAttribute("aria-label",x.id+" highlight");b.style.background=`rgb(${x.rgb})`;
@@ -1527,9 +1572,15 @@ function buildReadingUI(){
 const RANGES=[["rsSize","size",v=>v+" px"],["rsLine","line",v=>Number(v).toFixed(2)],["rsPara","para",v=>Number(v).toFixed(1)+" em"],["rsPad","pad",v=>v+" px"],["rsLs","ls",v=>Number(v).toFixed(2)+" em"]];
 function syncReadingUI(){
   for(const [id,key,fmt] of RANGES){$(id).value=reading[key];$(id+"Out").textContent=fmt(reading[key]);}
+  $("accentTone").value=reading.accentTone;
+  $("accentToneOut").textContent=reading.accentTone===0?"Default":(reading.accentTone>0?"+":"")+reading.accentTone+"%";
   $("rsHyph").checked=reading.hyph;
   document.querySelectorAll("#rsFonts button").forEach(b=>b.classList.toggle("on",b.dataset.font===reading.font));
   document.querySelectorAll(".swatch").forEach(b=>b.classList.toggle("on",b.dataset.theme===reading.theme));
+  document.querySelectorAll("#accentColors button").forEach(b=>{
+    const selected=b.dataset.accent===reading.accent;
+    b.classList.toggle("on",selected);b.setAttribute("aria-pressed",String(selected));
+  });
   document.querySelectorAll("#rsDots button").forEach(b=>b.classList.toggle("on",b.dataset.hl===reading.hl));
   document.querySelectorAll("[data-align]").forEach(b=>b.classList.toggle("on",b.dataset.align===reading.align));
   document.querySelectorAll("[data-weight]").forEach(b=>b.classList.toggle("on",Number(b.dataset.weight)===reading.weight));
@@ -1537,6 +1588,11 @@ function syncReadingUI(){
 }
 for(const [id,key,fmt] of RANGES)$(id).addEventListener("input",()=>{
   reading[key]=Number($(id).value);$(id+"Out").textContent=fmt(reading[key]);applyReading();saveReading();
+});
+$("accentTone").addEventListener("input",()=>{
+  reading.accentTone=Number($("accentTone").value);
+  $("accentToneOut").textContent=reading.accentTone===0?"Default":(reading.accentTone>0?"+":"")+reading.accentTone+"%";
+  applyReading();saveReading();
 });
 $("rsHyph").addEventListener("change",()=>{reading.hyph=$("rsHyph").checked;applyReading();saveReading();});
 document.querySelectorAll("[data-align]").forEach(b=>{b.onclick=()=>{reading.align=b.dataset.align;applyReading();saveReading();syncReadingUI();};});
@@ -2281,7 +2337,7 @@ $("tocAll").onclick=async()=>{
 };
 
 /* ---------- Version + "get the latest" ---------- */
-const APP_VERSION="0.13.1",APP_BUILD="2026-11-22";
+const APP_VERSION="0.13.3",APP_BUILD="2026-11-22";
 $("verTag").textContent="v"+APP_VERSION;$("verText").textContent="v"+APP_VERSION+" · build "+APP_BUILD;
 $("updBtn").onclick=async()=>{
   const say=(m,k="")=>{$("updStatus").textContent=m;$("updStatus").className="status "+k;};
