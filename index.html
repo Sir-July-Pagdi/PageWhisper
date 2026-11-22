@@ -274,7 +274,7 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <label class="check"><input type="checkbox" id="keepAwake"> Keep screen on while the app is open</label>
 <label class="check"><input type="checkbox" id="lockAwake" checked> Keep screen on while the screen is locked</label>
 <div id="awakeStatus" class="status" aria-live="polite"></div>
-<div class="hint">Audio keeps playing with the screen off or while you use other apps, with lock-screen controls. If Android stops it anyway, set this app's battery usage to Unrestricted.</div>
+<div class="hint">Background audio is best-effort in a browser: Android may suspend speech generation when the screen is off. For longer playback, allow PageWhisper to remain active and disable battery restrictions where available.</div>
 </div>
 
 <div class="card">
@@ -811,7 +811,7 @@ function startSilence(){
   if(!state.silentUrl||state.paused)return;
   audio.loop=true;
   if(audio.src!==state.silentUrl)audio.src=state.silentUrl;
-  audio.play().catch(()=>{});
+  state.switchingClip=true;audio.play().finally(()=>{state.switchingClip=false;}).catch(()=>{});
 }
 function stopSilence(){audio.loop=false;}
 // iOS/iPadOS only lets an <audio> element play later if it was started by a tap, so a silent
@@ -830,8 +830,9 @@ function playUrl(url){
     state.endCur=resolve;state.inClip=true;
     audio.onended=()=>resolve();
     audio.onerror=()=>reject(Error("Audio playback failed."));
+    state.switchingClip=true;
     audio.src=url;
-    audio.play().catch(e=>{if(e?.name!=="AbortError")reject(e);});
+    audio.play().then(()=>{state.switchingClip=false;},e=>{state.switchingClip=false;if(e?.name!=="AbortError")reject(e);});
   });
 }
 const waitIfPaused=()=>state.paused?new Promise(r=>{state.wake=r;}):null;
@@ -854,7 +855,11 @@ function stopPlayback(){
 }
 // Duration-based hysteresis: synthesize only when less than LOW seconds remain,
 // and never enqueue beyond HIGH seconds (one inference job at a time).
-const BUFFER_LOW=15, BUFFER_HIGH=45;
+// Visible playback prioritizes thermal idle time; hidden playback uses a larger reserve.
+// Browsers may still suspend the worker completely when the screen locks.
+const BUFFER_LOW=15, BUFFER_HIGH=45, BACKGROUND_LOW=35, BACKGROUND_HIGH=100;
+const lowWater=()=>document.hidden?BACKGROUND_LOW:BUFFER_LOW;
+const highWater=()=>document.hidden?BACKGROUND_HIGH:BUFFER_HIGH;
 async function playFrom(index){
   const unlock=unlockAudio();
   const run=++state.runId;setMinRun(run);dbg("play from section "+(index+1));
@@ -875,11 +880,11 @@ async function playFrom(index){
     return {url:URL.createObjectURL(floatToWavBlob(g.audio,g.sampling_rate||24000)),duration:durationOf(g)};
   };
   const pump=()=>{
-    if(!valid()||state.paused||generating||next>=n||buffered>=BUFFER_HIGH)return;
+    if(!valid()||state.paused||generating||next>=n||buffered>=highWater())return;
     // Generate at most one section beyond the currently playing section.
     // For the initial section, start immediately regardless of estimated duration.
-    if(next>state.index+1)return;
-    if(next>state.index&&buffered>=BUFFER_LOW)return;
+    if(next>state.index+(document.hidden?5:2))return;
+    if(next>state.index&&buffered>=lowWater())return;
     const i=next++;generating=true;
     const entry={promise:null,result:null};queue.set(i,entry);
     entry.promise=make(i).then(result=>{
@@ -899,6 +904,8 @@ async function playFrom(index){
     pump();
   };
   audio.addEventListener("timeupdate",onTime);
+  const onVisibility=()=>{if(valid()&&!state.paused){onTime();pump();}};
+  document.addEventListener("visibilitychange",onVisibility);
   try{
     await loadKokoro();await unlock;
     if(!valid())return;
@@ -946,7 +953,7 @@ async function playFrom(index){
       sayStatus("Kokoro error: "+errMsg(e),"error");
     }
   }finally{
-    finished=true;audio.removeEventListener("timeupdate",onTime);
+    finished=true;audio.removeEventListener("timeupdate",onTime);document.removeEventListener("visibilitychange",onVisibility);
     for(const entry of queue.values())entry.promise.then(release,()=>{});
   }
 }
@@ -1041,7 +1048,7 @@ $("saveBtn").onclick=()=>{
 };
 // Lock-screen / headphone controls, and OS-initiated pauses.
 audio.addEventListener("pause",()=>{
-  if(state.playing&&state.inClip&&!state.paused&&!audio.ended){state.paused=true;sayStatus("Paused.");updateMedia();}
+  if(state.playing&&state.inClip&&!state.paused&&!state.switchingClip&&!audio.ended){state.paused=true;sayStatus("Paused.");updateMedia();}
 });
 for(const ev of ["play","pause","ended","stalled","waiting","error"])audio.addEventListener(ev,()=>dbg("audio "+ev+(ev==="error"&&audio.error?" (code "+audio.error.code+")":"")));
 document.addEventListener("visibilitychange",()=>dbg("page "+document.visibilityState));
