@@ -7,9 +7,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="PageWhisper">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" href="icon-192.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json?v=0.13.1">
+<link rel="icon" type="image/png" href="icon-192.png?v=0.13.1">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=0.13.1">
 <title>PageWhisper — Kokoro Novel Reader</title>
 <script>try{var r=JSON.parse(localStorage.getItem("pw-reading")||"{}");if(r.theme)document.documentElement.dataset.theme=r.theme;if(r.hlStyle)document.documentElement.dataset.hlstyle=r.hlStyle;}catch(e){}</script>
 <style>
@@ -163,7 +163,7 @@ label.check input{width:22px;height:22px;min-height:0;flex:none;accent-color:var
 <symbol id="i-amb-brown" viewBox="0 0 24 24"><path d="M3 12h2.6l1.5-4 2.4 9 3-13 2.5 11 1.5-3H21"/></symbol>
 </defs></svg>
 <div id="app" class="app">
-<header class="topbar"><img src="icon-192.png" alt="" width="30" height="30"><div class="brand">Page<span>Whisper</span></div><span class="vtag" id="verTag"></span></header>
+<header class="topbar"><img src="icon-192.png?v=0.13.1" alt="" width="30" height="30"><div class="brand">Page<span>Whisper</span></div><span class="vtag" id="verTag"></span></header>
 <main class="views">
 
 <section id="view-read" class="view active">
@@ -543,7 +543,7 @@ function setLoaded(title,text,url="",o={}){
   $("progressBar").style.width="0%";
   sayStatus(`${text.split(/\s+/).length.toLocaleString()} words ready. Press Play to initialize Kokoro.`,"good");
   store.set("pw-last",{title:state.title,text,url,next:$("nextUrl").value});store.set("pw-idx",0);
-  try{if("mediaSession" in navigator)navigator.mediaSession.metadata=new MediaMetadata({title:state.title,artist:"PageWhisper",album:"Novel reader",artwork:[{src:"icon-512.png",sizes:"512x512",type:"image/png"},{src:"icon-192.png",sizes:"192x192",type:"image/png"}]});}catch{}
+  try{if("mediaSession" in navigator)navigator.mediaSession.metadata=new MediaMetadata({title:state.title,artist:"PageWhisper",album:"Novel reader",artwork:[{src:"icon-512.png?v=0.13.1",sizes:"512x512",type:"image/png"},{src:"icon-192.png?v=0.13.1",sizes:"192x192",type:"image/png"}]});}catch{}
 }
 function openHistory(p,autoplay=false){
   const h=state.history[p];if(!h)return;
@@ -2281,7 +2281,7 @@ $("tocAll").onclick=async()=>{
 };
 
 /* ---------- Version + "get the latest" ---------- */
-const APP_VERSION="0.13.0",APP_BUILD="2026-11-16";
+const APP_VERSION="0.13.1",APP_BUILD="2026-11-22";
 $("verTag").textContent="v"+APP_VERSION;$("verText").textContent="v"+APP_VERSION+" · build "+APP_BUILD;
 $("updBtn").onclick=async()=>{
   const say=(m,k="")=>{$("updStatus").textContent=m;$("updStatus").className="status "+k;};
